@@ -7,13 +7,14 @@ namespace Unittests
         [TestMethod]
         public void Test1()
         {
-            Assert.IsTrue(true);
+			int test = 5;
+            Assert.IsTrue(test < 6);
         }
 
         [TestMethod]
         public void Test2()
         {
-            Assert.IsTrue(false);
+            Assert.Fail();
         }
     }
 }
