@@ -7,7 +7,7 @@ namespace Unittests
         [TestMethod]
         public void Test1()
         {
-			int test = 4;
+			int test = 3;
             Assert.IsTrue(test < 6);
         }
 
