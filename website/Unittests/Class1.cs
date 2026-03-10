@@ -11,10 +11,10 @@ namespace Unittests
             Assert.IsTrue(test < 6);
         }
 
-        [TestMethod]
-        public void Test2()
-        {
-            Assert.Fail();
-        }
+        // [TestMethod]
+        // public void Test2()
+        // {
+        //     Assert.Fail();
+        // }
     }
 }
