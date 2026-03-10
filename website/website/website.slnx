@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Unittests/Unittests.csproj" Id="325c7c2b-775e-4b50-a592-17e3fc82c615" />
+  <Project Path="website/website.csproj" />
+</Solution>
