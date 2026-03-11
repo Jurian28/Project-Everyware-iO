@@ -35,9 +35,9 @@ jobs:
         cache-dependency-path: ./app/package-lock.json
     - name: "npm install"
       run: npm ci
-    - name: build
+    - name: Build
       run: npm run build --if-present
-    - name: test
+    - name: Test
       run: npm test
-    - name: lint
+    - name: Lint
       run: npm run lint
