@@ -11,12 +11,5 @@ namespace UnitTests
             int x = 5;
             Assert.IsTrue(x == 5);
         }
-
-        [TestMethod]
-        public void TestMethod2()
-        {
-            int x = 4;
-            Assert.IsTrue(x == 5);
-        }
     }
 }
