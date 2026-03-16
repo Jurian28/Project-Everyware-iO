@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="DatabaseApi/DatabaseApi.csproj" Id="646e0b1b-f7eb-4819-892f-2c433dac826b" />
+  <Project Path="WebApp/WebApp.csproj" />
+  <Project Path="Back-office/Back-office.csproj" />
+</Solution>
