@@ -6,19 +6,13 @@ name: .NET
 on:
   push:
     branches: [ "main" ]
-    paths: website/**
   pull_request:
     branches: [ "main" ]
-    paths: website/**
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ./website
 
     steps:
     - uses: actions/checkout@v4
