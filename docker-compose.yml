@@ -1,0 +1,18 @@
+services:
+  back-office:
+    build:
+      context: Back-office
+    ports:
+      - 5000:5000
+
+  webapp:
+    build:
+      context: Webapp
+    ports:
+      - 5001:5000
+
+  databaseapi:
+    build:
+      context: DatabaseApi
+    ports:
+      - 5002:5000
