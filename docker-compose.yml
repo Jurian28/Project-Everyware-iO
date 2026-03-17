@@ -3,6 +3,8 @@ services:
     image: mcr.microsoft.com/mssql/server:2025-latest
     ports: 
       - 1433:1433
+    volumes:
+      - mssql:/var/opt/mssql
     environment:
       ACCEPT_EULA: "Y"
 
@@ -23,3 +25,7 @@ services:
       context: DatabaseApi
     ports:
       - 5002:5000
+
+
+volumes:
+  mssql:
