@@ -6,9 +6,11 @@ namespace DatabaseApi.Models
     {
         [Key]
         public int idRoom { get; set; }
+        [Required]
         public string roomLabel { get; set; }
         public int capacity { get; set; }
         public string description { get; set; }
+        [Required]
         public int idEvent { get; set; }
 
         // Navigation properties

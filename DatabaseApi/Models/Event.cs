@@ -6,8 +6,11 @@ namespace DatabaseApi.Models
     {
         [Key]
         public int idEvent { get; set; }
+        [Required]
         public string title { get; set; }
+        [Required]
         public DateTime StartDate { get; set; }
+        [Required]
         public DateTime endDate { get; set; }
         public string description { get; set; }
         public string mainColorHex { get; set; }

@@ -5,9 +5,12 @@ namespace DatabaseApi.Models
     public class Tag
     {
         [Key]
-        public string idtag { get; set; }
+        public string title { get; set; }
+        [Required]
         public string colorHex { get; set; }
-        public int Event_idEvent { get; set; }
+        [Key]
+        [Required]
+        public int idEvent { get; set; }
 
         // Navigation properties
         public Event Event { get; set; }

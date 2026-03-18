@@ -23,16 +23,16 @@ namespace DatabaseApi.Models
 
             // User_has_Session relationship
             modelBuilder.Entity<User_has_Session>()
-                .HasKey(uhs => new { uhs.User_idUser, uhs.idSession });
+                .HasKey(uhs => new { uhs.Id, uhs.idSession });
 
             modelBuilder.Entity<User_has_Session>()
                 .HasOne(uhs => uhs.User)
-                .WithMany(u => u.Sessions)
-                .HasForeignKey(uhs => uhs.User_idUser);
+                .WithMany(u => u.RegisteredSessions)
+                .HasForeignKey(uhs => uhs.UserId);
 
             modelBuilder.Entity<User_has_Session>()
                 .HasOne(uhs => uhs.Session)
-                .WithMany(s => s.Users)
+                .WithMany(s => s.RegisteredUsers)
                 .HasForeignKey(uhs => uhs.idSession);
 
             // User_has_Event relationship
@@ -63,7 +63,7 @@ namespace DatabaseApi.Models
             modelBuilder.Entity<Tag>()
                 .HasOne(t => t.Event)
                 .WithMany(e => e.Tags)
-                .HasForeignKey(t => t.Event_idEvent);
+                .HasForeignKey(t => t.idEvent);
 
             // Session_has_Tag relationship
             modelBuilder.Entity<Session>()
