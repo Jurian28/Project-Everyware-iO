@@ -23,12 +23,12 @@ namespace DatabaseApi.Models
 
             // User_has_Session relationship
             modelBuilder.Entity<User_has_Session>()
-                .HasKey(uhs => new { uhs.Id, uhs.idSession });
+                .HasKey(uhs => new { uhs.idUser, uhs.idSession });
 
             modelBuilder.Entity<User_has_Session>()
                 .HasOne(uhs => uhs.User)
                 .WithMany(u => u.RegisteredSessions)
-                .HasForeignKey(uhs => uhs.UserId);
+                .HasForeignKey(uhs => uhs.idUser);
 
             modelBuilder.Entity<User_has_Session>()
                 .HasOne(uhs => uhs.Session)
@@ -45,13 +45,15 @@ namespace DatabaseApi.Models
             modelBuilder.Entity<Room>()
                 .HasOne(r => r.Event)
                 .WithMany(e => e.Rooms)
-                .HasForeignKey(r => r.idEvent);
+                .HasForeignKey(r => r.idEvent)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Session relationship with Event
             modelBuilder.Entity<Session>()
                 .HasOne(s => s.Event)
                 .WithMany()
-                .HasForeignKey(s => s.idEvent);
+                .HasForeignKey(s => s.idEvent)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Session relationship with Room
             modelBuilder.Entity<Session>()
@@ -63,7 +65,8 @@ namespace DatabaseApi.Models
             modelBuilder.Entity<Tag>()
                 .HasOne(t => t.Event)
                 .WithMany(e => e.Tags)
-                .HasForeignKey(t => t.idEvent);
+                .HasForeignKey(t => t.idEvent)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Session_has_Tag relationship
             modelBuilder.Entity<Session>()

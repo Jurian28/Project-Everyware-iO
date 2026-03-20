@@ -1,14 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
 
 namespace DatabaseApi.Models
 {
+    [PrimaryKey(nameof(title), nameof(idEvent))]
     public class Tag
     {
-        [Key]
-        public string title { get; set; }
         [Required]
+        public string title { get; set; }
         public string colorHex { get; set; }
-        [Key]
         [Required]
         public int idEvent { get; set; }
 

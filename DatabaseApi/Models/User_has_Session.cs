@@ -5,7 +5,7 @@ namespace DatabaseApi.Models
     public class User_has_Session
     {
         [Required]
-        public string UserId { get; set; }
+        public string idUser { get; set; }
         [Required]
         public int idSession { get; set; }
         [Required]
