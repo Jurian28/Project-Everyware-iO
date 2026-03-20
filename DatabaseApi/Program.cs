@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Identity;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseUrls("http://0.0.0.0:5000"); 
@@ -6,6 +8,8 @@ builder.WebHost.UseUrls("http://0.0.0.0:5000");
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddIdentityCore<IdentityUser>();
 
 var app = builder.Build();
 
