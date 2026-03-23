@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Identity;
+using DatabaseApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://0.0.0.0:5000"); 
+builder.WebHost.UseUrls("http://localhost:5001");
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -10,6 +12,9 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddIdentityCore<IdentityUser>();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
