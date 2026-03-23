@@ -5,17 +5,17 @@ namespace DatabaseApi.Models
     public class Event
     {
         [Key]
-        public int idEvent { get; set; }
+        public int IdEvent { get; set; }
         [Required]
-        public string title { get; set; }
+        public string Title { get; set; }
         [Required]
         public DateTime StartDate { get; set; }
         [Required]
-        public DateTime endDate { get; set; }
-        public string description { get; set; }
-        public string mainColorHex { get; set; }
-        public string accentColorHex { get; set; }
-        public string logoPath { get; set; }
+        public DateTime EndDate { get; set; }
+        public string Description { get; set; }
+        public string MainColorHex { get; set; }
+        public string AccentColorHex { get; set; }
+        public string LogoPath { get; set; }
 
         // Navigation properties
         public ICollection<Room> Rooms { get; set; } = new List<Room>();

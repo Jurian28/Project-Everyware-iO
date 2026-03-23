@@ -4,14 +4,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DatabaseApi.Models
 {
-    [PrimaryKey(nameof(title), nameof(idEvent))]
+    [PrimaryKey(nameof(Title), nameof(IdEvent))]
     public class Tag
     {
         [Required]
-        public string title { get; set; }
-        public string colorHex { get; set; }
+        public string Title { get; set; }
+        public string ColorHex { get; set; }
         [Required]
-        public int idEvent { get; set; }
+        public int IdEvent { get; set; }
 
         // Navigation properties
         public Event Event { get; set; }

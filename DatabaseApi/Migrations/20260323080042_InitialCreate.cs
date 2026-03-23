@@ -15,35 +15,35 @@ namespace DatabaseApi.Migrations
                 name: "Events",
                 columns: table => new
                 {
-                    idEvent = table.Column<int>(type: "int", nullable: false)
+                    IdEvent = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    endDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    mainColorHex = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    accentColorHex = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    logoPath = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MainColorHex = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AccentColorHex = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LogoPath = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Events", x => x.idEvent);
+                    table.PrimaryKey("PK_Events", x => x.IdEvent);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Speakers",
                 columns: table => new
                 {
-                    idSpeaker = table.Column<int>(type: "int", nullable: false)
+                    IdSpeaker = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    firstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    lastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    imgPath = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ImgPath = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Speakers", x => x.idSpeaker);
+                    table.PrimaryKey("PK_Speakers", x => x.IdSpeaker);
                 });
 
             migrationBuilder.CreateTable(
@@ -75,21 +75,21 @@ namespace DatabaseApi.Migrations
                 name: "Rooms",
                 columns: table => new
                 {
-                    idRoom = table.Column<int>(type: "int", nullable: false)
+                    IdRoom = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    roomLabel = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    capacity = table.Column<int>(type: "int", nullable: false),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    idEvent = table.Column<int>(type: "int", nullable: false)
+                    RoomLabel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Capacity = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IdEvent = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Rooms", x => x.idRoom);
+                    table.PrimaryKey("PK_Rooms", x => x.IdRoom);
                     table.ForeignKey(
-                        name: "FK_Rooms_Events_idEvent",
-                        column: x => x.idEvent,
+                        name: "FK_Rooms_Events_IdEvent",
+                        column: x => x.IdEvent,
                         principalTable: "Events",
-                        principalColumn: "idEvent",
+                        principalColumn: "IdEvent",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -97,18 +97,18 @@ namespace DatabaseApi.Migrations
                 name: "Tags",
                 columns: table => new
                 {
-                    title = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    idEvent = table.Column<int>(type: "int", nullable: false),
-                    colorHex = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Title = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IdEvent = table.Column<int>(type: "int", nullable: false),
+                    ColorHex = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tags", x => new { x.title, x.idEvent });
+                    table.PrimaryKey("PK_Tags", x => new { x.Title, x.IdEvent });
                     table.ForeignKey(
-                        name: "FK_Tags_Events_idEvent",
-                        column: x => x.idEvent,
+                        name: "FK_Tags_Events_IdEvent",
+                        column: x => x.IdEvent,
                         principalTable: "Events",
-                        principalColumn: "idEvent",
+                        principalColumn: "IdEvent",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -116,17 +116,17 @@ namespace DatabaseApi.Migrations
                 name: "User_has_Event",
                 columns: table => new
                 {
-                    EventsidEvent = table.Column<int>(type: "int", nullable: false),
+                    EventsIdEvent = table.Column<int>(type: "int", nullable: false),
                     UsersId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_User_has_Event", x => new { x.EventsidEvent, x.UsersId });
+                    table.PrimaryKey("PK_User_has_Event", x => new { x.EventsIdEvent, x.UsersId });
                     table.ForeignKey(
-                        name: "FK_User_has_Event_Events_EventsidEvent",
-                        column: x => x.EventsidEvent,
+                        name: "FK_User_has_Event_Events_EventsIdEvent",
+                        column: x => x.EventsIdEvent,
                         principalTable: "Events",
-                        principalColumn: "idEvent",
+                        principalColumn: "IdEvent",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_User_has_Event_Users_UsersId",
@@ -140,30 +140,30 @@ namespace DatabaseApi.Migrations
                 name: "Sessions",
                 columns: table => new
                 {
-                    idSession = table.Column<int>(type: "int", nullable: false)
+                    IdSession = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    startTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    endTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    plenary = table.Column<bool>(type: "bit", nullable: false),
-                    capacity = table.Column<int>(type: "int", nullable: false),
-                    idEvent = table.Column<int>(type: "int", nullable: false),
-                    idRoom = table.Column<int>(type: "int", nullable: false)
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Plenary = table.Column<bool>(type: "bit", nullable: false),
+                    Capacity = table.Column<int>(type: "int", nullable: false),
+                    IdEvent = table.Column<int>(type: "int", nullable: false),
+                    IdRoom = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Sessions", x => x.idSession);
+                    table.PrimaryKey("PK_Sessions", x => x.IdSession);
                     table.ForeignKey(
-                        name: "FK_Sessions_Events_idEvent",
-                        column: x => x.idEvent,
+                        name: "FK_Sessions_Events_IdEvent",
+                        column: x => x.IdEvent,
                         principalTable: "Events",
-                        principalColumn: "idEvent",
+                        principalColumn: "IdEvent",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Sessions_Rooms_idRoom",
-                        column: x => x.idRoom,
+                        name: "FK_Sessions_Rooms_IdRoom",
+                        column: x => x.IdRoom,
                         principalTable: "Rooms",
-                        principalColumn: "idRoom",
+                        principalColumn: "IdRoom",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -171,23 +171,23 @@ namespace DatabaseApi.Migrations
                 name: "Session_has_Speaker",
                 columns: table => new
                 {
-                    SessionsidSession = table.Column<int>(type: "int", nullable: false),
-                    SpeakersidSpeaker = table.Column<int>(type: "int", nullable: false)
+                    SessionsIdSession = table.Column<int>(type: "int", nullable: false),
+                    SpeakersIdSpeaker = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Session_has_Speaker", x => new { x.SessionsidSession, x.SpeakersidSpeaker });
+                    table.PrimaryKey("PK_Session_has_Speaker", x => new { x.SessionsIdSession, x.SpeakersIdSpeaker });
                     table.ForeignKey(
-                        name: "FK_Session_has_Speaker_Sessions_SessionsidSession",
-                        column: x => x.SessionsidSession,
+                        name: "FK_Session_has_Speaker_Sessions_SessionsIdSession",
+                        column: x => x.SessionsIdSession,
                         principalTable: "Sessions",
-                        principalColumn: "idSession",
+                        principalColumn: "IdSession",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Session_has_Speaker_Speakers_SpeakersidSpeaker",
-                        column: x => x.SpeakersidSpeaker,
+                        name: "FK_Session_has_Speaker_Speakers_SpeakersIdSpeaker",
+                        column: x => x.SpeakersIdSpeaker,
                         principalTable: "Speakers",
-                        principalColumn: "idSpeaker",
+                        principalColumn: "IdSpeaker",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -195,24 +195,24 @@ namespace DatabaseApi.Migrations
                 name: "Session_has_Tag",
                 columns: table => new
                 {
-                    SessionsidSession = table.Column<int>(type: "int", nullable: false),
-                    Tagstitle = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    TagsidEvent = table.Column<int>(type: "int", nullable: false)
+                    SessionsIdSession = table.Column<int>(type: "int", nullable: false),
+                    TagsTitle = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TagsIdEvent = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Session_has_Tag", x => new { x.SessionsidSession, x.Tagstitle, x.TagsidEvent });
+                    table.PrimaryKey("PK_Session_has_Tag", x => new { x.SessionsIdSession, x.TagsTitle, x.TagsIdEvent });
                     table.ForeignKey(
-                        name: "FK_Session_has_Tag_Sessions_SessionsidSession",
-                        column: x => x.SessionsidSession,
+                        name: "FK_Session_has_Tag_Sessions_SessionsIdSession",
+                        column: x => x.SessionsIdSession,
                         principalTable: "Sessions",
-                        principalColumn: "idSession",
+                        principalColumn: "IdSession",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Session_has_Tag_Tags_Tagstitle_TagsidEvent",
-                        columns: x => new { x.Tagstitle, x.TagsidEvent },
+                        name: "FK_Session_has_Tag_Tags_TagsTitle_TagsIdEvent",
+                        columns: x => new { x.TagsTitle, x.TagsIdEvent },
                         principalTable: "Tags",
-                        principalColumns: new[] { "title", "idEvent" },
+                        principalColumns: new[] { "Title", "IdEvent" },
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -220,57 +220,57 @@ namespace DatabaseApi.Migrations
                 name: "User_has_Sessions",
                 columns: table => new
                 {
-                    idUser = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    idSession = table.Column<int>(type: "int", nullable: false),
-                    inWaitingList = table.Column<bool>(type: "bit", nullable: false),
-                    joinedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    IdUser = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IdSession = table.Column<int>(type: "int", nullable: false),
+                    InWaitingList = table.Column<bool>(type: "bit", nullable: false),
+                    JoinedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_User_has_Sessions", x => new { x.idUser, x.idSession });
+                    table.PrimaryKey("PK_User_has_Sessions", x => new { x.IdUser, x.IdSession });
                     table.ForeignKey(
-                        name: "FK_User_has_Sessions_Sessions_idSession",
-                        column: x => x.idSession,
+                        name: "FK_User_has_Sessions_Sessions_IdSession",
+                        column: x => x.IdSession,
                         principalTable: "Sessions",
-                        principalColumn: "idSession",
+                        principalColumn: "IdSession",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_User_has_Sessions_Users_idUser",
-                        column: x => x.idUser,
+                        name: "FK_User_has_Sessions_Users_IdUser",
+                        column: x => x.IdUser,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Rooms_idEvent",
+                name: "IX_Rooms_IdEvent",
                 table: "Rooms",
-                column: "idEvent");
+                column: "IdEvent");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Session_has_Speaker_SpeakersidSpeaker",
+                name: "IX_Session_has_Speaker_SpeakersIdSpeaker",
                 table: "Session_has_Speaker",
-                column: "SpeakersidSpeaker");
+                column: "SpeakersIdSpeaker");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Session_has_Tag_Tagstitle_TagsidEvent",
+                name: "IX_Session_has_Tag_TagsTitle_TagsIdEvent",
                 table: "Session_has_Tag",
-                columns: new[] { "Tagstitle", "TagsidEvent" });
+                columns: new[] { "TagsTitle", "TagsIdEvent" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Sessions_idEvent",
+                name: "IX_Sessions_IdEvent",
                 table: "Sessions",
-                column: "idEvent");
+                column: "IdEvent");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Sessions_idRoom",
+                name: "IX_Sessions_IdRoom",
                 table: "Sessions",
-                column: "idRoom");
+                column: "IdRoom");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tags_idEvent",
+                name: "IX_Tags_IdEvent",
                 table: "Tags",
-                column: "idEvent");
+                column: "IdEvent");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_has_Event_UsersId",
@@ -278,9 +278,9 @@ namespace DatabaseApi.Migrations
                 column: "UsersId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_has_Sessions_idSession",
+                name: "IX_User_has_Sessions_IdSession",
                 table: "User_has_Sessions",
-                column: "idSession");
+                column: "IdSession");
         }
 
         /// <inheritdoc />

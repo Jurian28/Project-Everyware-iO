@@ -5,20 +5,20 @@ namespace DatabaseApi.Models
     public class Session
     {
         [Key]
-        public int idSession { get; set; }
+        public int IdSession { get; set; }
         [Required]
-        public string title { get; set; }
+        public string Title { get; set; }
         [Required]
-        public DateTime startTime { get; set; }
+        public DateTime StartTime { get; set; }
         [Required]
-        public DateTime endTime { get; set; }
+        public DateTime EndTime { get; set; }
         [Required]
-        public bool plenary { get; set; }
-        public int capacity { get; set; }
+        public bool Plenary { get; set; }
+        public int Capacity { get; set; }
         [Required]
-        public int idEvent { get; set; }
+        public int IdEvent { get; set; }
         [Required]
-        public int idRoom { get; set; }
+        public int IdRoom { get; set; }
 
         // Navigation properties
         public Event Event { get; set; }

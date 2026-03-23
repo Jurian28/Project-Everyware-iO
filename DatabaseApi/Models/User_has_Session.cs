@@ -5,13 +5,13 @@ namespace DatabaseApi.Models
     public class User_has_Session
     {
         [Required]
-        public string idUser { get; set; }
+        public string IdUser { get; set; }
         [Required]
-        public int idSession { get; set; }
+        public int IdSession { get; set; }
         [Required]
-        public bool inWaitingList { get; set; }
+        public bool InWaitingList { get; set; }
         [Required]
-        public DateTime joinedDate { get; set; }
+        public DateTime JoinedDate { get; set; }
 
         // Navigation properties
         public User User { get; set; }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260320151043_InitialCreate")]
+    [Migration("20260323080042_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -27,155 +27,155 @@ namespace DatabaseApi.Migrations
 
             modelBuilder.Entity("DatabaseApi.Models.Event", b =>
                 {
-                    b.Property<int>("idEvent")
+                    b.Property<int>("IdEvent")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("idEvent"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdEvent"));
+
+                    b.Property<string>("AccentColorHex")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LogoPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MainColorHex")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("accentColorHex")
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("endDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("logoPath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("mainColorHex")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("idEvent");
+                    b.HasKey("IdEvent");
 
                     b.ToTable("Events");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Room", b =>
                 {
-                    b.Property<int>("idRoom")
+                    b.Property<int>("IdRoom")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("idRoom"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdRoom"));
 
-                    b.Property<int>("capacity")
+                    b.Property<int>("Capacity")
                         .HasColumnType("int");
 
-                    b.Property<string>("description")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("idEvent")
+                    b.Property<int>("IdEvent")
                         .HasColumnType("int");
 
-                    b.Property<string>("roomLabel")
+                    b.Property<string>("RoomLabel")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("idRoom");
+                    b.HasKey("IdRoom");
 
-                    b.HasIndex("idEvent");
+                    b.HasIndex("IdEvent");
 
                     b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Session", b =>
                 {
-                    b.Property<int>("idSession")
+                    b.Property<int>("IdSession")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("idSession"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdSession"));
 
-                    b.Property<int>("capacity")
+                    b.Property<int>("Capacity")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("endTime")
+                    b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("idEvent")
+                    b.Property<int>("IdEvent")
                         .HasColumnType("int");
 
-                    b.Property<int>("idRoom")
+                    b.Property<int>("IdRoom")
                         .HasColumnType("int");
 
-                    b.Property<bool>("plenary")
+                    b.Property<bool>("Plenary")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("startTime")
+                    b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("title")
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("idSession");
+                    b.HasKey("IdSession");
 
-                    b.HasIndex("idEvent");
+                    b.HasIndex("IdEvent");
 
-                    b.HasIndex("idRoom");
+                    b.HasIndex("IdRoom");
 
                     b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Speaker", b =>
                 {
-                    b.Property<int>("idSpeaker")
+                    b.Property<int>("IdSpeaker")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("idSpeaker"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdSpeaker"));
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImgPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("firstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("imgPath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("lastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("idSpeaker");
+                    b.HasKey("IdSpeaker");
 
                     b.ToTable("Speakers");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Tag", b =>
                 {
-                    b.Property<string>("title")
+                    b.Property<string>("Title")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("idEvent")
+                    b.Property<int>("IdEvent")
                         .HasColumnType("int");
 
-                    b.Property<string>("colorHex")
+                    b.Property<string>("ColorHex")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("title", "idEvent");
+                    b.HasKey("Title", "IdEvent");
 
-                    b.HasIndex("idEvent");
+                    b.HasIndex("IdEvent");
 
                     b.ToTable("Tags");
                 });
@@ -234,67 +234,67 @@ namespace DatabaseApi.Migrations
 
             modelBuilder.Entity("DatabaseApi.Models.User_has_Session", b =>
                 {
-                    b.Property<string>("idUser")
+                    b.Property<string>("IdUser")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("idSession")
+                    b.Property<int>("IdSession")
                         .HasColumnType("int");
 
-                    b.Property<bool>("inWaitingList")
+                    b.Property<bool>("InWaitingList")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("joinedDate")
+                    b.Property<DateTime>("JoinedDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("idUser", "idSession");
+                    b.HasKey("IdUser", "IdSession");
 
-                    b.HasIndex("idSession");
+                    b.HasIndex("IdSession");
 
                     b.ToTable("User_has_Sessions");
                 });
 
             modelBuilder.Entity("Session_has_Speaker", b =>
                 {
-                    b.Property<int>("SessionsidSession")
+                    b.Property<int>("SessionsIdSession")
                         .HasColumnType("int");
 
-                    b.Property<int>("SpeakersidSpeaker")
+                    b.Property<int>("SpeakersIdSpeaker")
                         .HasColumnType("int");
 
-                    b.HasKey("SessionsidSession", "SpeakersidSpeaker");
+                    b.HasKey("SessionsIdSession", "SpeakersIdSpeaker");
 
-                    b.HasIndex("SpeakersidSpeaker");
+                    b.HasIndex("SpeakersIdSpeaker");
 
                     b.ToTable("Session_has_Speaker");
                 });
 
             modelBuilder.Entity("Session_has_Tag", b =>
                 {
-                    b.Property<int>("SessionsidSession")
+                    b.Property<int>("SessionsIdSession")
                         .HasColumnType("int");
 
-                    b.Property<string>("Tagstitle")
+                    b.Property<string>("TagsTitle")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("TagsidEvent")
+                    b.Property<int>("TagsIdEvent")
                         .HasColumnType("int");
 
-                    b.HasKey("SessionsidSession", "Tagstitle", "TagsidEvent");
+                    b.HasKey("SessionsIdSession", "TagsTitle", "TagsIdEvent");
 
-                    b.HasIndex("Tagstitle", "TagsidEvent");
+                    b.HasIndex("TagsTitle", "TagsIdEvent");
 
                     b.ToTable("Session_has_Tag");
                 });
 
             modelBuilder.Entity("User_has_Event", b =>
                 {
-                    b.Property<int>("EventsidEvent")
+                    b.Property<int>("EventsIdEvent")
                         .HasColumnType("int");
 
                     b.Property<string>("UsersId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("EventsidEvent", "UsersId");
+                    b.HasKey("EventsIdEvent", "UsersId");
 
                     b.HasIndex("UsersId");
 
@@ -305,7 +305,7 @@ namespace DatabaseApi.Migrations
                 {
                     b.HasOne("DatabaseApi.Models.Event", "Event")
                         .WithMany("Rooms")
-                        .HasForeignKey("idEvent")
+                        .HasForeignKey("IdEvent")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -316,13 +316,13 @@ namespace DatabaseApi.Migrations
                 {
                     b.HasOne("DatabaseApi.Models.Event", "Event")
                         .WithMany()
-                        .HasForeignKey("idEvent")
+                        .HasForeignKey("IdEvent")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DatabaseApi.Models.Room", "Room")
                         .WithMany("Sessions")
-                        .HasForeignKey("idRoom")
+                        .HasForeignKey("IdRoom")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -335,7 +335,7 @@ namespace DatabaseApi.Migrations
                 {
                     b.HasOne("DatabaseApi.Models.Event", "Event")
                         .WithMany("Tags")
-                        .HasForeignKey("idEvent")
+                        .HasForeignKey("IdEvent")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -346,13 +346,13 @@ namespace DatabaseApi.Migrations
                 {
                     b.HasOne("DatabaseApi.Models.Session", "Session")
                         .WithMany("RegisteredUsers")
-                        .HasForeignKey("idSession")
+                        .HasForeignKey("IdSession")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DatabaseApi.Models.User", "User")
                         .WithMany("RegisteredSessions")
-                        .HasForeignKey("idUser")
+                        .HasForeignKey("IdUser")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -365,13 +365,13 @@ namespace DatabaseApi.Migrations
                 {
                     b.HasOne("DatabaseApi.Models.Session", null)
                         .WithMany()
-                        .HasForeignKey("SessionsidSession")
+                        .HasForeignKey("SessionsIdSession")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DatabaseApi.Models.Speaker", null)
                         .WithMany()
-                        .HasForeignKey("SpeakersidSpeaker")
+                        .HasForeignKey("SpeakersIdSpeaker")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -380,13 +380,13 @@ namespace DatabaseApi.Migrations
                 {
                     b.HasOne("DatabaseApi.Models.Session", null)
                         .WithMany()
-                        .HasForeignKey("SessionsidSession")
+                        .HasForeignKey("SessionsIdSession")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DatabaseApi.Models.Tag", null)
                         .WithMany()
-                        .HasForeignKey("Tagstitle", "TagsidEvent")
+                        .HasForeignKey("TagsTitle", "TagsIdEvent")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -395,7 +395,7 @@ namespace DatabaseApi.Migrations
                 {
                     b.HasOne("DatabaseApi.Models.Event", null)
                         .WithMany()
-                        .HasForeignKey("EventsidEvent")
+                        .HasForeignKey("EventsIdEvent")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

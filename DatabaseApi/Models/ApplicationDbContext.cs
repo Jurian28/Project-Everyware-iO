@@ -23,17 +23,17 @@ namespace DatabaseApi.Models
 
             // User_has_Session relationship
             modelBuilder.Entity<User_has_Session>()
-                .HasKey(uhs => new { uhs.idUser, uhs.idSession });
+                .HasKey(uhs => new { uhs.IdUser, uhs.IdSession });
 
             modelBuilder.Entity<User_has_Session>()
                 .HasOne(uhs => uhs.User)
                 .WithMany(u => u.RegisteredSessions)
-                .HasForeignKey(uhs => uhs.idUser);
+                .HasForeignKey(uhs => uhs.IdUser);
 
             modelBuilder.Entity<User_has_Session>()
                 .HasOne(uhs => uhs.Session)
                 .WithMany(s => s.RegisteredUsers)
-                .HasForeignKey(uhs => uhs.idSession);
+                .HasForeignKey(uhs => uhs.IdSession);
 
             // User_has_Event relationship
             modelBuilder.Entity<User>()
@@ -45,27 +45,27 @@ namespace DatabaseApi.Models
             modelBuilder.Entity<Room>()
                 .HasOne(r => r.Event)
                 .WithMany(e => e.Rooms)
-                .HasForeignKey(r => r.idEvent)
+                .HasForeignKey(r => r.IdEvent)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Session relationship with Event
             modelBuilder.Entity<Session>()
                 .HasOne(s => s.Event)
                 .WithMany()
-                .HasForeignKey(s => s.idEvent)
+                .HasForeignKey(s => s.IdEvent)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Session relationship with Room
             modelBuilder.Entity<Session>()
                 .HasOne(s => s.Room)
                 .WithMany(r => r.Sessions)
-                .HasForeignKey(s => s.idRoom);
+                .HasForeignKey(s => s.IdRoom);
 
             // Tag relationship with Event
             modelBuilder.Entity<Tag>()
                 .HasOne(t => t.Event)
                 .WithMany(e => e.Tags)
-                .HasForeignKey(t => t.idEvent)
+                .HasForeignKey(t => t.IdEvent)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Session_has_Tag relationship

@@ -5,13 +5,13 @@ namespace DatabaseApi.Models
     public class Room
     {
         [Key]
-        public int idRoom { get; set; }
+        public int IdRoom { get; set; }
         [Required]
-        public string roomLabel { get; set; }
-        public int capacity { get; set; }
-        public string description { get; set; }
+        public string RoomLabel { get; set; }
+        public int Capacity { get; set; }
+        public string Description { get; set; }
         [Required]
-        public int idEvent { get; set; }
+        public int IdEvent { get; set; }
 
         // Navigation properties
         public Event Event { get; set; }
