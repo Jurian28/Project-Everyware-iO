@@ -4,7 +4,7 @@ namespace DatabaseApi.Models
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
@@ -79,6 +79,100 @@ namespace DatabaseApi.Models
                 .HasMany(s => s.Speakers)
                 .WithMany(sp => sp.Sessions)
                 .UsingEntity("Session_has_Speaker");
+
+            // Seeddata
+            AddSeeddata(modelBuilder);
+        }
+
+        private void AddSeeddata(ModelBuilder modelBuilder)
+        {
+            // Event(s)
+            modelBuilder.Entity<Event>().HasData(new Event
+            {
+                IdEvent = 1,
+                Title = "iO Event Connect",
+                Description = "Hier zal besproken worden wat er allemaal gemaakt moet worden voor de beste event calender ooit.",
+                StartDate = new DateTime(2026, 10, 10, 9, 0, 0),
+                EndDate = new DateTime(2026, 10, 10, 17, 0, 0),
+                MainColorHex = "#D9D9D9",
+                AccentColorHex = "#B0B0B0",
+                LogoPath = ""
+            });
+
+            // Rooms
+            modelBuilder.Entity<Room>().HasData(new Room
+            {
+                IdRoom = 1,
+                IdEvent = 1,
+                RoomLabel = "Hoofdzaal",
+                Description = "Grote conferentiezaal.",
+                Capacity = 100
+            });
+
+            modelBuilder.Entity<Room>().HasData(new Room
+            {
+                IdRoom = 2,
+                IdEvent = 1,
+                RoomLabel = "Kamer 1",
+                Description = "Grote meeting zaal.",
+                Capacity = 20
+            });
+
+            modelBuilder.Entity<Room>().HasData(new Room
+            {
+                IdRoom = 3,
+                IdEvent = 1,
+                RoomLabel = "Kamer 2",
+                Description = "Kleine meeting zaal.",
+                Capacity = 3
+            });
+
+            // Sprekers
+            modelBuilder.Entity<Speaker>().HasData(new Speaker
+            {
+                IdSpeaker = 1,
+                FirstName = "Jan",
+                LastName = "Smit",
+                description = "Expert in C# en Cloud.",
+                ImgPath = ""
+            });
+
+            modelBuilder.Entity<Speaker>().HasData(new Speaker
+            {
+                IdSpeaker = 2,
+                FirstName = "John",
+                LastName = "Doe",
+                description = "Expert in Databases en networking.",
+                ImgPath = ""
+            });
+
+            // Sessions
+            modelBuilder.Entity<Session>().HasData(new Session
+            {
+                IdSession = 1,
+                IdEvent = 1,
+                IdRoom = 1,
+                Title = "Bespreking algemene eisen en wensen.",
+                StartTime = new DateTime(2026, 10, 10, 9, 0, 0),
+                EndTime = new DateTime(2026, 10, 10, 10, 0, 0),
+                Capacity = 0,
+                Plenary = true
+            });
+
+            // Tags
+            modelBuilder.Entity<Tag>().HasData(new Tag
+            {
+                IdEvent = 1,
+                Title = "Plenaire sessie",
+                ColorHex = "#D5B82C",
+            });
+
+            modelBuilder.Entity<Tag>().HasData(new Tag
+            {
+                IdEvent = 1,
+                Title = "Technology",
+                ColorHex = "#2CCFD5",
+            });
         }
     }
 }

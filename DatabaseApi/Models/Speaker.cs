@@ -10,8 +10,8 @@ namespace DatabaseApi.Models
         public string FirstName { get; set; }
         [Required]
         public string LastName { get; set; }
-        public string description { get; set; }
-        public string ImgPath { get; set; }
+        public string? description { get; set; }
+        public string? ImgPath { get; set; }
 
         // Navigation properties
         public ICollection<Session> Sessions { get; set; } = new List<Session>();
