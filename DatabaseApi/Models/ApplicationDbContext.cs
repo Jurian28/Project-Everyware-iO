@@ -1,15 +1,15 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseApi.Models
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
             : base(options)
         {
         }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Session> Sessions { get; set; }

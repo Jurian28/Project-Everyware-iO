@@ -1,0 +1,8 @@
+﻿namespace DatabaseApi.Models.Dtos
+{
+    public class AuthDto
+    {
+        public required string Email { get; set; }
+        public required string Password { get; set; }
+    }
+}
