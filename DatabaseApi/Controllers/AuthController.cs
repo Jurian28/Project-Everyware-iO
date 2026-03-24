@@ -60,8 +60,10 @@ public class AuthController(UserManager<User> userManager) : Controller
                 }
             );
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            Console.WriteLine(exception);
+
             return StatusCode(500, "An error occurred while generating the token.");
         }
     }
@@ -90,14 +92,12 @@ public class AuthController(UserManager<User> userManager) : Controller
             UserName = registerDto.Email,
             Email = registerDto.Email
         };
-        IdentityResult result = await _userManager.CreateAsync(user);
+        IdentityResult result = await _userManager.CreateAsync(user, registerDto.Password);
 
         if (!result.Succeeded)
         {
-            return BadRequest();
+            return BadRequest(string.Join(" ", result.Errors.Select(e => e.Description)));
         }
-
-        await _userManager.AddPasswordAsync(user, registerDto.Password);
 
         return Created();
     }

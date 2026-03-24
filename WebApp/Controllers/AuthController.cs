@@ -19,7 +19,29 @@ namespace WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel viewModel)
         {
-            return View(viewModel);
+            if (!ModelState.IsValid)
+            {
+                return View(viewModel);
+            }
+
+            string loginUrl = $"{AUTH_API_BASE_URL}/login";
+
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync(loginUrl, new
+            {
+                viewModel.Email,
+                viewModel.Password
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+
+                return View(viewModel);
+            }
         }
 
         [HttpGet]
@@ -52,14 +74,14 @@ namespace WebApp.Controllers
                 viewModel.Password
             });
 
-            Console.WriteLine($"Response: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
-
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index", "Home");
             }
             else
             {
+                ModelState.AddModelError(string.Empty, await response.Content.ReadAsStringAsync());
+
                 return View(viewModel);
             }
         }
