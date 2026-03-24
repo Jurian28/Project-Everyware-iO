@@ -29,3 +29,19 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+.extra-navbar-styling {
+    font-size: 1.4rem;
+    background-color: lightgray;
+    box-shadow: 0 0px 15px 0px rgba(0, 0, 0, 0.5);
+}
+
+#userDropdownToggle {
+    font-size: 1.2rem;
+    border: hidden;
+    background: lightgray;
+}
+
+#userDropdownMenu{
+    right:5px;
+}
