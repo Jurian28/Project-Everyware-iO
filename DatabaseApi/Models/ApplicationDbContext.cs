@@ -86,7 +86,7 @@ namespace DatabaseApi.Models
 
         private void AddSeeddata(ModelBuilder modelBuilder)
         {
-            // Event(s)
+            // Events
             modelBuilder.Entity<Event>().HasData(new Event
             {
                 IdEvent = 1,
@@ -100,79 +100,185 @@ namespace DatabaseApi.Models
             });
 
             // Rooms
-            modelBuilder.Entity<Room>().HasData(new Room
-            {
-                IdRoom = 1,
-                IdEvent = 1,
-                RoomLabel = "Hoofdzaal",
-                Description = "Grote conferentiezaal.",
-                Capacity = 100
-            });
-
-            modelBuilder.Entity<Room>().HasData(new Room
-            {
-                IdRoom = 2,
-                IdEvent = 1,
-                RoomLabel = "Kamer 1",
-                Description = "Grote meeting zaal.",
-                Capacity = 20
-            });
-
-            modelBuilder.Entity<Room>().HasData(new Room
-            {
-                IdRoom = 3,
-                IdEvent = 1,
-                RoomLabel = "Kamer 2",
-                Description = "Kleine meeting zaal.",
-                Capacity = 3
-            });
+            modelBuilder.Entity<Room>().HasData(
+                new
+                {
+                    IdRoom = 1,
+                    IdEvent = 1,
+                    RoomLabel = "Hoofdzaal",
+                    Description = "Grote conferentiezaal.",
+                    Capacity = 100
+                },
+                new
+                {
+                    IdRoom = 2,
+                    IdEvent = 1,
+                    RoomLabel = "Kamer 1",
+                    Description = "Grote meeting zaal.",
+                    Capacity = 20
+                },
+                new
+                {
+                    IdRoom = 3,
+                    IdEvent = 1,
+                    RoomLabel = "Kamer 2",
+                    Description = "Kleine meeting zaal.",
+                    Capacity = 2
+                }
+            );
 
             // Sprekers
-            modelBuilder.Entity<Speaker>().HasData(new Speaker
-            {
-                IdSpeaker = 1,
-                FirstName = "Jan",
-                LastName = "Smit",
-                description = "Expert in C# en Cloud.",
-                ImgPath = ""
-            });
-
-            modelBuilder.Entity<Speaker>().HasData(new Speaker
-            {
-                IdSpeaker = 2,
-                FirstName = "John",
-                LastName = "Doe",
-                description = "Expert in Databases en networking.",
-                ImgPath = ""
-            });
+            modelBuilder.Entity<Speaker>().HasData(
+                new
+                {
+                    IdSpeaker = 1,
+                    FirstName = "Jan",
+                    LastName = "Smit",
+                    description = "Expert in C# en Cloud.",
+                    ImgPath = ""
+                },
+                new
+                {
+                    IdSpeaker = 2,
+                    FirstName = "John",
+                    LastName = "Doe",
+                    description = "Expert in Databases en networking.",
+                    ImgPath = ""
+                }
+            );
 
             // Sessions
-            modelBuilder.Entity<Session>().HasData(new Session
-            {
-                IdSession = 1,
-                IdEvent = 1,
-                IdRoom = 1,
-                Title = "Bespreking algemene eisen en wensen.",
-                StartTime = new DateTime(2026, 10, 10, 9, 0, 0),
-                EndTime = new DateTime(2026, 10, 10, 10, 0, 0),
-                Capacity = 0,
-                Plenary = true
-            });
+            modelBuilder.Entity<Session>().HasData(
+                new
+                {
+                    IdSession = 1,
+                    IdEvent = 1,
+                    IdRoom = 1,
+                    Title = "Bespreking algemene eisen en wensen.",
+                    StartTime = new DateTime(2026, 10, 10, 9, 0, 0),
+                    EndTime = new DateTime(2026, 10, 10, 10, 0, 0),
+                    Plenary = true
+                },
+                new
+                {
+                    IdSession = 2,
+                    IdEvent = 1,
+                    IdRoom = 2,
+                    Title = "Database architectuur.",
+                    StartTime = new DateTime(2026, 10, 10, 10, 30, 0),
+                    EndTime = new DateTime(2026, 10, 10, 11, 30, 0),
+                    Capacity = 20,
+                    Plenary = false
+                },
+                new
+                {
+                    IdSession = 3,
+                    IdEvent = 1,
+                    IdRoom = 3,
+                    Title = "Routing architectuur.",
+                    StartTime = new DateTime(2026, 10, 10, 10, 30, 0),
+                    EndTime = new DateTime(2026, 10, 10, 11, 30, 0),
+                    Capacity = 2,
+                    Plenary = false
+                }
+            );
 
             // Tags
-            modelBuilder.Entity<Tag>().HasData(new Tag
-            {
-                IdEvent = 1,
-                Title = "Plenaire sessie",
-                ColorHex = "#D5B82C",
-            });
+            modelBuilder.Entity<Tag>().HasData(
+                new { IdEvent = 1, Title = "Plenaire sessie", ColorHex = "#D5B82C" },
+                new { IdEvent = 1, Title = "Technology", ColorHex = "#2CCFD5" }
+            );
 
-            modelBuilder.Entity<Tag>().HasData(new Tag
-            {
-                IdEvent = 1,
-                Title = "Technology",
-                ColorHex = "#2CCFD5",
-            });
+            // Session has tags
+            modelBuilder.Entity("Session_has_Tag").HasData(
+                new { SessionsIdSession = 1, TagsTitle = "Plenaire sessie", TagsIdEvent = 1 },
+                new { SessionsIdSession = 1, TagsTitle = "Technology", TagsIdEvent = 1 }
+            );
+
+            // Session has speakers
+            modelBuilder.Entity("Session_has_Speaker").HasData(
+                new { SessionsIdSession = 1, SpeakersIdSpeaker = 1 }
+            );
+
+            modelBuilder.Entity<User>().HasData(
+                new
+                {
+                    Id = "1",
+                    UserName = "jan.smit@example.com",
+                    NormalizedUserName = "JAN.SMIT@EXAMPLE.COM",
+                    Email = "jan.smit@example.com",
+                    NormalizedEmail = "JAN.SMIT@EXAMPLE.COM",
+                    EmailConfirmed = true,
+                    SecurityStamp = "STATIC-STAMP-001",
+                    PasswordHash = "AQAAAAIAAYagAAAAEE9XsCMDkXMdTDw5BcaJ7teKfgRDJpxSUt6WF2/3BaCbJaJkCFImPUBAKfygEXtbVg==",
+                    TwoFactorEnabled = false, /* necessary fields */
+                    PhoneNumberConfirmed = false,
+                    LockoutEnabled = false,
+                    AccessFailedCount = 0
+                },
+                new
+                {
+                    Id = "2",
+                    UserName = "john.doe@example.com",
+                    NormalizedUserName = "JOHN.DOE@EXAMPLE.COM",
+                    Email = "john.doe@example.com",
+                    NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
+                    EmailConfirmed = true,
+                    SecurityStamp = "STATIC-STAMP-002",
+                    PasswordHash = "AQAAAAIAAYagAAAAEE9XsCMDkXMdTDw5BcaJ7teKfgRDJpxSUt6WF2/3BaCbJaJkCFImPUBAKfygEXtbVg==",
+                    TwoFactorEnabled = false, /* necessary fields */
+                    PhoneNumberConfirmed = false,
+                    LockoutEnabled = false,
+                    AccessFailedCount = 0
+                },
+                new
+                {
+                    Id = "3",
+                    UserName = "jane.smith@example.com",
+                    NormalizedUserName = "JANE.SMITH@EXAMPLE.COM",
+                    Email = "jane.smith@example.com",
+                    NormalizedEmail = "JANE.SMITH@EXAMPLE.COM",
+                    EmailConfirmed = true,
+                    SecurityStamp = "STATIC-STAMP-003",
+                    PasswordHash = "AQAAAAIAAYagAAAAEE9XsCMDkXMdTDw5BcaJ7teKfgRDJpxSUt6WF2/3BaCbJaJkCFImPUBAKfygEXtbVg==",
+                    TwoFactorEnabled = false, /* necessary fields */
+                    PhoneNumberConfirmed = false,
+                    LockoutEnabled = false,
+                    AccessFailedCount = 0
+                }
+            );
+
+            // User has event
+            modelBuilder.Entity("User_has_Event").HasData(
+                new { EventsIdEvent = 1, UsersId = "1" },
+                new { EventsIdEvent = 1, UsersId = "2" },
+                new { EventsIdEvent = 1, UsersId = "3" }
+            );
+
+            // User has sessions
+            modelBuilder.Entity<User_has_Session>().HasData(
+                new
+                {
+                    IdUser = "1",
+                    IdSession = 1,
+                    InWaitingList = false,
+                    JoinedDate = new DateTime(2026, 10, 10, 8, 0, 0)
+                },
+                new
+                {
+                    IdUser = "1",
+                    IdSession = 3,
+                    InWaitingList = false,
+                    JoinedDate = new DateTime(2026, 10, 10, 8, 5, 0)
+                },
+                new
+                {
+                    IdUser = "2",
+                    IdSession = 3, /* This session is now full */
+                    InWaitingList = false,
+                    JoinedDate = new DateTime(2026, 10, 10, 10, 10, 0)
+                }
+            );
         }
     }
 }
