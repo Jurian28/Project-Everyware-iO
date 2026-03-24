@@ -48,6 +48,10 @@ namespace DatabaseApi.Models
                 .HasForeignKey(r => r.IdEvent)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Room>()
+                .HasIndex(r => new { r.IdEvent, r.RoomLabel })
+                .IsUnique();
+
             // Session relationship with Event
             modelBuilder.Entity<Session>()
                 .HasOne(s => s.Event)
