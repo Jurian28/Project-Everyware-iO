@@ -1,0 +1,17 @@
+﻿
+<div class="container">
+    <h1>Add Events</h1>
+
+    <div>
+        <a class="btn btn-primary" href="/events" asp-controller="Home">Back to Events</a>
+    </div>
+
+    <form method="post" asp-action="Update">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">Update Event</button>
+    </form>
+</div>

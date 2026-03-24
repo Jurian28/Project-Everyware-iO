@@ -1,0 +1,28 @@
+﻿@model List<Event>
+
+<div class="container">
+    <h1>Events</h1>
+
+    <div>
+        @if (Model != null && Model.Any())
+        {
+            <p>Eventslist:</p>
+            @foreach (Event eventItem in Model)
+            {
+                <p>@eventItem</p>
+            }
+        }
+        else
+        {
+            <p>There are no events.</p>
+        }
+    </div>
+    
+    <div>
+        <a class="btn btn-primary" href="/home" asp-controller="Home">Back to Home</a>
+    </div>
+
+    <div>
+        <a class="btn btn-secondary" href="/events/create" asp-controller="Events">Add Event</a>
+    </div>
+</div>
