@@ -7,9 +7,9 @@ namespace DatabaseApi.Models
         [Key]
         public int IdRoom { get; set; }
         [Required]
-        public string RoomLabel { get; set; }
+        public required string RoomLabel { get; set; }
         public int Capacity { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         [Required]
         public int IdEvent { get; set; }
 

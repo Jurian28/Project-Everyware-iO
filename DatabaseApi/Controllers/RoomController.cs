@@ -1,4 +1,6 @@
-﻿using DatabaseApi.Models;
+﻿using Azure;
+using DatabaseApi.DTOs.Rooms;
+using DatabaseApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,57 +11,64 @@ namespace DatabaseApi.Controllers
     public class RoomController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-
         public RoomController(ApplicationDbContext context)
         {
             _context = context;
         }
 
         [HttpGet]
-        public async Task<ActionResult<Room>> GetAllRooms()
+        public async Task<ActionResult<IEnumerable<RoomDTOs>>> GetAllRooms([FromQuery] int? eventId)
         {
-            List<Room> rooms = await _context.Rooms.ToListAsync();
-            return Ok(rooms);
-        }
+            IQueryable<Room> query = _context.Rooms;
 
-        [HttpGet("{roomId}")]
-        public async Task<ActionResult<Room>> GetRoom(int roomId)
-        {
-            var room = await _context.Rooms.FindAsync(roomId);
-            if (room == null) return NotFound();
-            return Ok(room);
+            if (eventId.HasValue)
+            {   
+                query = query.Where(r => r.IdEvent == eventId.Value);
+            }
+
+            var rooms = await query.ToListAsync();
+            return Ok(rooms.Select(RoomMapper.ToResponseDTO));
         }
 
         [HttpPost]
-        public async Task<ActionResult<Room>> InsertRoom([FromBody] Room room)
+        public async Task<ActionResult<RoomDTOs>> InsertRoom([FromBody] RoomInsertDTO roomDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+            bool exists = await _context.Rooms.AnyAsync(r =>
+                r.RoomLabel == roomDTO.RoomLabel &&
+                r.IdEvent == roomDTO.IdEvent);
+
+            if (exists)
+                return Conflict("A room with that label already exists for this event");
 
             try
             {
+                Room room = RoomMapper.ToEntity(roomDTO);
                 _context.Rooms.Add(room);
                 await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetRoom), new { id = room.IdRoom }, room);
+                return StatusCode(201, RoomMapper.ToResponseDTO(room));
             }
-            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true)
+            catch (Exception ex)
             {
-                return Conflict("A room with that label already exists for this event");
+                Console.WriteLine($"Unexpected error: {ex}");
+
+                return StatusCode(500, "An unexpected error occurred.");
             }
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Room>> UpdateRoom(int id, [FromBody] Room room)
+        public async Task<ActionResult<Room>> UpdateRoom(int id, [FromBody] RoomUpdateDTO roomDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var existing = await _context.Rooms.FindAsync(id);
-            if (existing == null) return NotFound();
+            var room = await _context.Rooms.FindAsync(id);
+            if (room == null) return NotFound();
 
             try
             {
-                _context.Entry(existing).CurrentValues.SetValues(room);
+                RoomMapper.UpdateEntity(room, roomDTO);
                 await _context.SaveChangesAsync();
-                return Ok(existing);
+                return Ok(room);
             }
             catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true)
             {
@@ -67,10 +76,10 @@ namespace DatabaseApi.Controllers
             }
         }
 
-        [HttpDelete("{buildingId}/{roomNumber}")]
-        public async Task<IActionResult> DeleteRoom(int buildingId, int roomNumber)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRoom(int id)
         {
-            var room = await _context.Rooms.FindAsync(buildingId, roomNumber);
+            var room = await _context.Rooms.FindAsync(id);
             if (room == null) return NotFound();
 
             _context.Rooms.Remove(room);
