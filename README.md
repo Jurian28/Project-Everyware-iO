@@ -35,8 +35,7 @@
 * **.NET SDK** 10.0.0
 * IDE:
 
-  * Visual Studio Code (frontend)
-  * Visual Studio of VS Code (backend)
+  * Visual Studio of VS Code
 * Package managers:
 
   * npm (frontend)
@@ -86,6 +85,8 @@
 
   * variabelen & functies: camelCase
   * componenten & classes: PascalCase
+
+* **Variabelen declaratie**: geen gebruik van `var`, gebruik `const` of `let`
 * **Structuur & Herbruikbaarheid**:
 
   * componenten maximaal ±300 regels waar mogelijk
@@ -115,6 +116,11 @@
   * methods & properties: PascalCase
   * private fields: camelCase `_userRepository`
   * interfaces: prefix `I` (`IUserRepository`)
+* **C# Guidelines**:
+
+  * Geen gebruik van `var`, expliciete types verplicht
+  * Namespaces zonder blokhaakjes (`namespace MyApp;` in plaats van `{ }`)
+  * XML-documentatie voor publieke classes, methods en properties verplicht (`/// <summary>…</summary>`)
 * **Structuur & Herbruikbaarheid**:
 
   * logica in services, controllers alleen voor request/response handling
@@ -145,6 +151,11 @@
 
   * methods & properties: PascalCase
   * private fields: camelCase `_sessionService`
+* **C# Guidelines**:
+
+  * Geen gebruik van `var`, expliciete types verplicht
+  * Namespaces zonder blokhaakjes (`namespace MyApp;` in plaats van `{ }`)
+  * XML-documentatie voor publieke classes, methods en properties verplicht (`/// <summary>…</summary>`)
 * **Structuur & Herbruikbaarheid**:
 
   * views enkel voor presentatie, logica in controllers/services
@@ -152,16 +163,15 @@
 * **Styling**:
 
   * voorkeur voor Bootstrap classes
-  * eigen CSS alleen in global.css of specifiek per pagina als nodig
+  * eigen CSS alleen in site.css of specifiek per pagina als nodig
 
 ---
 
 ## 6. Performance
 
-* Lazy loading waar mogelijk
 * Minimaliseer re-renders (React memoization)
 * FlatList voor grote lijsten (front-office)
-* realtime updates <1 seconde zichtbaar (dashboard <5 seconde zichtbaar)
+* Real-time communicatie, zie H4 <1 seconde zichtbaar (dashboard <5 seconde zichtbaar)
 
 ---
 
