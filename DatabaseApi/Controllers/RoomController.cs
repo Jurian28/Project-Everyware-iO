@@ -2,6 +2,7 @@
 using DatabaseApi.DTOs.Rooms;
 using DatabaseApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseApi.Controllers
@@ -34,12 +35,6 @@ namespace DatabaseApi.Controllers
         public async Task<ActionResult<RoomDTOs>> InsertRoom([FromBody] RoomInsertDTO roomDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            bool exists = await _context.Rooms.AnyAsync(r =>
-                r.RoomLabel == roomDTO.RoomLabel &&
-                r.IdEvent == roomDTO.IdEvent);
-
-            if (exists)
-                return Conflict("A room with that label already exists for this event");
 
             try
             {
@@ -48,10 +43,19 @@ namespace DatabaseApi.Controllers
                 await _context.SaveChangesAsync();
                 return StatusCode(201, RoomMapper.ToResponseDTO(room));
             }
+            catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx)
+            {
+                return sqlEx.Number switch
+                {
+                    547 => NotFound($"Event with ID {roomDTO.IdEvent} not found."),
+                    2601 => Conflict("A room with that label already exists for this event."),
+                    2627 => Conflict("A room with that label already exists for this event."),
+                    _ => StatusCode(500, "An unexpected error occurred.")
+                };
+            }
             catch (Exception ex)
             {
                 Console.WriteLine($"Unexpected error: {ex}");
-
                 return StatusCode(500, "An unexpected error occurred.");
             }
         }
@@ -70,9 +74,19 @@ namespace DatabaseApi.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(room);
             }
-            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true)
+            catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx)
             {
-                return Conflict("A room with that label already exists for this event");
+                return sqlEx.Number switch
+                {
+                    2601 => Conflict("A room with that label already exists for this event."),
+                    2627 => Conflict("A room with that label already exists for this event."),
+                    _ => StatusCode(500, "An unexpected error occurred.")
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex}");
+                return StatusCode(500, "An unexpected error occurred.");
             }
         }
 
@@ -81,10 +95,25 @@ namespace DatabaseApi.Controllers
         {
             var room = await _context.Rooms.FindAsync(id);
             if (room == null) return NotFound();
-
-            _context.Rooms.Remove(room);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            try
+            {
+                _context.Rooms.Remove(room);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx)
+            {
+                return sqlEx.Number switch
+                {
+                    547 => Conflict("This room cannot be deleted because it still has Sessions."),
+                    _ => StatusCode(500, "An unexpected error occurred.")
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex}");
+                return StatusCode(500, "An unexpected error occurred.");
+            }
         }
     }
 }
