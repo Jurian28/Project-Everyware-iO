@@ -25,6 +25,7 @@ services:
       - backofficekeys:/root/.aspnet/DataProtection-Keys
     depends_on:
       - mssql
+      - databaseapi
 
   webapp:
     build:
@@ -40,6 +41,7 @@ services:
       - webappkeys:/root/.aspnet/DataProtection-Keys
     depends_on:
       - mssql
+      - databaseapi
 
   databaseapi:
     build:

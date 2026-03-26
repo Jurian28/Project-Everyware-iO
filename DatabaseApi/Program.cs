@@ -58,8 +58,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (IServiceScope scope = app.Services.CreateScope())
+if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") != "true")
 {
+    using IServiceScope scope = app.Services.CreateScope();
     ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
     db.Database.Migrate();

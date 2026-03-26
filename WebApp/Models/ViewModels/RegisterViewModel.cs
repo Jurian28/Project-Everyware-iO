@@ -19,9 +19,4 @@ public class RegisterViewModel
     /// Gets or sets the confirmation password, which must match the chosen password.
     /// </summary>
     public required string ConfirmPassword { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the user's session should be remembered.
-    /// </summary>
-    public required bool RememberMe { get; set; }
 }

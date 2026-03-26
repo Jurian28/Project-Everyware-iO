@@ -18,7 +18,7 @@ namespace DatabaseApi.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(UserManager<User> userManager, ApplicationDbContext applicationDbContext, RoleManager<IdentityRole> roleManager) : Controller
+public class AuthController(UserManager<User> userManager, ApplicationDbContext applicationDbContext) : Controller
 {
     private static readonly string INCOMPLETE_CREDENTIALS_MESSAGE = "Email and password are required.";
     private static readonly string INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
@@ -26,7 +26,6 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
 
     private readonly UserManager<User> _userManager = userManager;
     private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
-    private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
     /// <summary>
     /// Handles the login api endpoint.
@@ -109,6 +108,14 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
         string accessToken = await CreateJwtToken(user);
         string refreshToken = CreateRefreshToken();
 
+        _applicationDbContext.RefreshTokens.Add(new RefreshToken
+        {
+            Token = refreshToken,
+            UserId = user.Id,
+            Expires = DateTime.Now.AddDays(7)
+        });
+        await _applicationDbContext.SaveChangesAsync();
+
         return StatusCode(201, new
         {
             AccessToken = accessToken,
@@ -184,7 +191,7 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
 
         return Ok(new
         {
-            Token = newAccessToken,
+            AccessToken = newAccessToken,
             RefreshToken = newRefreshToken,
         });
     }

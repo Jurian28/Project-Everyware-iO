@@ -10,7 +10,7 @@ namespace WebApp.Controllers;
 /// <param name="httpClientFactory">The factory used to create instances of <see cref="HttpClient"/>.</param>
 public class AuthController(IHttpClientFactory httpClientFactory) : Controller
 {
-    private static readonly string AUTH_API_BASE_URL = "http://databaseapi:5000/api/auth";
+    private static readonly string AUTH_API_BASE_URL = GetApiBaseUrl();
 
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
 
@@ -126,6 +126,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// </summary>
     /// <returns>A redirect to the home page.</returns>
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         Response.Cookies.Delete("AccessToken");
@@ -158,5 +159,25 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
             SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.Now.AddDays(7)
         });
+    }
+
+    /// <summary>
+    /// Retrieves the base URL for the API based on the current execution environment.
+    /// </summary>
+    /// <returns>The constructed API base URL string.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the <c>APP_URL</c> or <c>DATABASE_API_PORT</c> environment variables are not set in a non-Docker environment.</exception>
+    private static string GetApiBaseUrl()
+    {
+        if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
+        {
+            return "http://databaseapi:5000";
+        }
+        else
+        {
+            string apiBaseUrl = Environment.GetEnvironmentVariable("APP_URL") ?? throw new InvalidOperationException("APP_URL environment variable not set.");
+            string databaseApiPort = Environment.GetEnvironmentVariable("DATABASE_API_PORT") ?? throw new InvalidOperationException("DATABASE_API_PORT environment variable not set.");
+
+            return $"{apiBaseUrl}:{databaseApiPort}";
+        }
     }
 }
