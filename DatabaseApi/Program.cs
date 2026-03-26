@@ -62,10 +62,7 @@ using (IServiceScope scope = app.Services.CreateScope())
 {
     ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-    if (db.Database.GetPendingMigrations().Any())
-    {
-        db.Database.Migrate();
-    }
+    db.Database.Migrate();
 }
 
 app.Run();

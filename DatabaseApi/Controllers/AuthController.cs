@@ -29,25 +29,25 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
     /// <summary>
     /// Handles the login api endpoint.
     /// </summary>
-    /// <param name="authDto">The authentication data containing the user's email and password.</param>
+    /// <param name="loginDto">The authentication data containing the user's email and password.</param>
     /// <returns>A http response based on the outcome of the login process, containing access and refresh tokens if successful.</returns>
     [HttpPost("login")]
     [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] AuthDto authDto)
+    public async Task<IActionResult> Login([FromBody] AuthInputDto loginDto)
     {
-        if (string.IsNullOrEmpty(authDto.Email) || string.IsNullOrEmpty(authDto.Password))
+        if (string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
         {
             return BadRequest(INCOMPLETE_CREDENTIALS_MESSAGE);
         }
 
-        User? user = await _userManager.FindByEmailAsync(authDto.Email);
+        User? user = await _userManager.FindByEmailAsync(loginDto.Email);
 
         if (user == null)
         {
             return Unauthorized(INVALID_CREDENTIALS_MESSAGE);
         }
 
-        bool passwordValid = await _userManager.CheckPasswordAsync(user, authDto.Password);
+        bool passwordValid = await _userManager.CheckPasswordAsync(user, loginDto.Password);
 
         if (!passwordValid)
         {
@@ -80,7 +80,7 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
     /// <returns>An http response based on the outcome of the registration process, containing access and refresh tokens if successful.</returns>
     [HttpPost("register")]
     [AllowAnonymous]
-    public async Task<IActionResult> Register([FromBody] AuthDto registerDto)
+    public async Task<IActionResult> Register([FromBody] AuthInputDto registerDto)
     {
         if (string.IsNullOrEmpty(registerDto.Email) || string.IsNullOrEmpty(registerDto.Password))
         {
