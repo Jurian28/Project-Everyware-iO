@@ -44,11 +44,15 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
             viewModel.Email,
             viewModel.Password
         });
-        AuthOutputDto? json = await response.Content.ReadFromJsonAsync<AuthOutputDto>();
 
-        if (response.IsSuccessStatusCode && json != null)
+        if (response.IsSuccessStatusCode)
         {
-            SetTokenCookies(json);
+            AuthOutputDto? json = await response.Content.ReadFromJsonAsync<AuthOutputDto>();
+
+            if (json != null)
+            {
+                SetTokenCookies(json);
+            }
 
             return RedirectToAction("Index", "Home");
         }
@@ -97,11 +101,15 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
             viewModel.Email,
             viewModel.Password
         });
-        AuthOutputDto? json = await response.Content.ReadFromJsonAsync<AuthOutputDto>();
 
-        if (response.IsSuccessStatusCode && json != null)
+        if (response.IsSuccessStatusCode)
         {
-            SetTokenCookies(json);
+            AuthOutputDto? json = await response.Content.ReadFromJsonAsync<AuthOutputDto>();
+
+            if (json != null)
+            {
+                SetTokenCookies(json);
+            }
 
             return RedirectToAction("Index", "Home");
         }

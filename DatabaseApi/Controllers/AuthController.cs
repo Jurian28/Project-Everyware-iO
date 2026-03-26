@@ -18,13 +18,15 @@ namespace DatabaseApi.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(UserManager<User> userManager, ApplicationDbContext applicationDbContext) : Controller
+public class AuthController(UserManager<User> userManager, ApplicationDbContext applicationDbContext, RoleManager<IdentityRole> roleManager) : Controller
 {
     private static readonly string INCOMPLETE_CREDENTIALS_MESSAGE = "Email and password are required.";
     private static readonly string INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
+    private static readonly string ACCOUNT_ALREADY_EXISTS_MESSAGE = "An account with this email already exists.";
 
     private readonly UserManager<User> _userManager = userManager;
     private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
+    private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
     /// <summary>
     /// Handles the login api endpoint.
@@ -54,7 +56,7 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
             return Unauthorized(INVALID_CREDENTIALS_MESSAGE);
         }
 
-        string accessToken = CreateJwtToken(user);
+        string accessToken = await CreateJwtToken(user);
         string refreshToken = CreateRefreshToken();
 
         _applicationDbContext.RefreshTokens.Add(new RefreshToken
@@ -89,7 +91,7 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
 
         if (await _userManager.FindByEmailAsync(registerDto.Email) != null)
         {
-            return BadRequest("An account with this email already exists.");
+            return BadRequest(ACCOUNT_ALREADY_EXISTS_MESSAGE);
         }
 
         User user = new()
@@ -104,7 +106,7 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
             return BadRequest(string.Join(" ", result.Errors.Select(e => e.Description)));
         }
 
-        string accessToken = CreateJwtToken(user);
+        string accessToken = await CreateJwtToken(user);
         string refreshToken = CreateRefreshToken();
 
         return StatusCode(201, new
@@ -167,7 +169,7 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
             return Unauthorized();
         }
 
-        string newAccessToken = CreateJwtToken(user);
+        string newAccessToken = await CreateJwtToken(user);
         string newRefreshToken = CreateRefreshToken();
 
         _applicationDbContext.RefreshTokens.Remove(storedRefreshToken);
@@ -193,7 +195,7 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
     /// <param name="user">The user to create the JWT token for.</param>
     /// <returns>The JWT token string.</returns>
     /// <exception cref="Exception">Throws if the environment variable for the secret key is not set.</exception>
-    private static string CreateJwtToken(User user)
+    private async Task<string> CreateJwtToken(User user)
     {
         List<Claim> claims =
         [
@@ -204,6 +206,13 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
         if (user.UserName != null)
         {
             claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+        }
+
+        IList<string> roles = await _userManager.GetRolesAsync(user);
+
+        foreach (string role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
         }
 
         string? secretKey = Environment.GetEnvironmentVariable(JwtOptions.SECRET_KEY) ?? throw new Exception($"Environment variable '{JwtOptions.SECRET_KEY}' is not set.");

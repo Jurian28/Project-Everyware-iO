@@ -36,7 +36,9 @@ public class JwtHandler(IHttpContextAccessor httpContextAccessor, IHttpClientFac
 
         HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode != HttpStatusCode.Unauthorized || response.Headers.Contains("X-Retry"))
+        if (response.StatusCode != HttpStatusCode.Unauthorized ||
+            response.Headers.Contains("X-Retry") ||
+            request.RequestUri?.AbsolutePath.Contains("api/auth/refresh") == true)
         {
             return response;
         }
