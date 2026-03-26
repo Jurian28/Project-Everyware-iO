@@ -39,7 +39,8 @@
   * Visual Studio of VS Code (backend)
 * Package managers:
 
-  * npm
+  * npm (frontend)
+  * NuGet (backend)
 
 ---
 
@@ -120,6 +121,7 @@
   * dependency injection waar mogelijk
 * **API Guidelines**:
 
+  * API JSON keys: camelCase
   * standaard response structuur: `{ success: bool, data: object, error: string|null }`
   * HTTP status codes correct gebruiken
 * **Security**:
@@ -159,7 +161,7 @@
 * Lazy loading waar mogelijk
 * Minimaliseer re-renders (React memoization)
 * FlatList voor grote lijsten (front-office)
-* Backend en realtime updates <1 seconde zichtbaar
+* realtime updates <1 seconde zichtbaar (dashboard <5 seconde zichtbaar)
 
 ---
 
