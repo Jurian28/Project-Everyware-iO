@@ -4,10 +4,22 @@ using System.Text;
 
 namespace SharedClassLibrary.Jwt;
 
+/// <summary>
+/// Provides configuration options and utilities for JSON Web Token (JWT) authentication.
+/// </summary>
 public class JwtOptions
 {
+    /// <summary>
+    /// The name of the environment variable containing the jwt secret key.
+    /// </summary>
     public static readonly string SECRET_KEY = "JWT_SECRET_KEY";
 
+    /// <summary>
+    /// Configures the provided <see cref="JwtBearerOptions"/> with token validation parameters 
+    /// and an event handler to extract the JWT token from the "AccessToken" cookie.
+    /// </summary>
+    /// <param name="options">The <see cref="JwtBearerOptions"/> instance to configure.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the JWT secret key environment variable is not set.</exception>
     public static void GetJwtOptions(JwtBearerOptions options)
     {
         string secretKey = Environment.GetEnvironmentVariable(SECRET_KEY) ?? throw new InvalidOperationException("JWT secret key environment variable not set.");

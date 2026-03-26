@@ -4,6 +4,8 @@
 <h1>Sign up</h1>
 
 <form asp-action="Register" method="post" class="d-flex flex-column gap-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
     <div class="d-flex flex-column">
         <label asp-for="Email">Email</label>
         <input type="email" asp-for="Email" />
@@ -19,7 +21,7 @@
     <div class="d-flex flex-column">
         <label asp-for="ConfirmPassword">Confirm password</label>
         <input type="password" asp-for="ConfirmPassword" />
-        <span class="text-danger" asp-validation-for="ConfirmPassword" />
+        <span class="text-danger" asp-validation-for="ConfirmPassword"></span>
     </div>
 
     <div class="d-flex flex-row gap-3">

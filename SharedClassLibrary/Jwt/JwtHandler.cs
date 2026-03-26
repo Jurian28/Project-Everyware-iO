@@ -4,11 +4,27 @@ using System.Net.Http.Headers;
 
 namespace SharedClassLibrary.Jwt;
 
+/// <summary>
+/// A delegating handler that intercepts outgoing HTTP requests to append a JWT access token to the Authorization header from cookies.
+/// It also handles unauthorized (401) responses by attempting to refresh the token and retrying the request.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="JwtHandler"/> class.
+/// </remarks>
+/// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>.</param>
+/// <param name="httpClientFactory">A factory component for creating <see cref="HttpClient"/> instances.</param>
 public class JwtHandler(IHttpContextAccessor httpContextAccessor, IHttpClientFactory httpClientFactory) : DelegatingHandler
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
+    /// <summary>
+    /// Sends an HTTP request to the inner handler to send to the server as an asynchronous operation.
+    /// Attaches the JWT from the current HTTP context and attempts to refresh the token if a 401 Unauthorized response is received.
+    /// </summary>
+    /// <param name="request">The HTTP request message to send.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    /// <returns>The HTTP response message.</returns>
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         string? token = _httpContextAccessor.HttpContext?.Request.Cookies["AccessToken"];
@@ -48,6 +64,11 @@ public class JwtHandler(IHttpContextAccessor httpContextAccessor, IHttpClientFac
         return await base.SendAsync(newRequest, cancellationToken);
     }
 
+    /// <summary>
+    /// Clones an <see cref="HttpRequestMessage"/> so that it can be resent after a token refresh.
+    /// </summary>
+    /// <param name="request">The original HTTP request message to clone.</param>
+    /// <returns>A new <see cref="HttpRequestMessage"/> that is a copy of the original request.</returns>
     private static async Task<HttpRequestMessage> CloneHttpRequestMessage(HttpRequestMessage request)
     {
         HttpRequestMessage clone = new(request.Method, request.RequestUri);
@@ -74,6 +95,11 @@ public class JwtHandler(IHttpContextAccessor httpContextAccessor, IHttpClientFac
         return clone;
     }
 
+    /// <summary>
+    /// Gets the base URL of the API depending on the configured environment variables.
+    /// </summary>
+    /// <returns>The base URL string for the API.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when necessary environment variables are not set.</exception>
     private static string GetApiBaseUrl()
     {
         if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")

@@ -13,6 +13,9 @@ using System.Text;
 
 namespace DatabaseApi.Controllers;
 
+/// <summary>
+/// Controller responsible for handling user authentication, including login, registration, logout, and token refreshing.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController(UserManager<User> userManager, ApplicationDbContext applicationDbContext) : Controller
@@ -26,9 +29,8 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
     /// <summary>
     /// Handles the login api endpoint.
     /// </summary>
-    /// <param name="email">The email of the user that is trying to log in.</param>
-    /// <param name="password">The password of the user that is trying to log in.</param>
-    /// <returns>A http response based on the outcome of the login process.</returns>
+    /// <param name="authDto">The authentication data containing the user's email and password.</param>
+    /// <returns>A http response based on the outcome of the login process, containing access and refresh tokens if successful.</returns>
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] AuthDto authDto)
@@ -74,9 +76,8 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
     /// <summary>
     /// Handles the registration api endpoint.
     /// </summary>
-    /// <param name="email">The email of the new account.</param>
-    /// <param name="password">The password of the new account.</param>
-    /// <returns>An http response based on the outcome of the registration process.</returns>
+    /// <param name="registerDto">The registration data containing the new user's email and password.</param>
+    /// <returns>An http response based on the outcome of the registration process, containing access and refresh tokens if successful.</returns>
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] AuthDto registerDto)
@@ -113,6 +114,10 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
         });
     }
 
+    /// <summary>
+    /// Handles the logout api endpoint by revoking the user's existing refresh token.
+    /// </summary>
+    /// <returns>An HTTP OK response upon successful logout.</returns>
     [HttpPost("logout")]
     [Authorize]
     public async Task<IActionResult> Logout()
@@ -133,6 +138,10 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
         return Ok();
     }
 
+    /// <summary>
+    /// Handles the token refresh api endpoint by generating a new access and refresh token.
+    /// </summary>
+    /// <returns>An HTTP response containing the new tokens if successful, or Unauthorized if the refresh token is invalid or expired.</returns>
     [HttpPost("refresh")]
     [AllowAnonymous]
     public async Task<IActionResult> Refresh()
@@ -182,7 +191,7 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
     /// Creates a JWT token for the user.
     /// </summary>
     /// <param name="user">The user to create the JWT token for.</param>
-    /// <returns>The JWT token.</returns>
+    /// <returns>The JWT token string.</returns>
     /// <exception cref="Exception">Throws if the environment variable for the secret key is not set.</exception>
     private static string CreateJwtToken(User user)
     {
@@ -209,6 +218,10 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
+    /// <summary>
+    /// Generates a cryptographically secure random refresh token.
+    /// </summary>
+    /// <returns>A base64 encoded string representing the refresh token.</returns>
     private static string CreateRefreshToken()
     {
         byte[] bytes = new byte[64];
