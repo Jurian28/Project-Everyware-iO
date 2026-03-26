@@ -3,23 +3,25 @@ using DatabaseApi.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SharedClassLibrary.Jwt;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace DatabaseApi.Controllers;
 
 [ApiController]
-[AllowAnonymous]
 [Route("api/[controller]")]
-public class AuthController(UserManager<User> userManager) : Controller
+public class AuthController(UserManager<User> userManager, ApplicationDbContext applicationDbContext) : Controller
 {
-    private static readonly string SECRET_TOKEN_ENV_NAME = "JWT_SECRET_KEY";
     private static readonly string INCOMPLETE_CREDENTIALS_MESSAGE = "Email and password are required.";
     private static readonly string INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
 
     private readonly UserManager<User> _userManager = userManager;
+    private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
 
     /// <summary>
     /// Handles the login api endpoint.
@@ -28,6 +30,7 @@ public class AuthController(UserManager<User> userManager) : Controller
     /// <param name="password">The password of the user that is trying to log in.</param>
     /// <returns>A http response based on the outcome of the login process.</returns>
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] AuthDto authDto)
     {
         if (string.IsNullOrEmpty(authDto.Email) || string.IsNullOrEmpty(authDto.Password))
@@ -49,23 +52,23 @@ public class AuthController(UserManager<User> userManager) : Controller
             return Unauthorized(INVALID_CREDENTIALS_MESSAGE);
         }
 
-        try
-        {
-            string token = CreateJwtToken(user);
+        string accessToken = CreateJwtToken(user);
+        string refreshToken = CreateRefreshToken();
 
-            return Ok(
-                new
-                {
-                    Token = token
-                }
-            );
-        }
-        catch (Exception exception)
+        _applicationDbContext.RefreshTokens.Add(new RefreshToken
         {
-            Console.WriteLine(exception);
+            Token = refreshToken,
+            UserId = user.Id,
+            Expires = DateTime.Now.AddDays(7)
+        });
 
-            return StatusCode(500, "An error occurred while generating the token.");
-        }
+        await _applicationDbContext.SaveChangesAsync();
+
+        return Ok(new
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
+        });
     }
 
     /// <summary>
@@ -75,6 +78,7 @@ public class AuthController(UserManager<User> userManager) : Controller
     /// <param name="password">The password of the new account.</param>
     /// <returns>An http response based on the outcome of the registration process.</returns>
     [HttpPost("register")]
+    [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] AuthDto registerDto)
     {
         if (string.IsNullOrEmpty(registerDto.Email) || string.IsNullOrEmpty(registerDto.Password))
@@ -99,7 +103,79 @@ public class AuthController(UserManager<User> userManager) : Controller
             return BadRequest(string.Join(" ", result.Errors.Select(e => e.Description)));
         }
 
-        return Created();
+        string accessToken = CreateJwtToken(user);
+        string refreshToken = CreateRefreshToken();
+
+        return StatusCode(201, new
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken
+        });
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        string? refreshToken = Request.Cookies["RefreshToken"];
+
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            RefreshToken? storedRefreshToken = await _applicationDbContext.RefreshTokens.FirstOrDefaultAsync(token => token.Token == refreshToken);
+
+            if (storedRefreshToken != null)
+            {
+                _applicationDbContext.RefreshTokens.Remove(storedRefreshToken);
+                await _applicationDbContext.SaveChangesAsync();
+            }
+        }
+
+        return Ok();
+    }
+
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Refresh()
+    {
+        string? refreshToken = Request.Cookies["RefreshToken"];
+
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            return Unauthorized();
+        }
+
+        RefreshToken? storedRefreshToken = await _applicationDbContext.RefreshTokens.FirstOrDefaultAsync(token => token.Token == refreshToken);
+
+        if (storedRefreshToken == null || storedRefreshToken.Expires < DateTime.Now)
+        {
+            return Unauthorized();
+        }
+
+        User? user = await _userManager.FindByIdAsync(storedRefreshToken.UserId);
+
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        string newAccessToken = CreateJwtToken(user);
+        string newRefreshToken = CreateRefreshToken();
+
+        _applicationDbContext.RefreshTokens.Remove(storedRefreshToken);
+        _applicationDbContext.RefreshTokens.Add(new RefreshToken
+        {
+            Token = newRefreshToken,
+            UserId = user.Id,
+            Expires = DateTime.Now.AddDays(7)
+        });
+
+        await _applicationDbContext.SaveChangesAsync();
+
+        return Ok(new
+        {
+            Token = newAccessToken,
+            RefreshToken = newRefreshToken,
+        });
     }
 
     /// <summary>
@@ -110,12 +186,18 @@ public class AuthController(UserManager<User> userManager) : Controller
     /// <exception cref="Exception">Throws if the environment variable for the secret key is not set.</exception>
     private static string CreateJwtToken(User user)
     {
-        Claim[] claims =
+        List<Claim> claims =
         [
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim(ClaimTypes.NameIdentifier, user.Id)
         ];
 
-        string? secretKey = Environment.GetEnvironmentVariable(SECRET_TOKEN_ENV_NAME) ?? throw new Exception($"Environment variable '{SECRET_TOKEN_ENV_NAME}' is not set.");
+        if (user.UserName != null)
+        {
+            claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+        }
+
+        string? secretKey = Environment.GetEnvironmentVariable(JwtOptions.SECRET_KEY) ?? throw new Exception($"Environment variable '{JwtOptions.SECRET_KEY}' is not set.");
         SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(secretKey));
         SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha256);
         JwtSecurityToken token = new(
@@ -125,5 +207,17 @@ public class AuthController(UserManager<User> userManager) : Controller
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private static string CreateRefreshToken()
+    {
+        byte[] bytes = new byte[64];
+
+        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(bytes);
+        }
+
+        return Convert.ToBase64String(bytes);
     }
 }

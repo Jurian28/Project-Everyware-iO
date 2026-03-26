@@ -16,6 +16,7 @@ namespace DatabaseApi.Models
         public DbSet<Speaker> Speakers { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<User_has_Session> User_has_Sessions { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

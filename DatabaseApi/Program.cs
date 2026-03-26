@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Identity;
 using DatabaseApi.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using SharedClassLibrary.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,12 +17,18 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<JwtHandler>();
+
+builder.Services.AddHttpClient("ApiClient")
+    .AddHttpMessageHandler<JwtHandler>();
+
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-    .AddJwtBearer();
+    .AddJwtBearer("Bearer", JwtOptions.GetJwtOptions);
 
 builder.Services.AddAuthorization();
 

@@ -1,9 +1,27 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using SharedClassLibrary.Jwt;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseUrls("http://0.0.0.0:5000"); 
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<JwtHandler>();
+
+builder.Services.AddHttpClient("ApiClient")
+    .AddHttpMessageHandler<JwtHandler>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer("Bearer", JwtOptions.GetJwtOptions);
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -26,6 +44,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();
