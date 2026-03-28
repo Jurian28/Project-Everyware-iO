@@ -44,8 +44,7 @@ public class JwtHandler(IHttpContextAccessor httpContextAccessor, IHttpClientFac
         }
 
         HttpClient httpClient = _httpClientFactory.CreateClient("ApiClient");
-        string apiBaseUrl = GetApiBaseUrl();
-        HttpResponseMessage refreshResponse = await httpClient.PostAsync($"{apiBaseUrl}/api/auth/refresh", null, cancellationToken);
+        HttpResponseMessage refreshResponse = await httpClient.PostAsync("http://databaseapi:5000/api/auth/refresh", null, cancellationToken);
 
         if (!refreshResponse.IsSuccessStatusCode)
         {
@@ -95,25 +94,5 @@ public class JwtHandler(IHttpContextAccessor httpContextAccessor, IHttpClientFac
         }
 
         return clone;
-    }
-
-    /// <summary>
-    /// Gets the base URL of the API depending on the configured environment variables.
-    /// </summary>
-    /// <returns>The base URL string for the API.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when necessary environment variables are not set.</exception>
-    private static string GetApiBaseUrl()
-    {
-        if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
-        {
-            return "http://databaseapi:5000";
-        }
-        else
-        {
-            string apiBaseUrl = Environment.GetEnvironmentVariable("APP_URL") ?? throw new InvalidOperationException("APP_URL environment variable not set.");
-            string databaseApiPort = Environment.GetEnvironmentVariable("DATABASE_API_PORT") ?? throw new InvalidOperationException("DATABASE_API_PORT environment variable not set.");
-            
-            return $"{apiBaseUrl}:{databaseApiPort}";
-        }
     }
 }

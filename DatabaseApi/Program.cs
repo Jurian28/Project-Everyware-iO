@@ -24,10 +24,10 @@ builder.Services.AddHttpClient("ApiClient")
     .AddHttpMessageHandler<JwtHandler>();
 
 builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
     .AddJwtBearer("Bearer", JwtOptions.GetJwtOptions);
 
 builder.Services.AddAuthorization();
@@ -58,7 +58,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") != "true")
+if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
 {
     using IServiceScope scope = app.Services.CreateScope();
     ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

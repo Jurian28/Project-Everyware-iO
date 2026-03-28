@@ -10,7 +10,7 @@ namespace WebApp.Controllers;
 /// <param name="httpClientFactory">The factory used to create instances of <see cref="HttpClient"/>.</param>
 public class AuthController(IHttpClientFactory httpClientFactory) : Controller
 {
-    private static readonly string AUTH_API_BASE_URL = GetApiBaseUrl();
+    private static readonly string AUTH_API_BASE_URL = "http://databaseapi:5000";
 
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
 
@@ -38,12 +38,14 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
             return View(viewModel);
         }
 
-        string loginUrl = $"{AUTH_API_BASE_URL}/login";
+        string loginUrl = $"{AUTH_API_BASE_URL}/api/auth/login";
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync(loginUrl, new
         {
             viewModel.Email,
             viewModel.Password
         });
+
+        Console.WriteLine(await response.Content.ReadAsStringAsync());
 
         if (response.IsSuccessStatusCode)
         {
@@ -95,7 +97,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
             return View(viewModel);
         }
 
-        string registerUrl = $"{AUTH_API_BASE_URL}/register";
+        string registerUrl = $"{AUTH_API_BASE_URL}/api/auth/register";
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync(registerUrl, new
         {
             viewModel.Email,
@@ -132,7 +134,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
         Response.Cookies.Delete("AccessToken");
         Response.Cookies.Delete("RefreshToken");
 
-        string logoutUrl = $"{AUTH_API_BASE_URL}/logout";
+        string logoutUrl = $"{AUTH_API_BASE_URL}/api/auth/logout";
         await _httpClient.PostAsync(logoutUrl, null);
 
         return RedirectToAction("Index", "Home");
@@ -159,25 +161,5 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
             SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.Now.AddDays(7)
         });
-    }
-
-    /// <summary>
-    /// Retrieves the base URL for the API based on the current execution environment.
-    /// </summary>
-    /// <returns>The constructed API base URL string.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when the <c>APP_URL</c> or <c>DATABASE_API_PORT</c> environment variables are not set in a non-Docker environment.</exception>
-    private static string GetApiBaseUrl()
-    {
-        if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
-        {
-            return "http://databaseapi:5000";
-        }
-        else
-        {
-            string apiBaseUrl = Environment.GetEnvironmentVariable("APP_URL") ?? throw new InvalidOperationException("APP_URL environment variable not set.");
-            string databaseApiPort = Environment.GetEnvironmentVariable("DATABASE_API_PORT") ?? throw new InvalidOperationException("DATABASE_API_PORT environment variable not set.");
-
-            return $"{apiBaseUrl}:{databaseApiPort}";
-        }
     }
 }
