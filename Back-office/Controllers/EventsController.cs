@@ -1,5 +1,4 @@
 ﻿using Back_office.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
 
@@ -8,33 +7,39 @@ namespace Back_office.Controllers
     [Route("events")]
     public class EventsController : Controller
     {
-        private readonly UserManager<User> _userManager;
-
-        public EventsController(UserManager<User> userManager)
+        public EventsController ()
         {
-            _userManager = userManager;
+            
         }
 
         [HttpGet]
+        [Route("")]
         public IActionResult Index()
         {
-            return View();
+            Event eventModel = new Event();
+            List<Event> events = new List<Event>();
+            events.Add(eventModel);
+
+            return View(events);
         }
 
         [HttpGet]
-        public IActionResult Show()
+        [Route("{id}")]
+        public IActionResult Show(int id)
         {
             return View();
         }
 
         [HttpGet]
+        [Route("create")]
         public IActionResult Create()
         {
             return View();
         }
 
         [HttpGet]
-        public IActionResult Edit()
+        [Route("edit/{id}")]
+        public IActionResult Edit(int id)
         {
             return View();
         }

@@ -19,10 +19,28 @@ services:
       - "${BACK_OFFICE_PORT:?}:5000"
     environment:
       - RUNNING_IN_DOCKER=true
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
     env_file:
       - .env
     volumes:
       - backofficekeys:/root/.aspnet/DataProtection-Keys
+    develop:
+      watch:
+        - action: sync
+          path: ./Back-office
+          target: /app/Back-office
+          ignore:
+            - bin/
+            - obj/
+        - action: sync
+          path: ./SharedClassLibrary
+          target: /app/SharedClassLibrary
+          ignore:
+            - bin/
+            - obj/
+        - action: rebuild
+          path: ./Back-office/Back-office.csproj
     depends_on:
       - mssql
       - databaseapi
