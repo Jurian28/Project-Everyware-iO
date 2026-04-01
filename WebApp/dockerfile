@@ -7,8 +7,8 @@ COPY SharedClassLibrary/ SharedClassLibrary/
 
 WORKDIR /app/WebApp
 
-RUN dotnet restore && dotnet publish -c Release -o out
+RUN dotnet restore
 
-CMD ["dotnet", "out/WebApp.dll"]
+CMD ["dotnet", "watch", "run"]
 
 EXPOSE 5000
