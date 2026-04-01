@@ -1,31 +1,65 @@
 services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2025-latest
-    ports: 
+    ports:
       - 1433:1433
     volumes:
       - mssql:/var/opt/mssql
+    env_file:
+      - .env
     environment:
       ACCEPT_EULA: "Y"
+      SA_PASSWORD: "${DB_PASSWORD:?}"
 
   back-office:
     build:
-      context: Back-office
+      context: .
+      dockerfile: Back-office/dockerfile
     ports:
-      - 5003:5000
+      - "${BACK_OFFICE_PORT:?}:5000"
+    environment:
+      - RUNNING_IN_DOCKER=true
+    env_file:
+      - .env
+    volumes:
+      - backofficekeys:/root/.aspnet/DataProtection-Keys
+    depends_on:
+      - mssql
+      - databaseapi
 
   webapp:
     build:
-      context: Webapp
+      context: .
+      dockerfile: WebApp/dockerfile
     ports:
-      - 5001:5000
+      - "${WEB_APP_PORT:?}:5000"
+    environment:
+      - RUNNING_IN_DOCKER=true
+    env_file:
+      - .env
+    volumes:
+      - webappkeys:/root/.aspnet/DataProtection-Keys
+    depends_on:
+      - mssql
+      - databaseapi
 
   databaseapi:
     build:
-      context: DatabaseApi
+      context: .
+      dockerfile: DatabaseApi/dockerfile
     ports:
-      - 5002:5000
-
+      - "${DATABASE_API_PORT:?}:5000"
+    environment:
+      - RUNNING_IN_DOCKER=true
+    env_file:
+      - .env
+    volumes:
+      - databaseapikeys:/root/.aspnet/DataProtection-Keys
+    depends_on:
+      - mssql
 
 volumes:
   mssql:
+  backofficekeys:
+  webappkeys:
+  databaseapikeys:
