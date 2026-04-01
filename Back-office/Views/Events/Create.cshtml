@@ -1,15 +1,64 @@
-﻿
+﻿@model Event
+
 <div class="container">
     <h1>Add Events</h1>
 
     <div>
-        <a class="btn btn-primary" href="/events" asp-controller="Home">Back to Events</a>
+        <a class="btn btn-primary" asp-controller="Events" asp-action="Index">Back to Events</a>
     </div>
 
-    <form method="post" asp-action="Store">
-        <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" class="form-control" id="name" name="name" required>
+    <form method="post" asp-action="Store" enctype="multipart/form-data">
+        <div>
+            @* Left side *@
+            <div>
+                <div class="form-group">
+                    <label asp-for="Title">Title</label>
+                    <input type="text" class="form-control" id="title" asp-for="Title" required>
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label asp-for="StartDate">Start Date</label>
+                        <input type="date" class="form-control" id="start-date" asp-for="StartDate" required>
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EndDate">End Date</label>
+                        <input type="date" class="form-control" id="end-date" asp-for="EndDate" required>
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Location">Location</label>
+                    <input type="text" class="form-control" id="location" asp-for="Location" required>
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description">Description</label>
+                    <textarea class="form-control" id="description" asp-for="Description" required></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            @* Right side *@
+            <div>
+                <div class="form-group">
+                    <label>Upload Logo</label>
+                    <input type="file" name="logoFile" class="form-control" accept="image/*" />
+                </div>
+
+                <input type="hidden" asp-for="LogoPath" />
+
+                <div class="form-group">
+                    <label asp-for="MainColorHex">Main Color</label>
+                    <input type="color" class="form-control" id="main-color-hex" asp-for="MainColorHex" required>
+                    <span asp-validation-for="MainColorHex" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AccentColorHex">Accent Color</label>
+                    <input type="color" class="form-control" id="accent-color-hex" asp-for="AccentColorHex" required>
+                    <span asp-validation-for="AccentColorHex" class="text-danger"></span>
+                </div>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-success">Add Event</button>

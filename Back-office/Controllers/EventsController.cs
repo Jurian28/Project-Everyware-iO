@@ -16,11 +16,7 @@ namespace Back_office.Controllers
         [Route("")]
         public IActionResult Index()
         {
-            Event eventModel = new Event();
-            List<Event> events = new List<Event>();
-            events.Add(eventModel);
-
-            return View(events);
+            return View();
         }
 
         [HttpGet]
@@ -44,11 +40,13 @@ namespace Back_office.Controllers
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Store(Event eventModel) 
+        [HttpPost("store")]
+        public async Task<IActionResult> Store(Event eventModel, IFormFile logoFile) 
         {
             try
             {
+                Console.WriteLine($"Received event: {eventModel.Title}");
+                Console.WriteLine($"Received file: {logoFile.FileName}");
                 // TODO
 
                 return RedirectToAction("Index");
@@ -59,7 +57,7 @@ namespace Back_office.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("update")]
         public async Task<IActionResult> Update(Event eventModel)
         {
             try

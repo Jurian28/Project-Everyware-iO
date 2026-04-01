@@ -17,4 +17,9 @@
     <ProjectReference Include="..\SharedClassLibrary\SharedClassLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\ViewModels\" />
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
 </Project>
