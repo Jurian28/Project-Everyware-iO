@@ -1,6 +1,7 @@
 ﻿using Back_office.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
+using System.Reflection;
 
 namespace Back_office.Controllers
 {
@@ -20,13 +21,6 @@ namespace Back_office.Controllers
         }
 
         [HttpGet]
-        [Route("{id}")]
-        public IActionResult Show(int id)
-        {
-            return View();
-        }
-
-        [HttpGet]
         [Route("create")]
         public IActionResult Create()
         {
@@ -34,10 +28,21 @@ namespace Back_office.Controllers
         }
 
         [HttpGet]
-        [Route("edit/{id}")]
+        [Route("{id}/edit")]
         public IActionResult Edit(int id)
         {
-            return View();
+            Event eventModel = new Event();
+            eventModel.IdEvent = id;
+            eventModel.Title = "Teen Titans Go";
+            eventModel.Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+            eventModel.Location = "Paris, France";
+            eventModel.StartDate = DateTime.Now;
+            eventModel.EndDate = DateTime.Now.AddDays(2);
+            eventModel.MainColorHex = "#FF5733";
+            eventModel.AccentColorHex = "#33C1FF";
+            eventModel.LogoPath = "/images/teen-titans-go-logo.png";
+
+            return View(eventModel);
         }
 
         [HttpPost("store")]
@@ -58,10 +63,15 @@ namespace Back_office.Controllers
         }
 
         [HttpPost("update")]
-        public async Task<IActionResult> Update(Event eventModel)
+        public async Task<IActionResult> Update(Event eventModel, IFormFile? logoFile)
         {
             try
             {
+                if(logoFile != null)
+                {
+                    Console.WriteLine($"Received file: {logoFile.FileName}");
+                }
+                Console.WriteLine($"Received event: {eventModel.Title}");
                 // TODO
 
                 return RedirectToAction("Index");
