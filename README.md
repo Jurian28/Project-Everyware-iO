@@ -120,7 +120,8 @@
 
   * Geen gebruik van `var`, expliciete types verplicht
   * Namespaces zonder blokhaakjes (`namespace MyApp;` in plaats van `{ }`)
-  * XML-documentatie voor publieke classes, methods en properties verplicht (`/// <summary>…</summary>`)
+  * XML-documentatie voor publieke classes en methods verplicht (`/// <summary>…</summary>`)
+  * XML-documentatie toevoegen aan publieke properties alleen wanneer de naam niet voldoende aangeeft wat het property inhoudt (type input en validatie van input) 
 * **Structuur & Herbruikbaarheid**:
 
   * logica in services, controllers alleen voor request/response handling
