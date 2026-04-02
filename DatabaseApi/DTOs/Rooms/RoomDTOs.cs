@@ -3,7 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DatabaseApi.DTOs.Rooms
 {
-    public class RoomDTOs
+    /// <summary>
+    /// RoomData send in gets and as a response to post/put requests
+    /// </summary>
+    public class RoomResponseDTO
     {
         public int IdRoom { get; set; }
         public string RoomLabel { get; set; }
@@ -11,7 +14,9 @@ namespace DatabaseApi.DTOs.Rooms
         public string Description { get; set; }
         public int IdEvent { get; set; }
     }
-
+    /// <summary>
+    /// Represents the input data for creating a Room.
+    /// </summary>
     public class RoomInsertDTO
     {
         [Required(ErrorMessage = "RoomLabel is required.")]
@@ -25,7 +30,9 @@ namespace DatabaseApi.DTOs.Rooms
         public int IdEvent { get; set; }
 
     }
-
+    /// <summary>
+    /// Represents the input data for updating a Room.
+    /// </summary>
     public class RoomUpdateDTO
     {
         [Required(ErrorMessage = "RoomLabel is required.")]

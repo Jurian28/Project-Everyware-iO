@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Back_office.DTOs;
+using SharedClassLibrary.ApiResponse;
 
 namespace Back_office.Controllers
 {
@@ -22,15 +23,10 @@ namespace Back_office.Controllers
         public async Task<IActionResult> GetRoomsForEvent([FromQuery] int eventId)
         {
             var client = _httpClientFactory.CreateClient("DatabaseApi");
+            var response = await client.GetAsync($"/room?eventId={eventId}");
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<RoomDTO>>>();
 
-            var response = await client.GetAsync($"room?eventId={eventId}");
-
-            if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode);
-
-            var rooms = await response.Content.ReadFromJsonAsync<List<RoomDTO>>();
-
-            return Ok(rooms);
+            return StatusCode((int)response.StatusCode, apiResponse);
         }
 
 

@@ -19,7 +19,7 @@ namespace DatabaseApi.DTOs.Rooms
             room.Description = dto.Description;
         }
 
-        public static RoomDTOs ToResponseDTO(Room room) => new RoomDTOs
+        public static RoomResponseDTO ToResponseDTO(Room room) => new RoomResponseDTO
         {
             IdRoom = room.IdRoom,
             RoomLabel = room.RoomLabel,
