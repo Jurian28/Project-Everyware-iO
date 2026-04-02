@@ -16,7 +16,7 @@ namespace Back_office.Models
         [MaxLength(250)]
         public string Location { get; set; }
         [MaxLength(5000)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         [Required]
         [MinLength(4)]
         [MaxLength(7)]
@@ -25,7 +25,7 @@ namespace Back_office.Models
         [MinLength(4)]
         [MaxLength(7)]
         public string AccentColorHex { get; set; }
-        public string LogoPath { get; set; }
+        public string? LogoPath { get; set; }
 
         public ICollection<Room> Rooms { get; set; } = new List<Room>();
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();

@@ -1,4 +1,5 @@
 ﻿using Back_office.Models;
+using Back_office.Models.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
 using System.Reflection;
@@ -6,18 +7,43 @@ using System.Reflection;
 namespace Back_office.Controllers
 {
     [Route("events")]
-    public class EventsController : Controller
+    public class EventsController(IHttpClientFactory httpClientFactory) : Controller
     {
-        public EventsController ()
-        {
-            
-        }
+        private static readonly string API_BASE_URL = "http://databaseapi:5000";
+        private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
 
         [HttpGet]
         [Route("")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            try
+            {
+                string url = $"{API_BASE_URL}/api/event";
+
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    ApiResponse<List<Event>>? json = await response.Content.ReadFromJsonAsync<ApiResponse<List<Event>>>();
+
+                    if (json != null)
+                    {
+                        Console.WriteLine(json);
+                    }
+
+                    return View("Index", json.Data);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Error in Store method...");
+
+                    return View("Index", "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                return View("Index", "Home");
+            }
         }
 
         [HttpGet]
@@ -48,13 +74,55 @@ namespace Back_office.Controllers
         [HttpPost("store")]
         public async Task<IActionResult> Store(Event eventModel, IFormFile? logoFile) 
         {
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine($"Validation error: {error.ErrorMessage}");
+                }
+                return View("Create", eventModel);
+            }
+
             try
             {
-                Console.WriteLine($"Received event: {eventModel.Title}");
-                Console.WriteLine($"Received file: {logoFile?.FileName}");
-                // TODO
+                string url = $"{API_BASE_URL}/api/event";
+                using var content = new MultipartFormDataContent();
 
-                return RedirectToAction("Index");
+                content.Add(new StringContent(eventModel.Title ?? ""), "Title");
+                content.Add(new StringContent(eventModel.Location ?? ""), "Location");
+                content.Add(new StringContent(eventModel.Description ?? ""), "Description");
+                content.Add(new StringContent(eventModel.MainColorHex ?? ""), "MainColorHex");
+                content.Add(new StringContent(eventModel.AccentColorHex ?? ""), "AccentColorHex");
+
+                content.Add(new StringContent(eventModel.StartDate.ToString("o")), "StartDate");
+                content.Add(new StringContent(eventModel.EndDate.ToString("o")), "EndDate");
+
+                if (logoFile != null)
+                {
+                    var fileStream = logoFile.OpenReadStream();
+                    var fileContent = new StreamContent(fileStream);
+                    content.Add(fileContent, "LogoFile", logoFile.FileName);
+                }
+
+                HttpResponseMessage response = await _httpClient.PostAsync(url, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    ApiResponse<Event>? json = await response.Content.ReadFromJsonAsync<ApiResponse<Event>>();
+
+                    if (json != null)
+                    {
+                        Console.WriteLine(json);
+                    }
+
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Error in Store method...");
+
+                    return View("Create", eventModel);
+                }
             }
             catch (Exception ex)
             {
@@ -65,6 +133,15 @@ namespace Back_office.Controllers
         [HttpPost("update")]
         public async Task<IActionResult> Update(Event eventModel, IFormFile? logoFile)
         {
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine($"Validation error: {error.ErrorMessage}");
+                }
+                return View("Create", eventModel);
+            }
+
             try
             {
                 if(logoFile != null)
