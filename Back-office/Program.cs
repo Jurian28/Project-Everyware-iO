@@ -25,9 +25,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddHttpClient("DatabaseApi", client =>
 {
-    string baseUrl = Environment.GetEnvironmentVariable("APP_URL") ?? "http://localhost";
-    string databasePort = Environment.GetEnvironmentVariable("DATABASE_API_PORT") ?? "8001";
-    client.BaseAddress = new Uri(baseUrl + ":" + databasePort);
+    client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("API_BASE_URL"));
 });
 
 var app = builder.Build();

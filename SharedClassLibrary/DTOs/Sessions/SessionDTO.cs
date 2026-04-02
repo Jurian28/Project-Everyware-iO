@@ -5,6 +5,6 @@ public class SessionDTO
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public bool Plenary { get; set; }
-    public int Capacity { get; set; }
+    public int? Capacity { get; set; }
     public int IdRoom { get; set; }
 }
