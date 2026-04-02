@@ -7,8 +7,8 @@ COPY SharedClassLibrary/ SharedClassLibrary/
 
 WORKDIR /app/DatabaseApi
 
-RUN dotnet restore && dotnet publish -c Release -o out
+RUN dotnet restore
 
-CMD ["dotnet", "out/DatabaseApi.dll"]
+CMD ["dotnet", "watch", "run"]
 
 EXPOSE 5000
