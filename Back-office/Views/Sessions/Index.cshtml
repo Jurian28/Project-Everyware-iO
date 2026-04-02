@@ -1,6 +1,6 @@
+@model SessionListDto
 @{
     ViewData["Title"] = "Sessions";
-    var eventId = ViewBag.EventId;
 }
 
-<h1>Sessions for Event @eventId</h1>
+<h1>Sessions for Event @Model.EventId</h1>

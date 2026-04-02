@@ -3,7 +3,7 @@ using SharedClassLibrary.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://0.0.0.0:5000"); 
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -22,6 +22,13 @@ builder.Services.AddAuthentication(options =>
     .AddJwtBearer("Bearer", JwtOptions.GetJwtOptions);
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddHttpClient("DatabaseApi", client =>
+{
+    string baseUrl = Environment.GetEnvironmentVariable("APP_URL") ?? "http://localhost";
+    string databasePort = Environment.GetEnvironmentVariable("DATABASE_API_PORT") ?? "8001";
+    client.BaseAddress = new Uri(baseUrl + ":" + databasePort);
+});
 
 var app = builder.Build();
 
