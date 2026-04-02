@@ -7,4 +7,7 @@ public class SessionDTO
     public bool Plenary { get; set; }
     public int? Capacity { get; set; }
     public int IdRoom { get; set; }
+    public string SpeakerName { get; set; }
+    public string RoomName { get; set; }
+    public List<string> TagNames { get; set; }
 }

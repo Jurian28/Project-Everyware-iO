@@ -9,6 +9,8 @@ namespace DatabaseApi.Controllers
     public class SessionController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly string noRoomErrorMessage = "Geen gekoppelde kamer";
+        private readonly string noSpeakerErrorMessage = "Geen gekoppelde spreker";
 
         public SessionController(ApplicationDbContext context)
         {
@@ -19,6 +21,9 @@ namespace DatabaseApi.Controllers
         public async Task<ActionResult<IEnumerable<SessionDTO>>> GetAllSessions(int eventId)
         {
             var sessions = await _context.Sessions
+                .Include(s => s.Room)
+                .Include(s => s.Speakers)
+                .Include(s => s.Tags)
                 .Where(s => s.IdEvent == eventId)
                 .Select(s => new SessionDTO
                 {
@@ -28,7 +33,12 @@ namespace DatabaseApi.Controllers
                     EndTime = s.EndTime,
                     Plenary = s.Plenary,
                     Capacity = s.Capacity,
-                    IdRoom = s.IdRoom
+                    IdRoom = s.IdRoom,
+                    RoomName = s.Room.RoomLabel ?? noRoomErrorMessage,
+                    TagNames = s.Tags.Select(t => t.Title).ToList(),
+                    SpeakerName = s.Speakers
+                        .Select(t => $"{t.FirstName} {t.MiddleName} {t.LastName}".Replace("  ", " ").Trim())
+                        .FirstOrDefault() ?? noSpeakerErrorMessage
                 })
                 .ToListAsync();
 

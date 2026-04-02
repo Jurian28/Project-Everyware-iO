@@ -7,12 +7,14 @@
     
     <div class="d-flex justify-content-between align-items-center mb-5">
         <div class="search-container" style="position: relative; width: 400px;">
+            @* TODO Functionaliteit toevoegen *@
             <input type="text" class="form-control bg-light border-0" placeholder="Search a session"
                    style="padding-right: 40px; border-radius: 8px;">
             <i class="bi bi-search" style="position: absolute; right: 15px; top: 10px; color: #666;"></i>
         </div>
         <button class="btn btn-light shadow-sm px-4" style="border-radius: 8px; font-weight: 500;">
             New Session <span class="ms-2">+</span>
+            @* TODO functionaliteit geven *@
         </button>
     </div>
 
@@ -24,11 +26,16 @@
                 
                 <div class="left-content">
                     <h2 class="h4 mb-1" style="font-weight: 700;">@session.Title</h2>
-                    <div class="text-dark mb-1">SpeakerName</div>
+    
+                    <div class="text-dark mb-1">@(session.SpeakerName)</div>
+
                     <div class="d-flex gap-3" style="font-weight: 600;">
                         <span>@session.StartTime.ToString("HH:mm") - @session.EndTime.ToString("HH:mm")</span>
-                        <span>RoomName</span>
-                        <span>@session.Capacity spots</span>
+                        <span>@session.RoomName</span>
+                        @if (session.Capacity != null)
+                        {
+                            <span>@session.Capacity spots</span>
+                        }
                     </div>
                 </div>
 
@@ -37,16 +44,27 @@
                             style="background: #EAEAEA; border: 1px solid #000; border-radius: 8px;">
                         Edit <i class="bi bi-pencil-square"></i>
                     </button>
-                    
+    
                     <div class="tags d-flex gap-2">
-                        <span class="badge rounded-pill"
-                              style="background-color: #B2EBF2; color: #006064; border: 1px solid #4DD0E1; padding: 8px 15px;">Technology</span>
-                        <span class="badge rounded-pill"
-                              style="background-color: #FFF9C4; color: #FBC02D; border: 1px solid #FDD835; padding: 8px 15px;">Introductory</span>
+                        @if (session.TagNames.Count() < 1)
+                        {
+                            <p>Geen tags</p>
+                        }
+                        else
+                        {
+                            @foreach (var tagName in session.TagNames)
+                            {
+                                <span class="badge rounded-pill"
+                                      style="background-color: #B2EBF2; color: #006064; border: 1px solid #4DD0E1; padding: 8px 15px;">
+                                    @tagName
+                                </span>
+                            }
+                        }
                     </div>
                 </div>
 
             </div>
         }
+        @* TODO pagination *@
     </div>
 </div>
