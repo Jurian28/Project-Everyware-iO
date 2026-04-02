@@ -15,7 +15,6 @@ namespace Back_office.Models
         [Required]
         [MaxLength(250)]
         public string Location { get; set; }
-        [Required]
         [MaxLength(5000)]
         public string Description { get; set; }
         [Required]

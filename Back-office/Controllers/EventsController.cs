@@ -46,12 +46,12 @@ namespace Back_office.Controllers
         }
 
         [HttpPost("store")]
-        public async Task<IActionResult> Store(Event eventModel, IFormFile logoFile) 
+        public async Task<IActionResult> Store(Event eventModel, IFormFile? logoFile) 
         {
             try
             {
                 Console.WriteLine($"Received event: {eventModel.Title}");
-                Console.WriteLine($"Received file: {logoFile.FileName}");
+                Console.WriteLine($"Received file: {logoFile?.FileName}");
                 // TODO
 
                 return RedirectToAction("Index");
