@@ -70,7 +70,16 @@ if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
     using IServiceScope scope = app.Services.CreateScope();
     ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-    db.Database.Migrate();
+    try
+    {
+        Console.WriteLine("[DB] Migrating...");
+        db.Database.Migrate();
+        Console.WriteLine("[DB] Done Migrating...");
+    }
+    catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 1801)
+    {
+        Console.WriteLine("[DB] Database already exists, skipping creation.");
+    }
 }
 
 app.Run();
