@@ -5,8 +5,8 @@
 @section Scripts {
     <script src="~/js/rooms.js" defer data-event-id="@Model"></script>
 }
-<div class="d-flex flex-fill m-4 gap-3 max-h-100 h-100">
-    <div id="roomList" style="flex: 2" class="bg-dark-subtle rounded-3 p-4 overflow-auto h-100">
+<div class="d-flex flex-fill m-4 gap-3 mh-100 max-h-100 overflow-hidden">
+    <div id="roomList" style="flex: 2" class="bg-dark-subtle rounded-3 p-4 overflow-auto h-100 max-h-100">
         <div id="loadingMessage" class="text-center my-auto">Loading...</div>
         <div id="noRoomsMessage" class="text-center my-auto d-none">No rooms found</div>
     </div>
