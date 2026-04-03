@@ -45,3 +45,8 @@ body {
 #userDropdownMenu{
     right:5px;
 }
+
+.nav-item{
+    background-color: floralwhite;
+    border-radius: 12px;
+}
