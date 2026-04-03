@@ -8,6 +8,7 @@ namespace Back_office.Controllers
     {
         public IActionResult Index()
         {
+            ViewData["EventId"] = 1;
             return View();
         }
 

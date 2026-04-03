@@ -9,16 +9,25 @@ namespace Back_office.Controllers
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
+        /// <summary>
+        /// Controller responsible for handling user authentication actions such as login, registration, and logout.
+        /// </summary>
         public RoomController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
+        /// <summary>
+        /// room crud page
+        /// </summary>
         public IActionResult Index(int eventId)
         {
+            ViewData["EventId"] = eventId;
             return View(eventId);
         }
 
-
+        /// <summary>
+        /// get for rooms used in js on room/index.cshtml
+        /// </summary>
         [HttpGet("data")]
         public async Task<IActionResult> GetRoomsForEvent(int eventId)
         {
@@ -29,7 +38,9 @@ namespace Back_office.Controllers
             return StatusCode((int)response.StatusCode, apiResponse);
         }
 
-
+        /// <summary>
+        /// post or put for rooms used in js on room/index.cshtml
+        /// </summary>
         [HttpPost("data")]
         public async Task<IActionResult> SaveRoom([FromBody] RoomDTO room)
         {
@@ -50,6 +61,9 @@ namespace Back_office.Controllers
             return StatusCode((int)response.StatusCode, content);
         }
 
+        /// <summary>
+        /// delete for rooms used in js on room/index.cshtml
+        /// </summary>
         [HttpDelete("{idRoom}")]
         public async Task<IActionResult> DeleteRoom(int idRoom)
         {

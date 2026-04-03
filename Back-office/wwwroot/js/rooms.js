@@ -4,6 +4,7 @@ const deleteButton = document.getElementById("deleteButton");
 const searchParams = new URLSearchParams(window.location.search);
 const scriptTag = document.currentScript;
 const eventId = parseInt(scriptTag.dataset.eventId);
+const editButtons = document.getElementsByClassName("js-room-edit-button");
 
 
 async function submitRoom(event) {
@@ -32,10 +33,25 @@ async function submitRoom(event) {
 
     if (response.ok) {
         clearRoomForm()
+        try {
+            document.getElementById("successMessageBox").innerText = `Successfully created a room with label: ${room.roomLabel}`;
+            setTimeout(() => {
+                document.getElementById("successMessageBox").innerText = "";
+            }, 5000);
+        } catch (e) {
+            console.error(e)
+        }
         loadRooms();
     } else {
-        const error = await response.text();
-        console.error(error);
+        try {
+            const errorResponse = await response.json();
+            if (errorResponse && errorResponse.error) {
+                document.getElementById("errorMessageBox").innerText = errorResponse.error;
+            }
+        }
+        catch (e) {
+            console.log("Error parsing error response", e);
+        }
     }
 }
 
@@ -57,7 +73,21 @@ function clearRoomForm() {
     document.getElementById("capacity").value = "";
     document.getElementById("description").value = "";
 
+    hideFormButtons();
+}
+
+function hideFormButtons() {
     deleteButton.classList.add("invisible");
+
+    for (editButton of editButtons) {
+        editButton.classList.add("invisible");
+    }
+}
+
+function showEditButtons() {
+    for (editButton of editButtons) {
+        editButton.classList.remove("invisible");
+    }
 }
 
 function loadRoomForEdit(room) {
@@ -66,6 +96,7 @@ function loadRoomForEdit(room) {
     document.getElementById("capacity").value = room.capacity;
     document.getElementById("description").value = room.description ?? "";
     deleteButton.classList.remove("invisible");
+    showEditButtons();
 }
 
 async function loadRooms() {
