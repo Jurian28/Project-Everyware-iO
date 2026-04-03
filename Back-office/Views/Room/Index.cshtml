@@ -1,37 +1,43 @@
-﻿@{
+﻿@model int
+@{
     ViewData["Title"] = "Rooms";
 }
 @section Scripts {
-    <script src="~/js/rooms.js" defer></script>
+    <script src="~/js/rooms.js" defer data-event-id="@Model"></script>
 }
-<div class="d-flex flex-fill m-4 gap-3">
-    <div id="roomList" style="flex: 2" class="bg-dark-subtle rounded-3">
+<div class="d-flex flex-fill m-4 gap-3 max-h-100 h-100">
+    <div id="roomList" style="flex: 2" class="bg-dark-subtle rounded-3 p-4 overflow-auto h-100">
         <div id="loadingMessage" class="text-center my-auto">Loading...</div>
         <div id="noRoomsMessage" class="text-center my-auto d-none">No rooms found</div>
     </div>
-    <div style="flex: 1" class="bg-danger">
-        <form id="roomForm">
-            <input type="hidden" id="roomId" value="" />
-            <input type="hidden" id="eventId" value="1" />
-            <div class="mb-3">
-                <label for="roomLabel" class="form-label">Room Label</label>
-                <input type="text" class="form-control" id="roomLabel" required />
+    <div style="flex: 1" class="px-4">
+        <form id="roomForm" class="d-flex flex-column h-100" onsubmit="submitRoom(event)">
+            <div class="flex-grow-1">
+                <input type="hidden" id="roomId" value="" />
+                <div class="mb-3">
+                    <label for="roomLabel" class="form-label">Room Label</label>
+                    <input type="text" class="form-control" id="roomLabel" required />
+                </div>
+                <div class="mb-3">
+                    <label for="capacity" class="form-label">Capacity</label>
+                    <input type="number" class="form-control" id="capacity" min="1" required />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description"></textarea>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="capacity" class="form-label">Capacity</label>
-                <input type="number" class="form-control" id="capacity" min="1" required />
+            <div class="d-flex justify-content-between">
+                <button id="deleteButton" type="button" class="btn btn-danger py-0 invisible" onclick="deleteRoom()">Delete</button>
+                <button type="button" class="btn btn-dark py-0" onclick="clearRoomForm()">Cancel</button>
+                <button type="submit" class="btn btn-success py-0">Save</button>
             </div>
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description"></textarea>
-            </div>
-            <button type="button" class="btn btn-primary" onclick="submitRoom()">Save</button>
         </form>
     </div>
 </div>
 
 <template id="roomRowTemplate">
-    <div class="p-3 border-bottom" style="cursor:pointer">
+    <div class="p-3 bg-white my-1" style="cursor:pointer">
         <span class="me-4 fw-bold" data-field="roomLabel"></span>
         <span class="me-4" data-field="capacity"></span>
         <span data-field="description"></span>

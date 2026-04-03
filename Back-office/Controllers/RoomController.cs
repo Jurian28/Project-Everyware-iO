@@ -4,7 +4,7 @@ using SharedClassLibrary.ApiResponse;
 
 namespace Back_office.Controllers
 {
-    [Route("[controller]")]
+    [Route("{eventId}/[controller]")]
     public class RoomController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -13,14 +13,14 @@ namespace Back_office.Controllers
         {
             _httpClientFactory = httpClientFactory;
         }
-        public IActionResult Index()
+        public IActionResult Index(int eventId)
         {
-            return View();
+            return View(eventId);
         }
 
 
         [HttpGet("data")]
-        public async Task<IActionResult> GetRoomsForEvent([FromQuery] int eventId)
+        public async Task<IActionResult> GetRoomsForEvent(int eventId)
         {
             var client = _httpClientFactory.CreateClient("DatabaseApi");
             var response = await client.GetAsync($"/room?eventId={eventId}");
@@ -37,17 +37,25 @@ namespace Back_office.Controllers
 
             HttpResponseMessage response;
 
-            // Decide based on IdRoom
             if (room.IdRoom == null || room.IdRoom == 0)
             {
-                // CREATE
                 response = await client.PostAsJsonAsync("room", room);
             }
             else
             {
-                // UPDATE
                 response = await client.PutAsJsonAsync($"room/{room.IdRoom}", room);
             }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return StatusCode((int)response.StatusCode, content);
+        }
+
+        [HttpDelete("{idRoom}")]
+        public async Task<IActionResult> DeleteRoom(int idRoom)
+        {
+            var client = _httpClientFactory.CreateClient("DatabaseApi");
+
+            HttpResponseMessage response = await client.DeleteAsync("room/"+ idRoom);
 
             var content = await response.Content.ReadAsStringAsync();
             return StatusCode((int)response.StatusCode, content);

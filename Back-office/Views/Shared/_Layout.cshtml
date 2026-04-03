@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="d-flex flex-column vh-100">
+<body class="d-flex flex-column vh-100 ">
     <header>
         <nav class="navbar navbar-expand-sm mb-3 extra-navbar-styling">
             <div class="container-fluid">
@@ -28,7 +28,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Speaker</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Rooms</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Room" asp-action="Index">Rooms</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Tags</a>
@@ -62,7 +62,7 @@
             </div>
         </nav>
     </header>
-    <main role="main" class="flex-fill d-flex flex-column">
+    <main role="main" class="flex-fill d-flex flex-column height-main">
         @RenderBody()
     </main>
 

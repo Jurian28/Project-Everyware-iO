@@ -1,8 +1,20 @@
-﻿const eventId = 1;
-const loadingMessage = document.getElementById("loadingMessage");
+﻿const loadingMessage = document.getElementById("loadingMessage");
 const noRoomsMessage = document.getElementById("noRoomsMessage");
+const deleteButton = document.getElementById("deleteButton");
+const searchParams = new URLSearchParams(window.location.search);
+const scriptTag = document.currentScript;
+const eventId = parseInt(scriptTag.dataset.eventId);
 
-async function submitRoom() {
+
+async function submitRoom(event) {
+
+    event.preventDefault();
+
+    if (!event.target.checkValidity()) {
+        event.target.reportValidity();
+        return;
+    }
+
     const idRoom = document.getElementById("roomId").value;
     const room = {
         idroom: idRoom ? parseInt(idRoom) : null,
@@ -11,19 +23,15 @@ async function submitRoom() {
         description: document.getElementById("description").value,
         idEvent: eventId,
     };
-    console.log(room)
 
-    const response = await fetch("/room/data", {
+    const response = await fetch(`/${eventId}/room/data`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(room)
     });
 
     if (response.ok) {
-        document.getElementById("roomId").value = "";
-        document.getElementById("roomLabel").value = "";
-        document.getElementById("capacity").value = "";
-        document.getElementById("description").value = "";
+        clearRoomForm()
         loadRooms();
     } else {
         const error = await response.text();
@@ -31,15 +39,37 @@ async function submitRoom() {
     }
 }
 
+async function deleteRoom() {
+    const idRoom = document.getElementById("roomId").value;
+    if (!idRoom) return;
+    const response = await fetch(`/${eventId}/room/${idRoom}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+    });
+    if (response.ok)
+    clearRoomForm();
+    loadRooms();
+}
+
+function clearRoomForm() {
+    document.getElementById("roomId").value = "";
+    document.getElementById("roomLabel").value = "";
+    document.getElementById("capacity").value = "";
+    document.getElementById("description").value = "";
+
+    deleteButton.classList.add("invisible");
+}
+
 function loadRoomForEdit(room) {
     document.getElementById("roomId").value = room.idRoom;
     document.getElementById("roomLabel").value = room.roomLabel;
     document.getElementById("capacity").value = room.capacity;
     document.getElementById("description").value = room.description ?? "";
+    deleteButton.classList.remove("invisible");
 }
 
 async function loadRooms() {
-    const response = await fetch(`/room/data?eventId=${eventId}`);
+    const response = await fetch(`/${eventId}/room/data`);
     const apiResponse = await response.json();
     const rooms = apiResponse.data;
     loadingMessage.classList.add("d-none");
