@@ -35,14 +35,75 @@ namespace DatabaseApi.Controllers
                     Capacity = s.Capacity,
                     IdRoom = s.IdRoom,
                     RoomName = s.Room.RoomLabel ?? noRoomErrorMessage,
-                    TagNames = s.Tags.Select(t => t.Title).ToList(),
+                    Tags = s.Tags.Select(t => new SessionTagDTO
+                    {
+                        EventId = t.IdEvent,
+                        Title = t.Title
+                    }).ToList(),
+                    SpeakerId = s.Speakers.Select(s => s.IdSpeaker).FirstOrDefault(),
                     SpeakerName = s.Speakers
-                        .Select(t => $"{t.FirstName} {t.MiddleName} {t.LastName}".Replace("  ", " ").Trim())
+                        .Select(s => $"{s.FirstName} {s.MiddleName} {s.LastName}".Replace("  ", " ").Trim())
                         .FirstOrDefault() ?? noSpeakerErrorMessage
                 })
                 .ToListAsync();
 
             return Ok(sessions);
+        }
+
+        [HttpGet("add")]
+        public async Task<ActionResult<CUSessionDTO>> GetAvailableRoomsTagsSpeakers(int eventId)
+        {
+            var sessionData = await AvailableRoomsTagsSpeakers(eventId);
+
+            return Ok(sessionData);
+        }
+
+        [HttpGet("{sessionId}/edit")]
+        public async Task<ActionResult<CUSessionDTO>> GetEditingSession(int eventId, int sessionId)
+        {
+            var sessionData = await AvailableRoomsTagsSpeakers(eventId);
+
+            return Ok(sessionData);
+        }
+
+        private async Task<ActionResult<CUSessionDTO>> AvailableRoomsTagsSpeakers(int eventId)
+        {
+            var availableRooms = await _context.Rooms
+                .Where(r => r.IdEvent == eventId)
+                .Select(r => new SessionRoomDTO
+                {
+                    RoomId = r.IdRoom,
+                    RoomLabel = r.RoomLabel,
+                    Capacity = r.Capacity
+                })
+                .ToListAsync();
+
+            var availableTags = await _context.Tags
+                .Where(t => t.IdEvent == eventId)
+                .Select(t => new SessionTagDTO
+                {
+                    EventId = t.IdEvent,
+                    Title = t.Title
+                })
+                .ToListAsync();
+
+            var availableSpeakers = await _context.Speakers
+                .Where(s => s.IdEvent == eventId)
+                .Select(s => new SessionSpeakerDTO
+                {
+                    SpeakerId = s.IdSpeaker,
+                    Name = $"{s.FirstName} {s.MiddleName} {s.LastName}".Replace("  ", " ").Trim()
+                })
+                .ToListAsync();
+
+            CUSessionDTO session = new CUSessionDTO
+            {
+                AvailableRooms = availableRooms,
+                AvailableTags = availableTags,
+                AvailableSpeakers = availableSpeakers
+            };
+
+            return Ok(session);
         }
     }
 }

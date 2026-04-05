@@ -46,17 +46,17 @@
                     </button>
     
                     <div class="tags d-flex gap-2">
-                        @if (session.TagNames.Count() < 1)
+                        @if (session.Tags.Count() < 1)
                         {
                             <p>Geen tags</p>
                         }
                         else
                         {
-                            @foreach (var tagName in session.TagNames)
+                            @foreach (var tag in session.Tags)
                             {
                                 <span class="badge rounded-pill"
                                       style="background-color: #B2EBF2; color: #006064; border: 1px solid #4DD0E1; padding: 8px 15px;">
-                                    @tagName
+                                    @tag.Title
                                 </span>
                             }
                         }
