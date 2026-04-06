@@ -20,7 +20,7 @@ namespace DatabaseApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SessionDTO>>> GetAllSessions(int eventId)
         {
-            var sessions = await _context.Sessions
+            List<SessionDTO> sessions = await _context.Sessions
                 .Include(s => s.Room)
                 .Include(s => s.Speakers)
                 .Include(s => s.Tags)
@@ -53,22 +53,51 @@ namespace DatabaseApi.Controllers
         [HttpGet("add")]
         public async Task<ActionResult<CUSessionDTO>> GetAvailableRoomsTagsSpeakers(int eventId)
         {
-            var sessionData = await AvailableRoomsTagsSpeakers(eventId);
+            CUSessionDTO availableSessionData = await AvailableRoomsTagsSpeakers(eventId);
 
-            return Ok(sessionData);
+            return Ok(availableSessionData);
         }
 
         [HttpGet("{sessionId}/edit")]
         public async Task<ActionResult<CUSessionDTO>> GetEditingSession(int eventId, int sessionId)
         {
-            var sessionData = await AvailableRoomsTagsSpeakers(eventId);
+            CUSessionDTO sessionData = await AvailableRoomsTagsSpeakers(eventId);
+
+            SessionDTO editingSession = await _context.Sessions
+                .Include(s => s.Room)
+                .Include(s => s.Speakers)
+                .Include(s => s.Tags)
+                .Where(s => s.IdSession == sessionId)
+                .Select(s => new SessionDTO
+                {
+                    SessionId = s.IdSession,
+                    Title = s.Title,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime,
+                    Plenary = s.Plenary,
+                    Capacity = s.Capacity,
+                    IdRoom = s.IdRoom,
+                    RoomName = s.Room.RoomLabel ?? noRoomErrorMessage,
+                    Tags = s.Tags.Select(t => new SessionTagDTO
+                    {
+                        EventId = t.IdEvent,
+                        Title = t.Title
+                    }).ToList(),
+                    SpeakerId = s.Speakers.Select(s => s.IdSpeaker).FirstOrDefault(),
+                    SpeakerName = s.Speakers
+                        .Select(s => $"{s.FirstName} {s.MiddleName} {s.LastName}".Replace("  ", " ").Trim())
+                        .FirstOrDefault() ?? noSpeakerErrorMessage
+                })
+                .FirstOrDefaultAsync() ?? new SessionDTO();
+
+            sessionData.session = editingSession;
 
             return Ok(sessionData);
         }
 
-        private async Task<ActionResult<CUSessionDTO>> AvailableRoomsTagsSpeakers(int eventId)
+        private async Task<CUSessionDTO> AvailableRoomsTagsSpeakers(int eventId)
         {
-            var availableRooms = await _context.Rooms
+            List<SessionRoomDTO> availableRooms = await _context.Rooms
                 .Where(r => r.IdEvent == eventId)
                 .Select(r => new SessionRoomDTO
                 {
@@ -78,7 +107,7 @@ namespace DatabaseApi.Controllers
                 })
                 .ToListAsync();
 
-            var availableTags = await _context.Tags
+            List<SessionTagDTO> availableTags = await _context.Tags
                 .Where(t => t.IdEvent == eventId)
                 .Select(t => new SessionTagDTO
                 {
@@ -87,7 +116,7 @@ namespace DatabaseApi.Controllers
                 })
                 .ToListAsync();
 
-            var availableSpeakers = await _context.Speakers
+            List<SessionSpeakerDTO> availableSpeakers = await _context.Speakers
                 .Where(s => s.IdEvent == eventId)
                 .Select(s => new SessionSpeakerDTO
                 {
@@ -96,14 +125,14 @@ namespace DatabaseApi.Controllers
                 })
                 .ToListAsync();
 
-            CUSessionDTO session = new CUSessionDTO
+            CUSessionDTO sessionDTO = new CUSessionDTO
             {
                 AvailableRooms = availableRooms,
                 AvailableTags = availableTags,
                 AvailableSpeakers = availableSpeakers
             };
 
-            return Ok(session);
+            return sessionDTO;
         }
     }
 }

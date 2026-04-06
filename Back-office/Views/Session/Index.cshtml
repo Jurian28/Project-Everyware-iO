@@ -12,10 +12,10 @@
                    style="padding-right: 40px; border-radius: 8px;">
             <i class="bi bi-search" style="position: absolute; right: 15px; top: 10px; color: #666;"></i>
         </div>
-        <button class="btn btn-light shadow-sm px-4" style="border-radius: 8px; font-weight: 500;">
+        <a asp-controller="Session" asp-action="AddSession" asp-route-eventId="@Model.EventId"
+               class="btn btn-light shadow-sm px-4" style="border-radius: 8px; font-weight: 500;">
             New Session <span class="ms-2">+</span>
-            @* TODO functionaliteit geven *@
-        </button>
+        </a>
     </div>
 
     <div class="session-list">
@@ -40,10 +40,12 @@
                 </div>
 
                 <div class="right-content d-flex flex-column align-items-end justify-content-between">
-                    <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-2 px-3"
-                            style="background: #EAEAEA; border: 1px solid #000; border-radius: 8px;">
+                    <a asp-controller="Session" asp-action="EditSession" asp-route-eventId="@Model.EventId"
+                           asp-route-sessionId="@session.SessionId"
+                           class="btn btn-outline-dark btn-sm d-flex align-items-center gap-2 px-3"
+                           style="background: #EAEAEA; border: 1px solid #000; border-radius: 8px;">
                         Edit <i class="bi bi-pencil-square"></i>
-                    </button>
+                    </a>
     
                     <div class="tags d-flex gap-2">
                         @if (session.Tags.Count() < 1)
