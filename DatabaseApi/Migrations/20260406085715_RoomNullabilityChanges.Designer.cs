@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260403093418_merge")]
-    partial class merge
+    [Migration("20260406085715_RoomNullabilityChanges")]
+    partial class RoomNullabilityChanges
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
