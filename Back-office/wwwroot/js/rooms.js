@@ -6,6 +6,12 @@ const scriptTag = document.currentScript;
 const eventId = parseInt(scriptTag.dataset.eventId);
 const editButtons = document.getElementsByClassName("js-room-edit-button");
 
+let idRoom = null;
+$(document).keydown(function (e) {
+    if (e.keyCode == 27) {
+        clearRoomForm();
+    }
+});
 
 async function submitRoom(event) {
 
@@ -16,7 +22,6 @@ async function submitRoom(event) {
         return;
     }
 
-    const idRoom = document.getElementById("roomId").value;
     const room = {
         idroom: idRoom ? parseInt(idRoom) : null,
         roomLabel: document.getElementById("roomLabel").value,
@@ -32,15 +37,16 @@ async function submitRoom(event) {
     });
 
     if (response.ok) {
-        clearRoomForm()
         try {
-            document.getElementById("successMessageBox").innerText = `Successfully created a room with label: ${room.roomLabel}`;
+            const isEditing = !!idRoom;
+            document.getElementById("successMessageBox").innerText = `Successfully ${isEditing ? 'updated' : 'created'} a room with label: ${room.roomLabel}`;
             setTimeout(() => {
                 document.getElementById("successMessageBox").innerText = "";
             }, 5000);
         } catch (e) {
             console.error(e)
         }
+        clearRoomForm();
         loadRooms();
     } else {
         try {
@@ -56,7 +62,6 @@ async function submitRoom(event) {
 }
 
 async function deleteRoom() {
-    const idRoom = document.getElementById("roomId").value;
     if (!idRoom) return;
     const response = await fetch(`/${eventId}/room/${idRoom}`, {
         method: "DELETE",
@@ -68,6 +73,8 @@ async function deleteRoom() {
 }
 
 function clearRoomForm() {
+    unselectRoomForEdit();
+    idRoom = null;
     document.getElementById("roomId").value = "";
     document.getElementById("roomLabel").value = "";
     document.getElementById("capacity").value = "";
@@ -91,12 +98,26 @@ function showEditButtons() {
 }
 
 function loadRoomForEdit(room) {
-    document.getElementById("roomId").value = room.idRoom;
+    unselectRoomForEdit();
+    idRoom = room.idRoom;
+    const roomRow = document.getElementById(`room-${idRoom}`);
+    if (roomRow) {
+        roomRow.classList.add("bg-selected");
+        roomRow.classList.remove("bg-white");
+    }
+
     document.getElementById("roomLabel").value = room.roomLabel;
     document.getElementById("capacity").value = room.capacity;
     document.getElementById("description").value = room.description ?? "";
     deleteButton.classList.remove("invisible");
     showEditButtons();
+}
+
+function unselectRoomForEdit() {
+    if (!idRoom) return;
+    const roomRow = document.getElementById(`room-${idRoom}`);
+    roomRow.classList.remove("bg-selected");
+    roomRow.classList.add("bg-white");
 }
 
 async function loadRooms() {
@@ -123,6 +144,8 @@ function renderRooms(rooms) {
     rooms.forEach(room => {
         const clone = template.content.cloneNode(true);
         const row = clone.querySelector("div");
+        row.id = `room-${room.idRoom}`;
+        row.classList.add("bg-white");
 
         clone.querySelector("[data-field='roomLabel']").textContent = room.roomLabel;
         clone.querySelector("[data-field='capacity']").textContent = room.capacity;

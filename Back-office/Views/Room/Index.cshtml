@@ -35,7 +35,7 @@
                 <div class="d-flex justify-content-between">
                     <button id="deleteButton" type="button" class="btn btn-danger py-0 invisible" onclick="deleteRoom()">Delete</button>
                     <button type="button" class="js-room-edit-button btn btn-dark py-0 invisible" onclick="clearRoomForm()">Cancel</button>
-                    <button type="submit" class="js-room-edit-button btn btn-success py-0 invisible">Save</button>
+                    <button type="submit" class="btn btn-success py-0">Save</button>
                 </div>
             </div>
         </form>
@@ -43,7 +43,7 @@
 </div>
 
 <template id="roomRowTemplate">
-    <div class="p-3 bg-white my-1 room-row" style="cursor:pointer">
+    <div class="p-3 my-1 room-row" style="cursor:pointer">
         <span class="fw-bold" data-field="roomLabel"></span>
         <span data-field="capacity"></span>
         <span data-field="description"></span>

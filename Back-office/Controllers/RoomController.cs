@@ -7,14 +7,14 @@ namespace Back_office.Controllers
     [Route("{eventId}/[controller]")]
     public class RoomController : Controller
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly HttpClient client;
 
         /// <summary>
         /// Controller responsible for handling user authentication actions such as login, registration, and logout.
         /// </summary>
         public RoomController(IHttpClientFactory httpClientFactory)
         {
-            _httpClientFactory = httpClientFactory;
+            client = httpClientFactory.CreateClient("DatabaseApi");
         }
         /// <summary>
         /// room crud page
@@ -31,9 +31,8 @@ namespace Back_office.Controllers
         [HttpGet("data")]
         public async Task<IActionResult> GetRoomsForEvent(int eventId)
         {
-            var client = _httpClientFactory.CreateClient("DatabaseApi");
-            var response = await client.GetAsync($"/room?eventId={eventId}");
-            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<RoomDTO>>>();
+            HttpResponseMessage response = await client.GetAsync($"/room?eventId={eventId}");
+            ApiResponse<List<RoomDTO>>? apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<RoomDTO>>>();
 
             return StatusCode((int)response.StatusCode, apiResponse);
         }
@@ -44,8 +43,6 @@ namespace Back_office.Controllers
         [HttpPost("data")]
         public async Task<IActionResult> SaveRoom([FromBody] RoomDTO room)
         {
-            var client = _httpClientFactory.CreateClient("DatabaseApi");
-
             HttpResponseMessage response;
 
             if (room.IdRoom == null || room.IdRoom == 0)
@@ -57,7 +54,7 @@ namespace Back_office.Controllers
                 response = await client.PutAsJsonAsync($"room/{room.IdRoom}", room);
             }
 
-            var content = await response.Content.ReadAsStringAsync();
+            string content = await response.Content.ReadAsStringAsync();
             return StatusCode((int)response.StatusCode, content);
         }
 
@@ -67,11 +64,9 @@ namespace Back_office.Controllers
         [HttpDelete("{idRoom}")]
         public async Task<IActionResult> DeleteRoom(int idRoom)
         {
-            var client = _httpClientFactory.CreateClient("DatabaseApi");
-
             HttpResponseMessage response = await client.DeleteAsync("room/"+ idRoom);
 
-            var content = await response.Content.ReadAsStringAsync();
+            string content = await response.Content.ReadAsStringAsync();
             return StatusCode((int)response.StatusCode, content);
         }
     }
