@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Back_office.Controllers
@@ -20,7 +21,7 @@ namespace Back_office.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                return null;
+                return RedirectToAction("Index");
             }
 
             List<SessionDTO> sessions = await response.Content.ReadFromJsonAsync<List<SessionDTO>>() ?? new List<SessionDTO>();
@@ -63,6 +64,31 @@ namespace Back_office.Controllers
             CUSessionDTO session = await response.Content.ReadFromJsonAsync<CUSessionDTO>() ?? new CUSessionDTO();
 
             return View("SessionForm", session);
+        }
+
+        [HttpPost("save")]
+        public async Task<IActionResult> Save(int eventId, SessionDTO session, List<string> selectedTagTitles)
+        {
+            session.Tags = selectedTagTitles
+                .Select(t => new SessionTagDTO { Title = t, EventId = eventId })
+                .ToList()
+                ?? new List<SessionTagDTO>();
+
+            Console.WriteLine("Sending to API: " + JsonSerializer.Serialize(session));
+
+            var response = await client.PostAsJsonAsync($"{eventId}/sessions/save", session);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index", new { eventId = eventId });
+            }
+
+            // FOUTOPSPORING: Lees de error van de API
+            var errorContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"API Failure ({response.StatusCode}): {errorContent}");
+
+            TempData["Error"] = $"Kon de sessie niet opslaan: {response.ReasonPhrase}";
+            return RedirectToAction("Index", new { eventId = eventId });
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using DatabaseApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -133,6 +134,60 @@ namespace DatabaseApi.Controllers
             };
 
             return sessionDTO;
+        }
+
+        [HttpPost("save")]
+        public async Task<IActionResult> SaveSession(int eventId, [FromBody] SessionDTO dto)
+        {
+            Session session;
+            Console.WriteLine("database:");
+            Console.WriteLine(JsonSerializer.Serialize(dto));
+
+            if (dto.SessionId > 0)
+            {
+                session = await _context.Sessions
+                    .Include(s => s.Tags)
+                    .Include(s => s.Speakers)
+                    .FirstOrDefaultAsync(s => s.IdSession == dto.SessionId && s.IdEvent == eventId);
+
+                // Verwijder de ?? new Session regel hierboven, doe de check apart:
+                if (session == null) return NotFound("Sessie niet gevonden.");
+            }
+            else
+            {
+                session = new Session { IdEvent = eventId, Speakers = new List<Speaker>() };
+                _context.Sessions.Add(session);
+            }
+
+            // Basis velden mappen
+            session.Title = dto.Title;
+            session.StartTime = dto.StartTime;
+            session.EndTime = dto.EndTime;
+            session.Plenary = dto.Plenary;
+            session.Capacity = dto.Plenary ? null : dto.Capacity;
+            session.IdRoom = dto.IdRoom ?? 0;
+
+            // --- Relaties bijwerken ---
+
+            // 1. Pak de titels uit de DTO
+            var incomingTagTitles = dto.Tags?.Select(t => t.Title).ToList() ?? new List<string>();
+
+            // 2. Zoek de tags op die EN de juiste titel hebben EN bij dit event horen
+            session.Tags = await _context.Tags
+                .Where(t => t.IdEvent == eventId && incomingTagTitles.Contains(t.Title))
+                .ToListAsync();
+
+            // Speakers
+            session.Speakers ??= new List<Speaker>();
+            session.Speakers.Clear();
+            if (dto.SpeakerId.HasValue)
+            {
+                var speaker = await _context.Speakers.FindAsync(dto.SpeakerId.Value);
+                if (speaker != null) session.Speakers.Add(speaker);
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { sessionId = session.IdSession });
         }
     }
 }
