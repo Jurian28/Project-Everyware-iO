@@ -19,7 +19,7 @@
     </div>
 
     <div class="session-list">
-        @foreach (var session in Model.Sessions)
+        @foreach (SessionDTO session in Model.Sessions)
         {
             <div class="session-card d-flex justify-content-between mb-3 p-3"
                  style="background-color: #D9D9D9; border-radius: 4px;">
@@ -54,7 +54,7 @@
                         }
                         else
                         {
-                            @foreach (var tag in session.Tags)
+                            @foreach (SessionTagDTO tag in session.Tags)
                             {
                                 <span class="badge rounded-pill"
                                       style="background-color: #B2EBF2; color: #006064; border: 1px solid #4DD0E1; padding: 8px 15px;">

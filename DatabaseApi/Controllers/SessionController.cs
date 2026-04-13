@@ -52,17 +52,17 @@ namespace DatabaseApi.Controllers
         }
 
         [HttpGet("add")]
-        public async Task<ActionResult<CUSessionDTO>> GetAvailableRoomsTagsSpeakers(int eventId)
+        public async Task<ActionResult<CUSessionDTO>> GetAddSessionData(int eventId)
         {
-            CUSessionDTO availableSessionData = await AvailableRoomsTagsSpeakers(eventId);
+            CUSessionDTO availableSessionData = await GetFormOptions(eventId);
 
             return Ok(availableSessionData);
         }
 
         [HttpGet("{sessionId}/edit")]
-        public async Task<ActionResult<CUSessionDTO>> GetEditingSession(int eventId, int sessionId)
+        public async Task<ActionResult<CUSessionDTO>> GetEditSessionData(int eventId, int sessionId)
         {
-            CUSessionDTO sessionData = await AvailableRoomsTagsSpeakers(eventId);
+            CUSessionDTO sessionData = await GetFormOptions(eventId);
 
             SessionDTO editingSession = await _context.Sessions
                 .Include(s => s.Room)
@@ -96,7 +96,7 @@ namespace DatabaseApi.Controllers
             return Ok(sessionData);
         }
 
-        private async Task<CUSessionDTO> AvailableRoomsTagsSpeakers(int eventId)
+        private async Task<CUSessionDTO> GetFormOptions(int eventId)
         {
             List<SessionRoomDTO> availableRooms = await _context.Rooms
                 .Where(r => r.IdEvent == eventId)
@@ -150,7 +150,6 @@ namespace DatabaseApi.Controllers
                     .Include(s => s.Speakers)
                     .FirstOrDefaultAsync(s => s.IdSession == dto.SessionId && s.IdEvent == eventId);
 
-                // Verwijder de ?? new Session regel hierboven, doe de check apart:
                 if (session == null) return NotFound("Sessie niet gevonden.");
             }
             else
@@ -159,7 +158,6 @@ namespace DatabaseApi.Controllers
                 _context.Sessions.Add(session);
             }
 
-            // Basis velden mappen
             session.Title = dto.Title;
             session.StartTime = dto.StartTime;
             session.EndTime = dto.EndTime;
@@ -167,17 +165,12 @@ namespace DatabaseApi.Controllers
             session.Capacity = dto.Plenary ? null : dto.Capacity;
             session.IdRoom = dto.IdRoom ?? 0;
 
-            // --- Relaties bijwerken ---
-
-            // 1. Pak de titels uit de DTO
             var incomingTagTitles = dto.Tags?.Select(t => t.Title).ToList() ?? new List<string>();
 
-            // 2. Zoek de tags op die EN de juiste titel hebben EN bij dit event horen
             session.Tags = await _context.Tags
                 .Where(t => t.IdEvent == eventId && incomingTagTitles.Contains(t.Title))
                 .ToListAsync();
 
-            // Speakers
             session.Speakers ??= new List<Speaker>();
             session.Speakers.Clear();
             if (dto.SpeakerId.HasValue)

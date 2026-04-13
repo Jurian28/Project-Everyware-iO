@@ -4,8 +4,8 @@
     ViewData["Title"] = isEdit ? "Edit Session" : "Create Session";
 }
 
-<form asp-controller="Session" asp-action="Save" asp-route-eventId="@Context.GetRouteValue("eventId")" method="post"
-      class="container-fluid p-4" style="background-color: #fff; font-family: sans-serif;">
+<form asp-controller="Session" asp-action="HandleSubmit" asp-route-eventId="@Context.GetRouteValue("eventId")"
+      method="post" class="container-fluid p-4" style="background-color: #fff; font-family: sans-serif;">
     <input type="hidden" name="SessionId" value="@Model.session?.SessionId" />
     
     <div class="row">
