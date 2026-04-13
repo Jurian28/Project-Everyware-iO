@@ -12,13 +12,8 @@ html {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
-  margin-bottom: 60px;
+  padding-bottom: 60px;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -29,6 +24,7 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
 
 .extra-navbar-styling {
     font-size: 1.4rem;
@@ -50,3 +46,33 @@ body {
     background-color: floralwhite;
     border-radius: 12px;
 }
+
+.max-h-100 {
+    max-height: 100%;
+}
+
+.height-main {
+    max-height: calc(100vh - 90px);
+    min-height: calc(100vh - 90px);
+}
+
+
+#roomList {
+    overflow: auto;
+    scrollbar-color: #bbb transparent;
+    scrollbar-width: thin;
+}
+
+
+.room-row {
+    display: grid;
+    grid-template-columns: 180px 80px 1fr;
+    word-break: break-word;
+    align-items: center;
+    column-gap: 1rem;
+}
+
+.bg-selected{
+    background-color: #e0e0e0;
+}
+
