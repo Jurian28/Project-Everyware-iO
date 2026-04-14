@@ -24,14 +24,12 @@ namespace Back_office.Controllers
                 return RedirectToAction("Index");
             }
 
-            ApiResponse<List<SessionDTO>> sessionsApiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<SessionDTO>>>() ?? new ApiResponse<List<SessionDTO>>();
-
-            List<SessionDTO> sessions = sessionsApiResponse.Data;
+            List<SessionDTO> sessions = (await response.Content.ReadFromJsonAsync<ApiResponse<List<SessionDTO>>>()).Data ?? new List<SessionDTO>();
 
             SessionListDto dto = new SessionListDto
             {
                 EventId = eventId,
-                Sessions = sessions ?? new List<SessionDTO>()
+                Sessions = sessions
             };
             return View(dto);
         }
@@ -47,9 +45,7 @@ namespace Back_office.Controllers
                 return RedirectToAction("Index");
             }
 
-            ApiResponse<CUSessionDTO> emptySessionApiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<CUSessionDTO>>() ?? new ApiResponse<CUSessionDTO>();
-
-            CUSessionDTO emptySession = emptySessionApiResponse.Data;
+            CUSessionDTO emptySession = (await response.Content.ReadFromJsonAsync<ApiResponse<CUSessionDTO>>()).Data ?? new CUSessionDTO();
 
             return View("SessionForm", emptySession);
         }
@@ -65,9 +61,7 @@ namespace Back_office.Controllers
                 return RedirectToAction("Index");
             }
 
-            ApiResponse<CUSessionDTO> sessionApiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<CUSessionDTO>>() ?? new ApiResponse<CUSessionDTO>();
-
-            CUSessionDTO session = sessionApiResponse.Data;
+            CUSessionDTO session = (await response.Content.ReadFromJsonAsync<ApiResponse<CUSessionDTO>>()).Data ?? new CUSessionDTO();
 
             return View("SessionForm", session);
         }
@@ -80,7 +74,7 @@ namespace Back_office.Controllers
                 .ToList()
                 ?? new List<SessionTagDTO>();
 
-            var response = await client.PostAsJsonAsync($"{eventId}/sessions/save", session);
+            HttpResponseMessage response = await client.PostAsJsonAsync($"{eventId}/sessions/save", session);
 
             if (response.IsSuccessStatusCode)
             {
