@@ -24,7 +24,9 @@ namespace Back_office.Controllers
                 return RedirectToAction("Index");
             }
 
-            List<SessionDTO> sessions = await response.Content.ReadFromJsonAsync<List<SessionDTO>>() ?? new List<SessionDTO>();
+            ApiResponse<List<SessionDTO>> sessionsApiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<SessionDTO>>>() ?? new ApiResponse<List<SessionDTO>>();
+
+            List<SessionDTO> sessions = sessionsApiResponse.Data;
 
             SessionListDto dto = new SessionListDto
             {
@@ -37,7 +39,7 @@ namespace Back_office.Controllers
         [HttpGet("add")]
         public async Task<IActionResult> AddSession(int eventId)
         {
-            HttpResponseMessage response = await client.GetAsync($"{eventId}/sessions/add");
+            HttpResponseMessage response = await client.GetAsync($"{eventId}/sessions/getAdd");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -45,7 +47,9 @@ namespace Back_office.Controllers
                 return RedirectToAction("Index");
             }
 
-            CUSessionDTO emptySession = await response.Content.ReadFromJsonAsync<CUSessionDTO>() ?? new CUSessionDTO();
+            ApiResponse<CUSessionDTO> emptySessionApiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<CUSessionDTO>>() ?? new ApiResponse<CUSessionDTO>();
+
+            CUSessionDTO emptySession = emptySessionApiResponse.Data;
 
             return View("SessionForm", emptySession);
         }
@@ -61,7 +65,9 @@ namespace Back_office.Controllers
                 return RedirectToAction("Index");
             }
 
-            CUSessionDTO session = await response.Content.ReadFromJsonAsync<CUSessionDTO>() ?? new CUSessionDTO();
+            ApiResponse<CUSessionDTO> sessionApiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<CUSessionDTO>>() ?? new ApiResponse<CUSessionDTO>();
+
+            CUSessionDTO session = sessionApiResponse.Data;
 
             return View("SessionForm", session);
         }
@@ -74,18 +80,12 @@ namespace Back_office.Controllers
                 .ToList()
                 ?? new List<SessionTagDTO>();
 
-            Console.WriteLine("Sending to API: " + JsonSerializer.Serialize(session));
-
             var response = await client.PostAsJsonAsync($"{eventId}/sessions/save", session);
 
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index", new { eventId = eventId });
             }
-
-            // FOUTOPSPORING: Lees de error van de API
-            var errorContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"API Failure ({response.StatusCode}): {errorContent}");
 
             TempData["Error"] = $"Kon de sessie niet opslaan: {response.ReasonPhrase}";
             return RedirectToAction("Index", new { eventId = eventId });

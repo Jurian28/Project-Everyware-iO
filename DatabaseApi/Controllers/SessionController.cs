@@ -19,7 +19,7 @@ namespace DatabaseApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SessionDTO>>> GetAllSessions(int eventId)
+        public async Task<ActionResult<ApiResponse<IEnumerable<SessionDTO>>>> GetAllSessions(int eventId)
         {
             List<SessionDTO> sessions = await _context.Sessions
                 .Include(s => s.Room)
@@ -48,19 +48,19 @@ namespace DatabaseApi.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(sessions);
+            return Ok(ApiResponse<IEnumerable<SessionDTO>>.Ok(sessions));
         }
 
-        [HttpGet("add")]
-        public async Task<ActionResult<CUSessionDTO>> GetAddSessionData(int eventId)
+        [HttpGet("getAdd")]
+        public async Task<ActionResult<ApiResponse<CUSessionDTO>>> GetAddSessionData(int eventId)
         {
             CUSessionDTO availableSessionData = await GetFormOptions(eventId);
 
-            return Ok(availableSessionData);
+            return Ok(ApiResponse<CUSessionDTO>.Ok(availableSessionData));
         }
 
         [HttpGet("{sessionId}/edit")]
-        public async Task<ActionResult<CUSessionDTO>> GetEditSessionData(int eventId, int sessionId)
+        public async Task<ActionResult<ApiResponse<CUSessionDTO>>> GetEditSessionData(int eventId, int sessionId)
         {
             CUSessionDTO sessionData = await GetFormOptions(eventId);
 
@@ -93,7 +93,7 @@ namespace DatabaseApi.Controllers
 
             sessionData.session = editingSession;
 
-            return Ok(sessionData);
+            return Ok(ApiResponse<CUSessionDTO>.Ok(sessionData));
         }
 
         private async Task<CUSessionDTO> GetFormOptions(int eventId)
@@ -180,7 +180,7 @@ namespace DatabaseApi.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return Ok(new { sessionId = session.IdSession });
+            return StatusCode(201);
         }
     }
 }

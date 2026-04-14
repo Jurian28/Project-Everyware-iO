@@ -3,7 +3,7 @@ using DatabaseApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using SharedClassLibrary.ApiResponse;
+
 namespace DatabaseApi.Controllers
 {
     [ApiController]
@@ -27,7 +27,7 @@ namespace DatabaseApi.Controllers
             IQueryable<Room> query = _context.Rooms;
 
             if (eventId.HasValue)
-            {   
+            {
                 query = query.Where(r => r.IdEvent == eventId.Value);
             }
 

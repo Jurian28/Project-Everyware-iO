@@ -28,11 +28,6 @@ builder.Services.AddHttpClient("DatabaseApi", client =>
     client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]);
 });
 
-builder.Services.AddHttpClient("DatabaseApi", client =>
-{
-    client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("API_BASE_URL"));
-});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
