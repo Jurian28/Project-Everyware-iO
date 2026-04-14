@@ -1,4 +1,34 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿
+const toggle = document.getElementById('userDropdownToggle');
+const icon = document.getElementById('dropDownToggleIcon');
+const menu = document.getElementById('userDropdownMenu');
 
-// Write your JavaScript code.
+if (toggle && menu) {
+    toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggle.getAttribute('aria-expanded') === 'true' ? closeMenu() : openMenu();
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!document.getElementById('userDropdown').contains(e.target)) {
+            closeMenu();
+        }
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeMenu();
+    });
+}
+
+function openMenu() {
+    menu.classList.add('d-block');
+    toggle.setAttribute('aria-expanded', true);
+    icon.setAttribute('src', "../img/icons/chevron-up.svg");
+    icon.setAttribute('alt', "arrow up");
+}
+
+function closeMenu() {
+    menu.classList.remove('d-block');
+    toggle.setAttribute('aria-expanded', false)
+    icon.setAttribute('src', "../img/icons/chevron-down.svg");
+    icon.setAttribute('alt', "arrow down");
+}
