@@ -492,7 +492,7 @@ namespace DatabaseApi.Migrations
             modelBuilder.Entity("DatabaseApi.Models.EventInvite", b =>
                 {
                     b.HasOne("DatabaseApi.Models.Event", "Event")
-                        .WithMany("Invites")
+                        .WithMany()
                         .HasForeignKey("EventIdEvent")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -658,8 +658,6 @@ namespace DatabaseApi.Migrations
 
             modelBuilder.Entity("DatabaseApi.Models.Event", b =>
                 {
-                    b.Navigation("Invites");
-
                     b.Navigation("Rooms");
 
                     b.Navigation("Tags");
