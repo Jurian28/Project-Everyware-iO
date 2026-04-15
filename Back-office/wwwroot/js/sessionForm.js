@@ -6,11 +6,6 @@ const capacityInput = document.getElementById('capacityInput');
 const tagSelector = document.getElementById('tagSelector');
 const tagContainer = document.getElementById('tagContainer');
 
-const now = new Date();
-now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-const nowString = now.toISOString().slice(0, 16);
-startTime.min = nowString;
-
 function updateEndTimeConstraint() {
     if (startTime.value) {
         endTime.min = startTime.value;

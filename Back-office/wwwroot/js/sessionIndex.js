@@ -5,6 +5,7 @@ const noResultsMessage = document.getElementById('noResultsMessage');
 
 const itemsPerPage = 5;
 let currentPage = 1;
+const range = 2;
 let filteredCards = [...sessionCards];
 
 function render() {
@@ -41,7 +42,6 @@ function updatePagination() {
     prevLi.onclick = () => { if (currentPage > 1) { currentPage--; render(); window.scrollTo(0, 0); } };
     paginationButtons.appendChild(prevLi);
 
-    const range = 2;
     for (let i = 1; i <= totalPages; i++) {
         if (i === 1 || i === totalPages || (i >= currentPage - range && i <= currentPage + range)) {
             if (i === totalPages && currentPage < totalPages - range - 1) {

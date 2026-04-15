@@ -17,10 +17,12 @@ namespace Back_office.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int eventId)
         {
+            ViewData["EventId"] = 1;
             HttpResponseMessage response = await client.GetAsync($"{eventId}/sessions");
 
             if (!response.IsSuccessStatusCode)
             {
+                TempData["Error"] = "Er is iets misgegaan bij het ophalen van de sessies.";
                 return RedirectToAction("Index");
             }
 
@@ -37,11 +39,12 @@ namespace Back_office.Controllers
         [HttpGet("add")]
         public async Task<IActionResult> AddSession(int eventId)
         {
+            ViewData["EventId"] = 1;
             HttpResponseMessage response = await client.GetAsync($"{eventId}/sessions/getAdd");
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Error"] = "Er is iets misgegaan bij het ophalen van de bruikbare ruimtes/tags/sprekers.";
+                TempData["Error"] = "Er is iets misgegaan bij het ophalen van de bruikbare ruimtes, tags of sprekers.";
                 return RedirectToAction("Index");
             }
 
@@ -53,6 +56,7 @@ namespace Back_office.Controllers
         [HttpGet("{sessionId}/edit")]
         public async Task<IActionResult> EditSession(int eventId, int sessionId)
         {
+            ViewData["EventId"] = 1;
             HttpResponseMessage response = await client.GetAsync($"{eventId}/sessions/{sessionId}/edit");
 
             if (!response.IsSuccessStatusCode)
@@ -66,7 +70,7 @@ namespace Back_office.Controllers
             return View("SessionForm", session);
         }
 
-        [HttpPost("save")]
+        [HttpPut("save")]
         public async Task<IActionResult> HandleSubmit(int eventId, SessionDTO session, List<string> selectedTagTitles)
         {
             session.Tags = selectedTagTitles
@@ -76,12 +80,26 @@ namespace Back_office.Controllers
 
             HttpResponseMessage response = await client.PostAsJsonAsync($"{eventId}/sessions/save", session);
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
+                TempData["Error"] = $"Kon de sessie niet opslaan: {response.ReasonPhrase}";
                 return RedirectToAction("Index", new { eventId = eventId });
             }
 
-            TempData["Error"] = $"Kon de sessie niet opslaan: {response.ReasonPhrase}";
+            return RedirectToAction("Index", new { eventId = eventId });
+        }
+
+        [HttpPost("{sessionId}/delete")]
+        public async Task<IActionResult> DeleteSession(int eventId, int sessionId)
+        {
+            HttpResponseMessage response = await client.DeleteAsync($"{eventId}/sessions/{sessionId}/delete");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Er is iets mis gegaan bij het verwijderen van de sessie.";
+                return RedirectToAction("Index", new { eventId = eventId });
+            }
+
             return RedirectToAction("Index", new { eventId = eventId });
         }
     }

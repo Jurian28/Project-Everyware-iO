@@ -126,8 +126,15 @@ namespace DatabaseApi.Controllers
                 })
                 .ToListAsync();
 
+            // is not allowed to be named event
+            Event events = await _context.Events
+                .Where(e => e.IdEvent == eventId)
+                .FirstOrDefaultAsync();
+
             CUSessionDTO sessionDTO = new CUSessionDTO
             {
+                EventStartTime = events.StartDate,
+                EventEndTime = events.EndDate,
                 AvailableRooms = availableRooms,
                 AvailableTags = availableTags,
                 AvailableSpeakers = availableSpeakers
@@ -139,7 +146,7 @@ namespace DatabaseApi.Controllers
         [HttpPost("save")]
         public async Task<IActionResult> SaveSession(int eventId, [FromBody] SessionDTO dto)
         {
-            Session session;
+            Session? session;
             Console.WriteLine("database:");
             Console.WriteLine(JsonSerializer.Serialize(dto));
 
@@ -181,6 +188,25 @@ namespace DatabaseApi.Controllers
 
             await _context.SaveChangesAsync();
             return StatusCode(201);
+        }
+
+        [HttpDelete("{sessionId}/delete")]
+        public async Task<IActionResult> DeleteSession(int eventId, int sessionId)
+        {
+            Session? session = await _context.Sessions.FindAsync(sessionId);
+
+            if (session == null) return NotFound();
+
+            try
+            {
+                _context.Sessions.Remove(session);
+                await _context.SaveChangesAsync();
+                return StatusCode(204);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
     }
 }
