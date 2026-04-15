@@ -31,7 +31,7 @@ namespace Back_office.Controllers
         [HttpGet("data")]
         public async Task<IActionResult> GetRoomsForEvent(int eventId)
         {
-            HttpResponseMessage response = await client.GetAsync($"/room?eventId={eventId}");
+            HttpResponseMessage response = await client.GetAsync($"room?eventId={eventId}");
             ApiResponse<List<RoomDTO>>? apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<RoomDTO>>>();
 
             return StatusCode((int)response.StatusCode, apiResponse);

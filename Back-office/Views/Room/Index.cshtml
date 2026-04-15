@@ -3,7 +3,8 @@
     ViewData["Title"] = "Rooms";
 }
 @section Scripts {
-    <script src="~/js/rooms.js" defer data-event-id="@Model"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <script src="~/js/rooms.js" data-event-id="@Model"></script>
 }
 <div class="d-flex flex-fill m-4 gap-3 mh-100 max-h-100 pb-1 overflow-hidden">
     <div style="flex: 2" class="bg-dark-subtle rounded-3 px-4 py-1 h-100 max-h-100">

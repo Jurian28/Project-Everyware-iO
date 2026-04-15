@@ -6,6 +6,18 @@ const scriptTag = document.currentScript;
 const eventId = parseInt(scriptTag.dataset.eventId);
 const editButtons = document.getElementsByClassName("js-room-edit-button");
 
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/hubs/rooms")
+    .withAutomaticReconnect()
+    .build();
+
+connection.on("RoomAdded", (room) => {
+    console.log("New room received:", room);
+});
+
+connection.start().catch(err => console.error("SignalR connection error:", err));
+
+
 let idRoom = null;
 $(document).keydown(function (e) {
     if (e.keyCode == 27) {

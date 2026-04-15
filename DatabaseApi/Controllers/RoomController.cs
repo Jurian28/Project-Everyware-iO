@@ -1,6 +1,8 @@
 ﻿using DatabaseApi.DTOs.Rooms;
+using DatabaseApi.Hubs;
 using DatabaseApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SharedClassLibrary.ApiResponse;
@@ -14,9 +16,11 @@ namespace DatabaseApi.Controllers
     public class RoomController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        public RoomController(ApplicationDbContext context)
+        private readonly IHubContext<RoomHub> _hubContext;
+        public RoomController(ApplicationDbContext context, IHubContext<RoomHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
         /// <summary>
         /// gets all rooms, if eventId is provided it gets all rooms for that event, otherwise it gets all rooms in the database
@@ -60,6 +64,7 @@ namespace DatabaseApi.Controllers
                 await _context.SaveChangesAsync();
 
                 var response = RoomMapper.ToResponseDTO(room);
+                await _hubContext.Clients.All.SendAsync("RoomAdded");
                 return StatusCode(201, ApiResponse<RoomResponseDTO>.Ok(response));
             }
             catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx)

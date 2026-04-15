@@ -2,6 +2,7 @@ using DatabaseApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using DatabaseApi.Hubs;
 using SharedClassLibrary.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddSignalR();
+
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
@@ -45,6 +48,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
+app.MapHub<RoomHub>("/hubs/rooms");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
