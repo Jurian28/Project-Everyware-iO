@@ -17,7 +17,7 @@ namespace Back_office.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int eventId)
         {
-            ViewData["EventId"] = 1;
+            ViewData["EventId"] = eventId;
             HttpResponseMessage response = await client.GetAsync($"{eventId}/sessions");
 
             if (!response.IsSuccessStatusCode)
@@ -39,7 +39,7 @@ namespace Back_office.Controllers
         [HttpGet("add")]
         public async Task<IActionResult> AddSession(int eventId)
         {
-            ViewData["EventId"] = 1;
+            ViewData["EventId"] = eventId;
             HttpResponseMessage response = await client.GetAsync($"{eventId}/sessions/getAdd");
 
             if (!response.IsSuccessStatusCode)
@@ -56,7 +56,7 @@ namespace Back_office.Controllers
         [HttpGet("{sessionId}/edit")]
         public async Task<IActionResult> EditSession(int eventId, int sessionId)
         {
-            ViewData["EventId"] = 1;
+            ViewData["EventId"] = eventId;
             HttpResponseMessage response = await client.GetAsync($"{eventId}/sessions/{sessionId}/edit");
 
             if (!response.IsSuccessStatusCode)
