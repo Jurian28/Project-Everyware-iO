@@ -11,8 +11,8 @@ const connection = new signalR.HubConnectionBuilder()
     .withAutomaticReconnect()
     .build();
 
-connection.on("RoomAdded", (room) => {
-    console.log("New room received:", room);
+connection.on("RoomsChanged", () => {
+    loadRooms();
 });
 
 connection.start().catch(err => console.error("SignalR connection error:", err));
@@ -59,7 +59,6 @@ async function submitRoom(event) {
             console.error(e)
         }
         clearRoomForm();
-        loadRooms();
     } else {
         try {
             const errorResponse = await response.json();

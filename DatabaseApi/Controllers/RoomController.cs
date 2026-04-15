@@ -64,7 +64,7 @@ namespace DatabaseApi.Controllers
                 await _context.SaveChangesAsync();
 
                 var response = RoomMapper.ToResponseDTO(room);
-                await _hubContext.Clients.All.SendAsync("RoomAdded");
+                await _hubContext.Clients.All.SendAsync("RoomsChanged");
                 return StatusCode(201, ApiResponse<RoomResponseDTO>.Ok(response));
             }
             catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx)
@@ -109,6 +109,8 @@ namespace DatabaseApi.Controllers
             {
                 RoomMapper.UpdateEntity(room, roomDTO);
                 await _context.SaveChangesAsync();
+
+                await _hubContext.Clients.All.SendAsync("RoomsChanged");
                 return Ok(ApiResponse<RoomResponseDTO>.Ok(RoomMapper.ToResponseDTO(room)));
             }
             catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx)
