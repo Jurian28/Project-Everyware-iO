@@ -1,7 +1,6 @@
 using DatabaseApi.Models;
 using DatabaseApi.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +9,9 @@ namespace DatabaseApi.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/invites")]
-public class EventInviteController(ApplicationDbContext applicationDbContext, UserManager<User> userManager) : Controller
+public class EventInviteController(ApplicationDbContext applicationDbContext) : Controller
 {
     private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
-    private readonly UserManager<User> _userManager = userManager;
 
     [HttpPost("create")]
     public async Task<IActionResult> CreateInvite([FromBody] EventInviteCreateDto eventInviteCreateDto)
