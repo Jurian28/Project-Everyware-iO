@@ -29,6 +29,14 @@ namespace Back_office.Controllers
                     if (json != null)
                     {
                         Console.WriteLine(json);
+                        if(json.Data == null)
+                        {
+                            
+                        }
+                    } 
+                    else
+                    {
+                        return View("Index", new List<Event>());
                     }
 
                     return View("Index", json.Data);

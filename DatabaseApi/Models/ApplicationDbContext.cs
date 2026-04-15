@@ -101,6 +101,7 @@ namespace DatabaseApi.Models
                 EndDate = new DateTime(2026, 10, 10, 17, 0, 0),
                 MainColorHex = "#D9D9D9",
                 AccentColorHex = "#B0B0B0",
+                Location = "'s-Hertogenbosch", 
                 LogoPath = ""
             });
 

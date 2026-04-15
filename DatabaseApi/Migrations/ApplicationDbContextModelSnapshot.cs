@@ -40,7 +40,6 @@ namespace DatabaseApi.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Location")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LogoPath")
@@ -67,6 +66,7 @@ namespace DatabaseApi.Migrations
                             AccentColorHex = "#B0B0B0",
                             Description = "Hier zal besproken worden wat er allemaal gemaakt moet worden voor de beste event calender ooit.",
                             EndDate = new DateTime(2026, 10, 10, 17, 0, 0, 0, DateTimeKind.Unspecified),
+                            Location = "'s-Hertogenbosch",
                             LogoPath = "",
                             MainColorHex = "#D9D9D9",
                             StartDate = new DateTime(2026, 10, 10, 9, 0, 0, 0, DateTimeKind.Unspecified),

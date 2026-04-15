@@ -14,8 +14,14 @@ namespace DatabaseApi.Migrations
                 name: "Location",
                 table: "Events",
                 type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
+                nullable: true);
+
+            migrationBuilder.UpdateData(
+                table: "Events",
+                keyColumn: "IdEvent",
+                keyValue: 1,
+                column: "Location",
+                value: "'s-Hertogenbosch");
         }
 
         /// <inheritdoc />
