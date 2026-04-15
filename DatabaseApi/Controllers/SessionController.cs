@@ -127,14 +127,14 @@ namespace DatabaseApi.Controllers
                 .ToListAsync();
 
             // is not allowed to be named event
-            Event events = await _context.Events
+            Event? events = await _context.Events
                 .Where(e => e.IdEvent == eventId)
                 .FirstOrDefaultAsync();
 
             CUSessionDTO sessionDTO = new CUSessionDTO
             {
-                EventStartTime = events.StartDate,
-                EventEndTime = events.EndDate,
+                EventStartTime = events?.StartDate,
+                EventEndTime = events?.EndDate,
                 AvailableRooms = availableRooms,
                 AvailableTags = availableTags,
                 AvailableSpeakers = availableSpeakers

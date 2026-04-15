@@ -1,8 +1,8 @@
 public class CUSessionDTO
 {
     public SessionDTO? session { get; set; }
-    public DateTime EventStartTime { get; set; }
-    public DateTime EventEndTime { get; set; }
+    public DateTime? EventStartTime { get; set; }
+    public DateTime? EventEndTime { get; set; }
 
     // has: RoomId, RoomLabel, Capacity
     public List<SessionRoomDTO> AvailableRooms { get; set; } = new List<SessionRoomDTO>();

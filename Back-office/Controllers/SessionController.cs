@@ -70,7 +70,7 @@ namespace Back_office.Controllers
             return View("SessionForm", session);
         }
 
-        [HttpPut("save")]
+        [HttpPost("save")]
         public async Task<IActionResult> HandleSubmit(int eventId, SessionDTO session, List<string> selectedTagTitles)
         {
             session.Tags = selectedTagTitles

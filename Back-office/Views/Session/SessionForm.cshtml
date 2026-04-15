@@ -9,7 +9,7 @@
 }
 
 <form asp-controller="Session" asp-action="HandleSubmit" asp-route-eventId="@Context.GetRouteValue("eventId")"
-      method="put" class="container-fluid p-4" style="background-color: #fff; font-family: sans-serif;">
+      method="post" class="container-fluid p-4" style="background-color: #fff; font-family: sans-serif;">
     <input type="hidden" name="SessionId" value="@Model.session?.SessionId" />
     
     <div class="row">
@@ -39,16 +39,16 @@
                     <label class="fw-bold">Start Time</label>
                     <input type="datetime-local" name="StartTime" class="form-control bg-light border-dark shadow-sm"
                            value="@Model.session?.StartTime.ToString("yyyy-MM-ddTHH:mm")"
-                           min="@Model.EventStartTime.ToString("yyyy-MM-ddTHH:mm")"
-                           max="@Model.EventEndTime.ToString("yyyy-MM-ddTHH:mm")" required>
+                           min="@Model.EventStartTime?.ToString("yyyy-MM-ddTHH:mm")"
+                           max="@Model.EventEndTime?.ToString("yyyy-MM-ddTHH:mm")" required>
                 </div>
 
                 <div class="col">
                     <label class="fw-bold">End Time</label>
                     <input type="datetime-local" name="EndTime" class="form-control bg-light border-dark shadow-sm"
                            value="@Model.session?.EndTime.ToString("yyyy-MM-ddTHH:mm")"
-                           min="@Model.EventStartTime.ToString("yyyy-MM-ddTHH:mm")"
-                           max="@Model.EventEndTime.ToString("yyyy-MM-ddTHH:mm")" required>
+                           min="@Model.EventStartTime?.ToString("yyyy-MM-ddTHH:mm")"
+                           max="@Model.EventEndTime?.ToString("yyyy-MM-ddTHH:mm")" required>
                 </div>
             </div>
             <div class="mb-3">
@@ -56,7 +56,7 @@
                 <div class="form-check form-switch p-0 d-flex align-items-center" style="min-height: 38px;">
                     <input type="checkbox" id="plenaryToggle" name="Plenary" class="form-check-input ms-0" role="switch"
                            style="transform: scale(1.5); cursor: pointer;" @(Model.session?.Plenary == true ? "checked" :
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  "") value="true">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                "") value="true">
                 </div>
             </div>
 
