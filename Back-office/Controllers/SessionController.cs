@@ -23,7 +23,7 @@ namespace Back_office.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 TempData["Error"] = "Er is iets misgegaan bij het ophalen van de sessies.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Home");
             }
 
             List<SessionDTO> sessions = (await response.Content.ReadFromJsonAsync<ApiResponse<List<SessionDTO>>>()).Data ?? new List<SessionDTO>();
