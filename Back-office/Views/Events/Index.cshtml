@@ -9,7 +9,7 @@
             <p>Eventslist:</p>
             @foreach (Event eventItem in Model)
             {
-                <p>@eventItem.Title</p>
+                <a asp-action="Edit" asp-route-id="@eventItem.IdEvent" class="d-block">@eventItem.Title</a>
             }
         }
         else

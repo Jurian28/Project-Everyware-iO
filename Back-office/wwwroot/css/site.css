@@ -94,3 +94,8 @@ body {
 .cursor-pointer {
     cursor: pointer;
 }
+
+.io-required-label::after {
+    content: " *";
+    color: red;
+}

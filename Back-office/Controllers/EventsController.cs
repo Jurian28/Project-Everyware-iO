@@ -9,7 +9,7 @@ namespace Back_office.Controllers
     [Route("events")]
     public class EventsController(IHttpClientFactory httpClientFactory) : Controller
     {
-        private static readonly string API_BASE_URL = "http://databaseapi:5000";
+        private static readonly string API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://databaseapi:5000";
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
 
         [HttpGet]
@@ -43,8 +43,6 @@ namespace Back_office.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Error in Store method...");
-
                     return View("Index", "Home");
                 }
             }
@@ -63,20 +61,23 @@ namespace Back_office.Controllers
 
         [HttpGet]
         [Route("{id}/edit")]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            Event eventModel = new Event();
-            eventModel.IdEvent = id;
-            eventModel.Title = "Teen Titans Go";
-            eventModel.Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-            eventModel.Location = "Paris, France";
-            eventModel.StartDate = DateTime.Now;
-            eventModel.EndDate = DateTime.Now.AddDays(2);
-            eventModel.MainColorHex = "#FF5733";
-            eventModel.AccentColorHex = "#33C1FF";
-            eventModel.LogoPath = "/images/teen-titans-go-logo.png";
 
-            return View(eventModel);
+            string url = $"{API_BASE_URL}/api/event/{id}";
+
+            HttpResponseMessage response = await _httpClient.GetAsync(url);
+
+            if (response.IsSuccessStatusCode)
+            {
+                ApiResponse<Event>? json = await response.Content.ReadFromJsonAsync<ApiResponse<Event>>();
+
+                return View(json?.Data);
+            }
+            else
+            {
+                return RedirectToAction("Index", "Events");
+            }
         }
 
         [HttpPost("store")]

@@ -32,6 +32,31 @@ namespace DatabaseApi.Controllers
             }
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            try
+            {
+                Event? eventItem = await _applicationDbContext.Events.FindAsync(id);
+
+                if(eventItem == null)   
+                {
+                    return NotFound(new { success = false, data = (object)null, error = "Event not found" });
+                }
+
+                return StatusCode(201, new
+                {
+                    success = true,
+                    data = eventItem,
+                    error = (object)null
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, data = (object)null, error = $"Internal Server Error: {ex.Message}" });
+            }
+        }
+
         [HttpPost("")]
         public async Task<IActionResult> Store([FromForm] EventCreateDto dto)
         {
