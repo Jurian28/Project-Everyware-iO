@@ -14,7 +14,7 @@ namespace DatabaseApi.Models
         public DateTime EndTime { get; set; }
         [Required]
         public bool Plenary { get; set; }
-        public int Capacity { get; set; }
+        public int? Capacity { get; set; }
         [Required]
         public int IdEvent { get; set; }
         [Required]

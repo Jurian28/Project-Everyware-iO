@@ -12,11 +12,11 @@ namespace DatabaseApi.Models
         public DateTime StartDate { get; set; }
         [Required]
         public DateTime EndDate { get; set; }
-        public string Location { get; set; }
-        public string Description { get; set; }
-        public string MainColorHex { get; set; }
-        public string AccentColorHex { get; set; }
-        public string LogoPath { get; set; }
+        public string? Location { get; set; }
+        public string? Description { get; set; }
+        public string? MainColorHex { get; set; }
+        public string? AccentColorHex { get; set; }
+        public string? LogoPath { get; set; }
 
         // Navigation properties
         public ICollection<Room> Rooms { get; set; } = new List<Room>();
