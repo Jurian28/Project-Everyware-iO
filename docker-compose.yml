@@ -98,6 +98,7 @@ services:
       - .env
     volumes:
       - databaseapikeys:/root/.aspnet/DataProtection-Keys
+      - ./DatabaseApi/wwwroot/images:/app/DatabaseApi/wwwroot/images
     develop:
       watch:
         - action: sync

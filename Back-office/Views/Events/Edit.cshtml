@@ -1,4 +1,8 @@
-﻿@model Event
+﻿@{
+    string imgSrc = string.IsNullOrEmpty(Model.LogoPath) ? "" : $"{Environment.GetEnvironmentVariable("API_OUTSIDE_BASE_URL") ?? "http://localhost"}:{Environment.GetEnvironmentVariable("DATABASE_API_PORT")}{Model.LogoPath}";
+}
+
+@model Event
 
 <div class="container-lg py-5">
     <div class="card border-0 shadow-sm">
@@ -59,8 +63,8 @@
 
                             <div class="mb-4">
                                 <span class="border-secondary d-flex align-items-center justify-content-center bg-light overflow-hidden rounded border-2" style="height: 150px; width: 150px;">
-                                    <em id="uploadText" class="m-0 text-center">Preview</em>
-                                    <img id="logoPreview" src="" alt="Logo preview" class="d-none" style="max-width: 100%; max-height: 100%; object-fit: cover;">
+                                    <em id="uploadText" class="m-0 text-center @(string.IsNullOrEmpty(Model.LogoPath) ? "" : "d-none")">Preview</em>
+                                    <img id="logoPreview" src="@imgSrc" alt="Logo preview" class="@(string.IsNullOrEmpty(Model.LogoPath) ? "d-none" : "")" style="max-width: 100%; max-height: 100%; object-fit: cover;">
                                 </span>
                             </div>
 

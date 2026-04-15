@@ -63,7 +63,6 @@ namespace Back_office.Controllers
         [Route("{id}/edit")]
         public async Task<IActionResult> Edit(int id)
         {
-
             string url = $"{API_BASE_URL}/api/event/{id}";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
