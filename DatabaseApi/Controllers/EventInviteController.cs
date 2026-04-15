@@ -50,9 +50,7 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
         {
             Success = true,
             Data = new {
-                Invite = invite.Id,
-                LinkedEvent = @event.IdEvent,
-                DtoData = eventInviteCreateDto
+                Invite = invite.Id
             },
             Error = (string?)null
         });
@@ -128,11 +126,7 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
         return Ok(new
         {
             Success = true,
-            Data = user.Events.Select(e => new
-            {
-                e.IdEvent,
-                e.Title
-            }),
+            Data = (object?)null,
             Error = (string?)null,
         });
     }
