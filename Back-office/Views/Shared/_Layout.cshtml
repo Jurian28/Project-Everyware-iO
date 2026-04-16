@@ -25,7 +25,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Session</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Speaker</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Speaker" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Speaker</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Room" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Rooms</a>

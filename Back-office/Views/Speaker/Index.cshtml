@@ -1,0 +1,60 @@
+@model int
+@{
+    ViewData["Title"] = "Speaker";
+}
+@section Scripts {
+    <script src="~/js/speaker.js" defer data-event-id="@Model"></script>
+}
+<div class="d-flex flex-fill m-4 gap-3 mh-100 max-h-100 pb-1 overflow-hidden">
+    <div style="flex: 2" class="bg-dark-subtle rounded-3 px-4 py-1 h-100 max-h-100">
+        <div id="speakerList" class="overflow-auto max-h-100">
+            <div id="loadingMessage" class="text-center my-auto">Loading...</div>
+            <div id="noSpeakersMessage" class="text-center my-auto d-none">No speakers found</div>
+        </div>
+    </div>
+    <div style="flex: 1" class="px-4">
+        <form id="speakerForm" class="d-flex flex-column h-100" onsubmit="submitSpeaker(event)" oninput="showEditButtons()">
+            <div class="flex-grow-1">
+                <input type="hidden" id="speakerId" value="" />
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="firstName" required />
+                </div>
+                <div class="mb-3">
+                    <label for="middleName" class="form-label">Middle Name</label>
+                    <input type="text" class="form-control" id="middleName" />
+                </div>
+                <div class="mb-3">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" required />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="imgPath" class="form-label">Image</label>
+                    <input type="file" class="form-control" id="imgPath" accept="image/png, image/gif, image/jpeg" />
+                </div>
+            </div>
+            <div>
+                <div id="errorMessageBox" class="text-danger text-center"></div>
+                <div id="successMessageBox" class="text-success text-break text-center"></div>
+                <div class="d-flex justify-content-between">
+                    <button id="deleteButton" type="button" class="btn btn-danger py-0 invisible" onclick="deleteSpeaker()">Delete</button>
+                    <button type="button" class="js-speaker-edit-button btn btn-dark py-0 invisible" onclick="clearSpeakerForm()">Cancel</button>
+                    <button type="submit" class="btn btn-success py-0">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<template id="speakerRowTemplate">
+    <div class="p-3 my-1 speaker-row" style="cursor:pointer">
+        <span data-field="imgPath"></span>
+        <span class="fw-bold" data-field="firstName"></span>
+        <span class="fw-bold" data-field="middleName"></span>
+        <span class="fw-bold" data-field="lastName"></span>
+    </div>
+</template>
