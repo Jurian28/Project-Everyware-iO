@@ -82,7 +82,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("EventIdEvent");
 
-                    b.ToTable("EventInvite");
+                    b.ToTable("EventInvites");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.RefreshToken", b =>

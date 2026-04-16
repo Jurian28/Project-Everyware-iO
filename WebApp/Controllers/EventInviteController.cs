@@ -27,7 +27,7 @@ public class EventInviteController(IHttpClientFactory httpClientFactory) : Contr
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromForm] CreateInviteViewModel createInviteViewModel)
     {
-        if (createInviteViewModel.EventId == 0 || createInviteViewModel.Expires < DateTime.UtcNow)
+        if (createInviteViewModel.EventId == 0 || createInviteViewModel.Expires.Date < DateTime.UtcNow.Date)
         {
             return BadRequest(new
             {

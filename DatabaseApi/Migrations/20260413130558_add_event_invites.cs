@@ -12,7 +12,7 @@ namespace DatabaseApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "EventInvite",
+                name: "EventInvites",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -22,9 +22,9 @@ namespace DatabaseApi.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventInvite", x => x.Id);
+                    table.PrimaryKey("PK_EventInvites", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_EventInvite_Events_EventIdEvent",
+                        name: "FK_EventInvites_Events_EventIdEvent",
                         column: x => x.EventIdEvent,
                         principalTable: "Events",
                         principalColumn: "IdEvent",
@@ -32,8 +32,8 @@ namespace DatabaseApi.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_EventInvite_EventIdEvent",
-                table: "EventInvite",
+                name: "IX_EventInvites_EventIdEvent",
+                table: "EventInvites",
                 column: "EventIdEvent");
         }
 
@@ -41,7 +41,7 @@ namespace DatabaseApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "EventInvite");
+                name: "EventInvites");
         }
     }
 }
