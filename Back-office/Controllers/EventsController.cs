@@ -147,23 +147,52 @@ namespace Back_office.Controllers
                 {
                     Console.WriteLine($"Validation error: {error.ErrorMessage}");
                 }
-                return View("Create", eventModel);
+                return View("Edit", eventModel);
             }
 
             try
             {
-                if(logoFile != null)
-                {
-                    Console.WriteLine($"Received file: {logoFile.FileName}");
-                }
-                Console.WriteLine($"Received event: {eventModel.Title}");
-                // TODO
+                string url = $"{API_BASE_URL}/api/event/{eventModel.IdEvent}";
+                using var content = new MultipartFormDataContent();
 
-                return RedirectToAction("Index");
+                content.Add(new StringContent(eventModel.Title ?? ""), "Title");
+                content.Add(new StringContent(eventModel.Location ?? ""), "Location");
+                content.Add(new StringContent(eventModel.Description ?? ""), "Description");
+                content.Add(new StringContent(eventModel.MainColorHex ?? ""), "MainColorHex");
+                content.Add(new StringContent(eventModel.AccentColorHex ?? ""), "AccentColorHex");
+
+                content.Add(new StringContent(eventModel.StartDate.ToString("o")), "StartDate");
+                content.Add(new StringContent(eventModel.EndDate.ToString("o")), "EndDate");
+
+                if (logoFile != null)
+                {
+                    var fileStream = logoFile.OpenReadStream();
+                    var fileContent = new StreamContent(fileStream);
+                    content.Add(fileContent, "LogoFile", logoFile.FileName);
+                }
+
+                HttpResponseMessage response = await _httpClient.PutAsync(url, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    ApiResponse<Event>? json = await response.Content.ReadFromJsonAsync<ApiResponse<Event>>();
+
+                    if (json != null)
+                    {
+                        Console.WriteLine(json);
+                    }
+
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Error in Update method...");
+                    return View("Create", eventModel);
+                }
             }
             catch (Exception ex)
             {
-                return View("Edit", eventModel);
+                return View("Create", eventModel);
             }
         }
     }
