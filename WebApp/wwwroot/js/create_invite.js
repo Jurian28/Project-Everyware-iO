@@ -18,9 +18,20 @@
                     modal.hide();
                 }
 
-                alert('Invite created successfully!');
+                const result = await response.json();
+                const inviteLink = result.data?.inviteLink;
 
-                location.reload();
+                if (inviteLink) {
+                    navigator.clipboard
+                        .writeText(inviteLink)
+                        .then(() => {
+                            alert('Invite link copied to clipboard!');
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy link: ', err);
+                            alert('Failed to copy link. The link is: ' + inviteLink);
+                        });
+                }
             } else {
                 const errorText = await response.text();
                 alert('Error creating invite: ' + errorText);
