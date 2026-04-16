@@ -114,7 +114,7 @@ namespace DatabaseApi.Controllers
                     if(!string.IsNullOrEmpty(eventItem.LogoPath))
                     {
                         DeleteLogo(eventItem.LogoPath);
-                    }
+                    } 
                     logoPath = await HandleLogoUpload(dto);
                 }
 
