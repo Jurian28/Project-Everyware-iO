@@ -1,7 +1,8 @@
-﻿@model bool
+﻿@using WebApp.Models.ViewModels
+@model AcceptInviteViewModel
 
 <div class="d-flex flex-column gap-4 align-items-center justify-content-center my-5 text-center">
-    @if (Model)
+    @if (Model.Success)
     {
         <h1 class="text-success mb-3">Event has been added!</h1>
         <img src="~/img/checkmark.svg" alt="Checkmark" style="width: 200px" />
@@ -10,6 +11,11 @@
     {
         <h1 class="w-fit-content">Could you not accept invite</h1>
         <img src="~/img/x.svg" alt="Crossmark" class="text-danger" style="width: 200px" />
+    }
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <p class="text-muted">@Model.Message</p>
     }
 
     <a href="/" class="w-fit-content btn btn-secondary">Go to event agenda</a>

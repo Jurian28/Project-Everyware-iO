@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Models.Dtos;
+using WebApp.Models.ViewModels;
 
 namespace WebApp.Controllers;
 
@@ -10,6 +11,9 @@ public class EventInviteController(IHttpClientFactory httpClientFactory) : Contr
 {
     private static readonly string API_BASE_URL = "http://databaseapi:5000/api/invites";
 
+    private static readonly string INVALID_INVITE_MESSAGE = "This invite is not valid.";
+    private static readonly string FAILED_ACCEPT_MESSAGE = "Something went wrong while trying to accept the invite. Please try again later.";
+
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
 
     [HttpGet("accept/{inviteId}")]
@@ -17,24 +21,39 @@ public class EventInviteController(IHttpClientFactory httpClientFactory) : Contr
     {
         if (inviteId == 0)
         {
-            return View(false);
+            return View(new AcceptInviteViewModel
+            {
+                Success = false,
+                Message = INVALID_INVITE_MESSAGE
+            });
         }
 
         string acceptUrl = $"{API_BASE_URL}/accept/{inviteId}";
         HttpResponseMessage response = await _httpClient.PostAsync(acceptUrl, null);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            return View(false);
-        }
-
-        var json = await response.Content.ReadFromJsonAsync<AcceptInviteDto>();
+        AcceptInviteDto? json = await response.Content.ReadFromJsonAsync<AcceptInviteDto>();
 
         if (json == null)
         {
-            return View(false);
+            return View(new AcceptInviteViewModel
+            {
+                Success = false,
+                Message = FAILED_ACCEPT_MESSAGE
+            });
         }
 
-        return View(json.Success);
+        if (!response.IsSuccessStatusCode)
+        {
+            return View(new AcceptInviteViewModel
+            {
+                Success = false,
+                Message = json?.Error ?? FAILED_ACCEPT_MESSAGE
+            });
+        }
+
+        return View(new AcceptInviteViewModel
+        {
+            Success = json.Success,
+            Message = string.Empty
+        });
     }
 }
