@@ -14,6 +14,9 @@
             </div>
 
             <div class="modal-body">
+                <div id="createInviteSuccessMessageBox" class="alert alert-success d-none"></div>
+                <div id="createInviteErrorMessageBox" class="alert alert-danger d-none" role="alert"></div>
+
                 <form id="createInviteForm" method="post" asp-controller="EventInvite" asp-action="Create">
                     <div class="mb-3">
                         <label for="eventId" class="form-label">Select Event</label>

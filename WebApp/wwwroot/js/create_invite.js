@@ -1,5 +1,41 @@
-﻿document.getElementById('createInviteForm').addEventListener('submit', function (event) {
+﻿const createInviteForm = document.getElementById('createInviteForm');
+const successMessageBox = document.getElementById('createInviteSuccessMessageBox');
+const errorMessageBox = document.getElementById('createInviteErrorMessageBox');
+
+function clearInviteMessages() {
+    if (successMessageBox) {
+        successMessageBox.innerText = '';
+        successMessageBox.classList.add('d-none');
+    }
+
+    if (errorMessageBox) {
+        errorMessageBox.innerText = '';
+        errorMessageBox.classList.add('d-none');
+    }
+}
+
+function showSuccessMessage(message) {
+    if (!successMessageBox) {
+        return;
+    }
+
+    successMessageBox.innerText = message;
+    successMessageBox.classList.remove('d-none');
+}
+
+function showErrorMessage(message) {
+    if (!errorMessageBox) {
+        return;
+    }
+
+    errorMessageBox.innerText = message;
+    errorMessageBox.classList.remove('d-none');
+}
+
+createInviteForm.addEventListener('submit', function (event) {
     event.preventDefault();
+
+    clearInviteMessages();
 
     const form = event.target;
     const formData = new FormData(form);
@@ -25,19 +61,21 @@
                     navigator.clipboard
                         .writeText(inviteLink)
                         .then(() => {
-                            alert('Invite link copied to clipboard!');
+                            showSuccessMessage('Invite link copied to clipboard!');
                         })
                         .catch(err => {
                             console.error('Failed to copy link: ', err);
-                            alert('Failed to copy link. The link is: ' + inviteLink);
+                            showErrorMessage('Failed to copy link. The link is: ' + inviteLink);
                         });
+                } else {
+                    showSuccessMessage('Invite created successfully.');
                 }
             } else {
                 const errorText = await response.text();
-                alert('Error creating invite: ' + errorText);
+                showErrorMessage('Error creating invite: ' + errorText);
             }
         })
         .catch(error => {
-            alert('Error creating invite: ' + error.message);
+            showErrorMessage('Error creating invite: ' + error.message);
         });
 });
