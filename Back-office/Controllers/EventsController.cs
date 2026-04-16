@@ -182,17 +182,24 @@ namespace Back_office.Controllers
                         Console.WriteLine(json);
                     }
 
+                    TempData["ToastMessage"] = "Event updated successfully!";
+                    TempData["ToastType"] = "success";
+
                     return RedirectToAction("Index");
                 }
                 else
                 {
                     ModelState.AddModelError(string.Empty, "Error in Update method...");
-                    return View("Create", eventModel);
+
+                    TempData["ToastMessage"] = "Error in updating event!";
+                    TempData["ToastType"] = "error";
+
+                    return View("Edit", eventModel);
                 }
             }
             catch (Exception ex)
             {
-                return View("Create", eventModel);
+                return View("Edit", eventModel);
             }
         }
     }

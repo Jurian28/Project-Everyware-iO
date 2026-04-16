@@ -155,3 +155,10 @@ body {
     fill: #999;
     transition: fill 0.2s;
 }
+
+#event-toast {
+    width: 30%;
+    left: auto;
+    right: 16px;
+    bottom: 16px;
+}
