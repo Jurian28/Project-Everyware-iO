@@ -32,7 +32,7 @@ function showErrorMessage(message) {
     errorMessageBox.classList.remove('d-none');
 }
 
-createInviteForm.addEventListener('submit', function (event) {
+createInviteForm.addEventListener('submit', async event => {
     event.preventDefault();
 
     clearInviteMessages();
@@ -41,41 +41,38 @@ createInviteForm.addEventListener('submit', function (event) {
     const formData = new FormData(form);
     const data = new URLSearchParams(formData);
 
-    fetch(form.action, {
-        method: 'POST',
-        body: data
-    })
-        .then(async response => {
-            if (response.ok) {
-                const modalElement = document.getElementById('createInviteModal');
-                const modal = bootstrap.Modal.getInstance(modalElement);
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: data
+        });
 
-                if (modal) {
-                    modal.hide();
-                }
+        if (response.ok) {
+            const modalElement = document.getElementById('createInviteModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            
+            modal?.hide();
 
-                const result = await response.json();
-                const inviteLink = result.data?.inviteLink;
+            const result = await response.json();
+            const inviteLink = result.data?.inviteLink;
 
-                if (inviteLink) {
-                    navigator.clipboard
-                        .writeText(inviteLink)
-                        .then(() => {
-                            showSuccessMessage('Invite link copied to clipboard!');
-                        })
-                        .catch(err => {
-                            console.error('Failed to copy link: ', err);
-                            showErrorMessage('Failed to copy link. The link is: ' + inviteLink);
-                        });
-                } else {
-                    showSuccessMessage('Invite created successfully.');
+            if (inviteLink) {
+                try {
+                    await navigator.clipboard.writeText(inviteLink);
+                    showSuccessMessage('Invite link copied to clipboard!');
+                } catch (err) {
+                    console.error('Failed to copy link: ', err);
+                    showErrorMessage(`Failed to copy link. The link is: ${inviteLink}`);
                 }
             } else {
-                const errorText = await response.text();
-                showErrorMessage('Error creating invite: ' + errorText);
+                showSuccessMessage('Invite created successfully.');
             }
-        })
-        .catch(error => {
-            showErrorMessage('Error creating invite: ' + error.message);
-        });
+        } else {
+            const errorText = await response.text();
+            showErrorMessage(`Error creating invite: ${errorText}`);
+        }
+    } catch (error) {
+        showErrorMessage(`Error creating invite: ${error.message}`);
+    }
 });
+
