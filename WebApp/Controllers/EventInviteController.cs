@@ -5,6 +5,9 @@ using WebApp.Models.ViewModels;
 
 namespace WebApp.Controllers;
 
+/// <summary>
+/// Controller for creating and accepting event invitations.
+/// </summary>
 [Authorize]
 [Route("invites")]
 public class EventInviteController(IHttpClientFactory httpClientFactory) : Controller
@@ -16,6 +19,11 @@ public class EventInviteController(IHttpClientFactory httpClientFactory) : Contr
 
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
 
+    /// <summary>
+    /// Creates a new event invite and generates an invite link.
+    /// </summary>
+    /// <param name="createInviteViewModel">The details required to create an invite, including the target event ID and expiration date.</param>
+    /// <returns>An action result containing the generated invite link if successful, or an error payload.</returns>
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromForm] CreateInviteViewModel createInviteViewModel)
     {
@@ -65,6 +73,11 @@ public class EventInviteController(IHttpClientFactory httpClientFactory) : Contr
         });
     }
 
+    /// <summary>
+    /// Attempts to accept an event invitation using the specified ID.
+    /// </summary>
+    /// <param name="inviteId">The unique identifier of the invite to accept.</param>
+    /// <returns>A view models displaying the result and success state of the invite acceptance.</returns>
     [HttpGet("accept/{inviteId}")]
     public async Task<IActionResult> Accept(int inviteId)
     {

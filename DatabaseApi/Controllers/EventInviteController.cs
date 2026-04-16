@@ -6,6 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseApi.Controllers;
 
+/// <summary>
+/// Handles the creation and acceptance of event invitations.
+/// </summary>
+/// <param name="applicationDbContext">The application database context.</param>
 [ApiController]
 [Authorize]
 [Route("api/invites")]
@@ -13,6 +17,11 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
 {
     private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
 
+    /// <summary>
+    /// Creates a new invitation for a specific event.
+    /// </summary>
+    /// <param name="eventInviteCreateDto">The data transfer object containing the event ID and expiration date.</param>
+    /// <returns>An action result indicating success or failure, with the invite ID if successful.</returns>
     [HttpPost("create")]
     public async Task<IActionResult> CreateInvite([FromBody] EventInviteCreateDto eventInviteCreateDto)
     {
@@ -56,6 +65,11 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
         });
     }
 
+    /// <summary>
+    /// Accepts a pending event invitation.
+    /// </summary>
+    /// <param name="inviteId">The unique identifier of the invitation to accept.</param>
+    /// <returns>An action result indicating whether the invitation was successfully accepted.</returns>
     [HttpPost("accept/{inviteId}")]
     public async Task<IActionResult> AcceptInvite(int inviteId)
     {
