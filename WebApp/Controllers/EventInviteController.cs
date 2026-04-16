@@ -16,6 +16,55 @@ public class EventInviteController(IHttpClientFactory httpClientFactory) : Contr
 
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
 
+    [HttpPost("create")]
+    public async Task<IActionResult> Create([FromForm] CreateInviteViewModel createInviteViewModel)
+    {
+        if (createInviteViewModel.EventId == 0 || createInviteViewModel.Expires < DateTime.UtcNow)
+        {
+            return BadRequest(new
+            {
+                Success = false,
+                Data = (object?)null,
+                Error = $"Invalid event ID or expiration date. Please provide valid data. Event id: {createInviteViewModel.EventId}, Expiration date: {createInviteViewModel.Expires}"
+            });
+        }
+
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"{API_BASE_URL}/create", createInviteViewModel);
+        CreateInviteDto? json = await response.Content.ReadFromJsonAsync<CreateInviteDto>();
+
+        if (!response.IsSuccessStatusCode || json?.Data == null)
+        {
+            return StatusCode(500, new
+            {
+                Success = false,
+                Data = (object?)null,
+                Error = json?.Error ?? "Failed to create invite. Please try again later."
+            });
+        }
+
+        string? inviteLink = Url.Action("Accept", "EventInvite", new { inviteId = json.Data.Invite }, Request.Scheme);
+
+        if (inviteLink == null)
+        {
+            return StatusCode(500, new
+            {
+                Success = false,
+                Data = (object?)null,
+                Error = "Failed to generate invite link. Please try again later."
+            });
+        }
+
+        return StatusCode(201, new
+        {
+            Success = true,
+            Data = new
+            {
+                InviteLink = inviteLink
+            },
+            Error = (string?)null
+        });
+    }
+
     [HttpGet("accept/{inviteId}")]
     public async Task<IActionResult> Accept(int inviteId)
     {
