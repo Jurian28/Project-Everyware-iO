@@ -32,6 +32,28 @@ function showErrorMessage(message) {
     errorMessageBox.classList.remove('d-none');
 }
 
+async function getInviteErrorMessage(response) {
+    try {
+        const result = await response.clone().json();
+        if (typeof result?.error === 'string' && result.error.trim() !== '') {
+            return result.error;
+        }
+    } catch (jsonError) {
+        // Fall back to text parsing below.
+    }
+
+    try {
+        const errorText = await response.text();
+        if (errorText.trim() !== '') {
+            return errorText;
+        }
+    } catch (textError) {
+        // Fall back to the default message below.
+    }
+
+    return 'Unable to create invite.';
+}
+
 createInviteForm.addEventListener('submit', async event => {
     event.preventDefault();
 
@@ -68,8 +90,8 @@ createInviteForm.addEventListener('submit', async event => {
                 showSuccessMessage('Invite created successfully.');
             }
         } else {
-            const errorText = await response.text();
-            showErrorMessage(`Error creating invite: ${errorText}`);
+            const errorMessage = await getInviteErrorMessage(response);
+            showErrorMessage(`Error creating invite: ${errorMessage}`);
         }
     } catch (error) {
         showErrorMessage(`Error creating invite: ${error.message}`);

@@ -40,13 +40,23 @@ public class EventInviteController(IHttpClientFactory httpClientFactory) : Contr
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"{API_BASE_URL}/create", createInviteViewModel);
         CreateInviteDto? json = await response.Content.ReadFromJsonAsync<CreateInviteDto>();
 
-        if (!response.IsSuccessStatusCode || json?.Data == null)
+        if (!response.IsSuccessStatusCode)
+        {
+            return StatusCode((int)response.StatusCode, new
+            {
+                Success = false,
+                Data = (object?)null,
+                Error = json?.Error ?? "Failed to create invite. Please try again later."
+            });
+        }
+
+        if (json?.Data == null)
         {
             return StatusCode(500, new
             {
                 Success = false,
                 Data = (object?)null,
-                Error = json?.Error ?? "Failed to create invite. Please try again later."
+                Error = "Failed to create invite. Please try again later."
             });
         }
 

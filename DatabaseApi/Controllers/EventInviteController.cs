@@ -73,9 +73,9 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
     [HttpPost("accept/{inviteId}")]
     public async Task<IActionResult> AcceptInvite(int inviteId)
     {
-        EventInvite? invite = _applicationDbContext.EventInvites
+        EventInvite? invite = await _applicationDbContext.EventInvites
             .Include(invite => invite.Event)
-            .FirstOrDefault(invite => invite.Id == inviteId);
+            .FirstOrDefaultAsync(invite => invite.Id == inviteId);
 
         if (invite == null)
         {
@@ -97,16 +97,6 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
                 Success = false,
                 Data = (object?)null,
                 Error = "Invite has expired."
-            });
-        }
-
-        if (User.Identity?.IsAuthenticated != true)
-        {
-            return Unauthorized(new
-            {
-                Success = false,
-                Data = (object?)null,
-                Error = "You must be authenticated to accept an invite."
             });
         }
 
