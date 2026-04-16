@@ -14,7 +14,7 @@ namespace Back_office.Controllers
 
         [HttpGet]
         [Route("")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? search)
         {
             try
             {
@@ -28,7 +28,15 @@ namespace Back_office.Controllers
 
                     if (json != null)
                     {
-                        return View("Index", json.Data);
+                        List<Event> events = json.Data ?? new List<Event>();
+                        if (!string.IsNullOrEmpty(search))
+                        {
+                            events = events.Where(e => e.Title.ToLower().Contains(search.ToLower()) 
+                                                        || e.Description.ToLower().Contains(search.ToLower())).ToList();
+                        }
+
+                        ViewData["CurrentSearch"] = search;
+                        return View("Index", events);
                     } 
                     else
                     {
