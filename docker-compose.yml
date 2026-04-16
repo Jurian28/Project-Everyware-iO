@@ -10,6 +10,11 @@ services:
     environment:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: "${DB_PASSWORD:?}"
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${DB_PASSWORD}", "-C", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   back-office:
     build:
@@ -110,7 +115,8 @@ services:
         - action: rebuild
           path: ./DatabaseApi/DatabaseApi.csproj
     depends_on:
-      - mssql
+      mssql:
+        condition: service_healthy
 
 volumes:
   mssql:
