@@ -28,26 +28,23 @@ namespace Back_office.Controllers
 
                     if (json != null)
                     {
-                        Console.WriteLine(json);
-                        if(json.Data == null)
-                        {
-                            
-                        }
+                        return View("Index", json.Data);
                     } 
                     else
                     {
+                        Console.WriteLine("Error in getting events");
                         return View("Index", new List<Event>());
                     }
-
-                    return View("Index", json.Data);
                 }
                 else
                 {
+                    Console.WriteLine($"Error in getting events: {response.StatusCode} | {response.ReasonPhrase}");
                     return View("Index", "Home");
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Exception in getting event: {ex.Message}");
                 return View("Index", "Home");
             }
         }
@@ -70,6 +67,12 @@ namespace Back_office.Controllers
             if (response.IsSuccessStatusCode)
             {
                 ApiResponse<Event>? json = await response.Content.ReadFromJsonAsync<ApiResponse<Event>>();
+
+                if(json == null || json.Data == null)
+                {
+                    Console.WriteLine($"Error in getting event, ID: {id}");
+                    return RedirectToAction("Index", "Events");
+                }
 
                 return View(json?.Data);
             }
@@ -116,13 +119,6 @@ namespace Back_office.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    ApiResponse<Event>? json = await response.Content.ReadFromJsonAsync<ApiResponse<Event>>();
-
-                    if (json != null)
-                    {
-                        Console.WriteLine(json);
-                    }
-
                     TempData["ToastMessage"] = "Event created successfully!";
                     TempData["ToastType"] = "success";
 
@@ -131,6 +127,7 @@ namespace Back_office.Controllers
                 else
                 {
                     ModelState.AddModelError(string.Empty, "Error in Store method...");
+                    Console.WriteLine($"Error in Store method: {response.StatusCode} | {response.ReasonPhrase}");
 
                     TempData["ToastMessage"] = "Error in creating event!";
                     TempData["ToastType"] = "danger";
@@ -181,13 +178,6 @@ namespace Back_office.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    ApiResponse<Event>? json = await response.Content.ReadFromJsonAsync<ApiResponse<Event>>();
-
-                    if (json != null)
-                    {
-                        Console.WriteLine(json);
-                    }
-
                     TempData["ToastMessage"] = "Event updated successfully!";
                     TempData["ToastType"] = "success";
 
@@ -196,6 +186,7 @@ namespace Back_office.Controllers
                 else
                 {
                     ModelState.AddModelError(string.Empty, "Error in Update method...");
+                    Console.WriteLine($"Error in Store method: {response.StatusCode} | {response.ReasonPhrase}");
 
                     TempData["ToastMessage"] = "Error in updating event!";
                     TempData["ToastType"] = "danger";
