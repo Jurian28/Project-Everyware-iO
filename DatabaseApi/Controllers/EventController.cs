@@ -1,5 +1,6 @@
 ﻿using DatabaseApi.DTOs.Events;
 using DatabaseApi.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -93,7 +94,7 @@ namespace DatabaseApi.Controllers
                 return StatusCode(500, new { success = false, data = (object)null, error = $"Internal Server Error: {ex.Message}" });
             }
         }
-
+        
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromForm] EventUpdateDto dto)
         {
@@ -133,6 +134,35 @@ namespace DatabaseApi.Controllers
                 {
                     success = true,
                     data = eventItem,
+                    error = (object)null
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, data = (object)null, error = $"Internal Server Error: {ex.Message}" });
+            }
+        }
+
+        [HttpPost("{id}/publish")]
+        public async Task<IActionResult> Publish(int id, [FromBody] PublishEventDto dto)
+        {
+            try
+            {
+                Event? eventItem = await _applicationDbContext.Events.FindAsync(id);
+
+                if (eventItem == null)
+                {
+                    return NotFound(new { success = false, data = (object)null, error = "Event not found" });
+                }
+
+                eventItem.IsPublished = dto.Publish;
+
+                await _applicationDbContext.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    data = new { publish = eventItem.IsPublished },
                     error = (object)null
                 });
             }

@@ -5,30 +5,31 @@
 namespace DatabaseApi.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateEventModelWithLocation : Migration
+    public partial class UpdateEventModel : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "Location",
+            migrationBuilder.AddColumn<bool>(
+                name: "IsPublished",
                 table: "Events",
-                type: "nvarchar(max)",
-                nullable: true);
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
 
             migrationBuilder.UpdateData(
                 table: "Events",
                 keyColumn: "IdEvent",
                 keyValue: 1,
-                column: "Location",
-                value: "'s-Hertogenbosch");
+                column: "IsPublished",
+                value: false);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Location",
+                name: "IsPublished",
                 table: "Events");
         }
     }

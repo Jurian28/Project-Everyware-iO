@@ -1,11 +1,14 @@
 ﻿@{
-    string imgSrc = string.IsNullOrEmpty(Model.LogoPath) ? "" : $"{Environment.GetEnvironmentVariable("API_OUTSIDE_BASE_URL") ?? "http://localhost"}:{Environment.GetEnvironmentVariable("DATABASE_API_PORT")}{Model.LogoPath}";
+    string apiOutsideUrl = $"{Environment.GetEnvironmentVariable("API_OUTSIDE_BASE_URL") ?? "http://localhost"}:{Environment.GetEnvironmentVariable("DATABASE_API_PORT")}";
+    string imgSrc = string.IsNullOrEmpty(Model.LogoPath) ? "" : $"{apiOutsideUrl}{Model.LogoPath}";
 }
 
 @model Event
 
 <div class="card event-card bg-light text-center">
     <div class="card-body d-flex flex-column container">
+        <input type="hidden" value="@apiOutsideUrl" id="api-url" />
+
         <div class="row">
             <div class="col-12 p-1">
                 <h5 class ="card-title text-decoration-none text-dark">@Model.Title</h5>
@@ -34,18 +37,12 @@
                     <p class="card-text small">@Model.Description</p>
                 }
 
-                <div class="event-card-meta small d-flex justify-content-between align-items-end mt-auto">
-                    <div>
-                        @if (!string.IsNullOrEmpty(Model.Location))
-                        {
-                            <p class="mb-2">@Model.Location</p>
-                        }
-
-                        <p class="text-secondary mb-0">
-                            @Model.StartDate.ToString("MMM dd") - @Model.EndDate.ToString("MMM dd, yyyy")
-                        </p>
-                    </div>
-                    <div>
+                <div class="event-card-meta small d-flex justify-content-between align-items-center mt-auto">
+                    <p class="text-secondary mb-0">
+                        @Model.StartDate.ToString("MMM dd") - @Model.EndDate.ToString("MMM dd, yyyy")
+                    </p>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-secondary" onclick="togglePublish(@Model.IdEvent, @((!Model.IsPublished).ToString().ToLower()))">@(Model.IsPublished ? "Unpublish" : "Publish")</button>
                         <a asp-action="Edit" asp-route-id="@Model.IdEvent" class="btn btn-primary d-inline-flex gap-2">
                             <span class="">Edit</span>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="24" height="24">

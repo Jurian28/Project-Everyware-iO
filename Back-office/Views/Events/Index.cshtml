@@ -1,27 +1,13 @@
 ﻿@model List<Event>
 
+<script src="~/js/events.js" defer></script>
+
 @if (TempData["ToastMessage"] != null && TempData["ToastType"] != null)
 {
     <div class="bg-@TempData["ToastType"] p-3 d-flex align-items-center justify-content-between fixed-bottom" id="event-toast">
         <p class="m-0 text-white">@TempData["ToastMessage"]</p>
         <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeToast()"></button>
     </div>
-    <script>
-        let toast = document.getElementById('event-toast');
-        if (toast) {
-            setTimeout(function () {
-                toast.style.display = 'none';
-                toast.classList.remove('d-flex');
-            }, 4000);
-        }
-
-        function closeToast() {
-            if (toast) {
-                toast.style.display = 'none';
-                toast.classList.remove('d-flex');
-            }
-        }
-    </script>
 }
 
 <div class="container">

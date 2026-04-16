@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260415152725_UpdateEventModelWithLocation")]
-    partial class UpdateEventModelWithLocation
+    [Migration("20260416130101_UpdateEventModel")]
+    partial class UpdateEventModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,9 @@ namespace DatabaseApi.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
@@ -69,6 +72,7 @@ namespace DatabaseApi.Migrations
                             AccentColorHex = "#B0B0B0",
                             Description = "Hier zal besproken worden wat er allemaal gemaakt moet worden voor de beste event calender ooit.",
                             EndDate = new DateTime(2026, 10, 10, 17, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsPublished = false,
                             Location = "'s-Hertogenbosch",
                             LogoPath = "",
                             MainColorHex = "#D9D9D9",

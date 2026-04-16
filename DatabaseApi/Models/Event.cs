@@ -17,6 +17,7 @@ namespace DatabaseApi.Models
         public string? MainColorHex { get; set; }
         public string? AccentColorHex { get; set; }
         public string? LogoPath { get; set; }
+        public bool IsPublished { get; set; } = false;
 
         // Navigation properties
         public ICollection<Room> Rooms { get; set; } = new List<Room>();

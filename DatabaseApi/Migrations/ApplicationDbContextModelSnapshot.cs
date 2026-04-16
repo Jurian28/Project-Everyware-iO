@@ -39,6 +39,9 @@ namespace DatabaseApi.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
@@ -66,6 +69,7 @@ namespace DatabaseApi.Migrations
                             AccentColorHex = "#B0B0B0",
                             Description = "Hier zal besproken worden wat er allemaal gemaakt moet worden voor de beste event calender ooit.",
                             EndDate = new DateTime(2026, 10, 10, 17, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsPublished = false,
                             Location = "'s-Hertogenbosch",
                             LogoPath = "",
                             MainColorHex = "#D9D9D9",

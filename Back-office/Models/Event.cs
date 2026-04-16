@@ -26,6 +26,7 @@ namespace Back_office.Models
         [MaxLength(7)]
         public string AccentColorHex { get; set; }
         public string? LogoPath { get; set; }
+        public bool IsPublished { get; set; } = false;
 
         public ICollection<Room> Rooms { get; set; } = new List<Room>();
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();

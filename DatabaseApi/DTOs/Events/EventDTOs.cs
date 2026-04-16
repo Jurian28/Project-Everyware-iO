@@ -52,9 +52,18 @@ namespace DatabaseApi.DTOs.Events
         public string MainColorHex { get; set; }
         [Required]
         public string AccentColorHex { get; set; }
+        public bool IsPublished { get; set; }
 
         // Include the file directly in the DTO
         public IFormFile? LogoFile { get; set; }
         public string? LogoPath { get; set; }
+    }
+
+    public class PublishEventDto
+    {
+        [Required]
+        public int Id { get; set; }
+        [Required]
+        public bool Publish { get; set; }
     }
 }
