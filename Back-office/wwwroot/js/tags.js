@@ -15,9 +15,9 @@ async function submitTag(e) {
     e.preventDefault();
 
     const tag = {
+        idTag: selectedTag ? selectedTag.idTag : 0,
         idEvent: eventId,
         title: document.getElementById("title").value,
-        oldTitle: selectedTag ? selectedTag.title : null,
         colorHex: document.getElementById("colorHex").value
     };
 
@@ -40,10 +40,9 @@ async function submitTag(e) {
 async function deleteTag() {
     if (!selectedTag) return;
 
-    await fetch(
-        `/${eventId}/tag/${eventId}/${encodeURIComponent(selectedTag.title)}`,
-        { method: "DELETE" }
-    );
+    await fetch(`/${eventId}/tag/${selectedTag.idTag}`, {
+        method: "DELETE"
+    });
 
     clearForm();
     loadTags();
@@ -54,8 +53,6 @@ function loadTagForEdit(tag) {
 
     document.getElementById("title").value = tag.title;
     document.getElementById("colorHex").value = tag.colorHex ?? "";
-
-    document.getElementById("tagTitleOld").value = tag.title;
 
     deleteButton.classList.remove("invisible");
     showEditButtons();
@@ -88,7 +85,8 @@ async function loadTags() {
 
     const tags = api.data;
 
-    if (tags) {
+    if (tags && tags.length > 0) {
+        noTagsMessage.classList.add("d-none");
         renderTags(tags);
     } else {
         noTagsMessage.classList.remove("d-none");
@@ -108,6 +106,8 @@ function renderTags(tags) {
 
         clone.querySelector("[data-field='title']").textContent = tag.title;
         clone.querySelector("[data-field='color']").textContent = tag.colorHex ?? "NO COLOR";
+
+        row.dataset.idTag = tag.idTag;
 
         row.addEventListener("click", () => loadTagForEdit(tag));
 

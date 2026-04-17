@@ -2,10 +2,10 @@
 {
     public class TagDto
     {
+        public int IdTag { get; set; }
         public int IdEvent { get; set; }
         public string Title { get; set; } = string.Empty;
 
-        public string? OldTitle { get; set; }
 
         public string? ColorHex { get; set; }
     }

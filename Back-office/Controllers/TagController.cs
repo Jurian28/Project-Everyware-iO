@@ -24,38 +24,37 @@ namespace Back_office.Controllers
         [HttpGet("data")]
         public async Task<IActionResult> GetTagsForEvent(int eventId)
         {
-            HttpResponseMessage response = await client.GetAsync($"/tag?eventId={eventId}");
+            var response = await client.GetAsync($"/tag?eventId={eventId}");
 
-            ApiResponse<List<TagDto>>? apiResponse =
+            var apiResponse =
                 await response.Content.ReadFromJsonAsync<ApiResponse<List<TagDto>>>();
 
             return StatusCode((int)response.StatusCode, apiResponse);
         }
 
-        // CREATE / UPDATE
+        // CREATE / UPDATE (now based on IdTag)
         [HttpPost("data")]
-        public async Task<IActionResult> SaveTag([FromBody] TagDto tag)
-        {
+        public async Task<IActionResult> SaveTag([FromBody] TagDto tag) {
             HttpResponseMessage response;
 
-            Console.WriteLine("===========================");
-            Console.WriteLine(tag.Title);
-            Console.WriteLine(tag.OldTitle);
-            Console.WriteLine(tag.ColorHex);
-            Console.WriteLine("===========================");
-
             // CREATE
-            if (string.IsNullOrEmpty(tag.OldTitle))
-            {
-                response = await client.PostAsJsonAsync("tag", tag);
+            if (tag.IdTag == 0) {
+                var dto = new TagDto {
+                    IdEvent = tag.IdEvent,
+                    Title = tag.Title,
+                    ColorHex = tag.ColorHex
+                };
+
+                response = await client.PostAsJsonAsync("/tag", dto);
             }
-            // UPDATE (composite key)
-            else
-            {
-                response = await client.PutAsJsonAsync(
-                    $"tag/{tag.IdEvent}/{tag.OldTitle}",
-                    tag
-                );
+            // UPDATE
+            else {
+                var dto = new TagDto {
+                    Title = tag.Title,
+                    ColorHex = tag.ColorHex
+                };
+
+                response = await client.PutAsJsonAsync($"/tag/{tag.IdTag}", dto);
             }
 
             var content = await response.Content.ReadAsStringAsync();
@@ -63,12 +62,10 @@ namespace Back_office.Controllers
         }
 
         // DELETE
-        [HttpDelete("{idEvent}/{title}")]
-        public async Task<IActionResult> DeleteTag(int idEvent, string title)
+        [HttpDelete("{idTag}")]
+        public async Task<IActionResult> DeleteTag(int idTag)
         {
-            var response = await client.DeleteAsync(
-                $"tag/{idEvent}/{title}"
-            );
+            var response = await client.DeleteAsync($"/tag/{idTag}");
 
             var content = await response.Content.ReadAsStringAsync();
             return StatusCode((int)response.StatusCode, content);
