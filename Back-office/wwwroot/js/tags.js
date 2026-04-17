@@ -105,7 +105,8 @@ function renderTags(tags) {
         const row = clone.querySelector("div");
 
         clone.querySelector("[data-field='title']").textContent = tag.title;
-        clone.querySelector("[data-field='color']").textContent = tag.colorHex ?? "NO COLOR";
+        const colorEl = clone.querySelector("[data-field='color']");
+        colorEl.style.backgroundColor = tag.colorHex || "#ccc";
 
         row.dataset.idTag = tag.idTag;
 

@@ -70,8 +70,14 @@
 
 <!-- TEMPLATE -->
 <template id="tagRowTemplate">
-	<div class="p-3 my-1 tag-row bg-white rounded" style="cursor:pointer">
-		<span class="fw-bold" data-field="title"></span>
-		<span data-field="color"></span>
+	<div class="p-3 my-1 tag-row bg-white rounded d-flex align-items-center" style="cursor:pointer">
+
+		<span class="fw-bold me-2" data-field="title"></span>
+
+		<!-- color indicator -->
+		<span data-field="color"
+			  class="color-dot"
+			  style="width:14px; height:14px; border-radius:50%; display:inline-block; border:1px solid #ddd;"></span>
+
 	</div>
 </template>
