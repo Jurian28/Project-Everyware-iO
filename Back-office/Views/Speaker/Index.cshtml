@@ -6,7 +6,7 @@
     <script src="~/js/speaker.js" defer data-event-id="@Model"></script>
 }
 <div class="d-flex flex-fill m-4 gap-3 mh-100 max-h-100 pb-1 overflow-hidden">
-    <div style="flex: 2" class="bg-dark-subtle rounded-3 px-4 py-1 h-100 max-h-100">
+    <div style="flex: 1" class="bg-dark-subtle rounded-3 px-4 py-1 h-100 max-h-100">
         <div id="speakerList" class="overflow-auto max-h-100">
             <div id="loadingMessage" class="text-center my-auto">Loading...</div>
             <div id="noSpeakersMessage" class="text-center my-auto d-none">No speakers found</div>
@@ -17,16 +17,20 @@
             <div class="flex-grow-1">
                 <input type="hidden" id="speakerId" value="" />
                 <div class="mb-3">
-                    <label for="firstName" class="form-label">First Name</label>
-                    <input type="text" class="form-control" id="firstName" required />
-                </div>
-                <div class="mb-3">
-                    <label for="middleName" class="form-label">Middle Name</label>
-                    <input type="text" class="form-control" id="middleName" />
-                </div>
-                <div class="mb-3">
-                    <label for="lastName" class="form-label">Last Name</label>
-                    <input type="text" class="form-control" id="lastName" required />
+                    <label class="form-label">Name</label>
+                    <div class="row g-2">
+                        <div class="col">
+                            <input type="text" class="form-control" id="firstName" placeholder="First name" required />
+                        </div>
+
+                        <div class="col">
+                            <input type="text" class="form-control" id="middleName" placeholder="Middle name" />
+                        </div>
+
+                        <div class="col">
+                            <input type="text" class="form-control" id="lastName" placeholder="Last name" required />
+                        </div>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="description" class="form-label">Description</label>
@@ -51,8 +55,8 @@
 </div>
 
 <template id="speakerRowTemplate">
-    <div class="p-3 my-1 speaker-row" style="cursor:pointer">
-        <span data-field="imgPath"></span>
+    <div class="p-3 my-1 speaker-row d-flex align-items-center gap-2" style="cursor:pointer">
+        <img data-field="imgPath" class="rounded" style="width:40px; height:40px; object-fit:cover;" />
         <span class="fw-bold" data-field="firstName"></span>
         <span class="fw-bold" data-field="middleName"></span>
         <span class="fw-bold" data-field="lastName"></span>

@@ -11,9 +11,10 @@ namespace DatabaseApi.Models
         public string? MiddleName { get; set; }
         [Required]
         public string LastName { get; set; }
-        public string? description { get; set; }
+        public string? Description { get; set; }
         public string? ImgPath { get; set; }
-
+        [Required]
+        public int IdEvent { get; set; }
         // Navigation properties
         public ICollection<Session> Sessions { get; set; } = new List<Session>();
     }

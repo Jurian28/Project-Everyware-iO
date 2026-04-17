@@ -1,33 +1,32 @@
 using DatabaseApi.Models;
 
-namespace DatabaseApi.DTOs.Rooms
+namespace DatabaseApi.DTOs.Speakers
 {
-    public class RoomMapper
+    public class SpeakerMapper
     {
-        public static Speaker ToEntity(RoomInsertDTO dto) => new Speaker
+        public static Speaker ToEntity(SpeakerInsertDTO dto) => new Speaker
         {
-            FirstName = dto.RoomLabel,
-            MiddleName = dto.Capacity,
-            LastName = dto.Capacity,
+            FirstName = dto.FirstName,
+            MiddleName = dto.MiddleName,
+            LastName = dto.LastName,
             Description = dto.Description,
-            ImgPath = dto.ImgPath,
             IdEvent = dto.IdEvent
         };
 
         public static void UpdateEntity(Speaker speaker, SpeakerUpdateDTO dto)
         {
-            speaker.FirstName = dto.RoomLabel,
-            speaker.MiddleName = dto.Capacity,
-            speaker.LastName = dto.Capacity,
-            speaker.Description = dto.Description,
-            speaker.ImgPath = dto.ImgPath,
+            speaker.FirstName = dto.FirstName;
+            speaker.MiddleName = dto.MiddleName;
+            speaker.LastName = dto.LastName;
+            speaker.Description = dto.Description;
         }
 
         public static SpeakerResponseDTO ToResponseDTO(Speaker speaker) => new SpeakerResponseDTO
         {
-            FirstName = speaker.RoomLabel,
-            MiddleName = speaker.Capacity,
-            LastName = speaker.Capacity,
+            IdSpeaker = speaker.IdSpeaker,
+            FirstName = speaker.FirstName,
+            MiddleName = speaker.MiddleName,
+            LastName = speaker.LastName,
             Description = speaker.Description,
             ImgPath = speaker.ImgPath,
             IdEvent = speaker.IdEvent

@@ -14,10 +14,14 @@ namespace DatabaseApi.Controllers
     public class SpeakerController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        public SpeakerController(ApplicationDbContext context)
+        private readonly IWebHostEnvironment _environment;
+
+        public SpeakerController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
+
         /// <summary>
         /// gets all speakers, if eventId is provided it gets all speakers for that event, otherwise it gets all speakers in the database
         /// </summary>
@@ -34,12 +38,12 @@ namespace DatabaseApi.Controllers
             var speakers = await query.ToListAsync();
             return Ok(ApiResponse<IEnumerable<SpeakerResponseDTO>>.Ok(speakers.Select(SpeakerMapper.ToResponseDTO)));
         }
+
         /// <summary>
         /// Inserts a new speaker into the database. The speaker data is provided in the request body as a SpeakerInsertDTO.
         /// </summary>
-
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<SpeakerResponseDTO>>> InsertSpeaker([FromBody] SpeakerInsertDTO speakerDTO)
+        public async Task<ActionResult<ApiResponse<SpeakerResponseDTO>>> InsertSpeaker([FromForm] SpeakerInsertDTO speakerDTO, IFormFile? image)
         {
             if (!ModelState.IsValid)
             {
@@ -55,7 +59,15 @@ namespace DatabaseApi.Controllers
 
             try
             {
+                string? imagePath = null;
+
+                if (image != null)
+                {
+                    imagePath = await SaveImage(image);
+                }
+
                 Speaker speaker = SpeakerMapper.ToEntity(speakerDTO);
+                speaker.ImgPath = imagePath;
                 _context.Speakers.Add(speaker);
                 await _context.SaveChangesAsync();
 
@@ -76,11 +88,12 @@ namespace DatabaseApi.Controllers
                 return StatusCode(500, ApiResponse<SpeakerResponseDTO>.Fail("An unexpected error occurred."));
             }
         }
+
         /// <summary>
         /// Updates an existing speaker in the database. The speaker ID is provided as a route parameter, and the updated speaker data is provided in the request body as a SpeakerUpdateDTO.
         /// </summary>
         [HttpPut("{id}")]
-        public async Task<ActionResult<Speaker>> UpdateSpeaker(int id, [FromBody] SpeakerUpdateDTO speakerDTO)
+        public async Task<ActionResult> UpdateSpeaker(int id, [FromForm] SpeakerUpdateDTO speakerDTO, IFormFile? image)
         {
             if (!ModelState.IsValid)
             {
@@ -101,6 +114,10 @@ namespace DatabaseApi.Controllers
             try
             {
                 SpeakerMapper.UpdateEntity(speaker, speakerDTO);
+                if (image != null)
+                {
+                    speaker.ImgPath = await SaveImage(image);
+                }
                 await _context.SaveChangesAsync();
                 return Ok(ApiResponse<SpeakerResponseDTO>.Ok(SpeakerMapper.ToResponseDTO(speaker)));
             }
@@ -117,6 +134,7 @@ namespace DatabaseApi.Controllers
                 return StatusCode(500, ApiResponse<SpeakerResponseDTO>.Fail("An unexpected error occurred."));
             }
         }
+
         /// <summary>
         /// Deletes a speaker from the database. The speaker ID is provided as a route parameter. If the speaker has associated sessions, it cannot be deleted and a conflict response is returned.
         /// </summary>
@@ -144,6 +162,27 @@ namespace DatabaseApi.Controllers
                 Console.WriteLine($"Unexpected error: {ex}");
                 return StatusCode(500, ApiResponse<SpeakerResponseDTO>.Fail("An unexpected error occurred."));
             }
+        }
+        private async Task<string> SaveImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            string fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+
+            string folderPath = Path.Combine(_environment.WebRootPath, "images", "speakers");
+
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            string filePath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return $"/images/speakers/{fileName}";
         }
     }
 }

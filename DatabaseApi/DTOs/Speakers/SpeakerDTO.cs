@@ -1,4 +1,5 @@
 using DatabaseApi.Models;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 namespace DatabaseApi.DTOs.Speakers
@@ -31,11 +32,10 @@ namespace DatabaseApi.DTOs.Speakers
 
         public string? Description { get; set; }
 
-        public string? ImgPath { get; set; }
-
         [Required(ErrorMessage = "IdEvent is required.")]
         public int IdEvent { get; set; }
 
+        public IFormFile? ImgFile { get; set; }
     }
     /// <summary>
     /// Represents the input data for updating a Speaker.
@@ -52,6 +52,6 @@ namespace DatabaseApi.DTOs.Speakers
 
         public string? Description { get; set; }
 
-        public string? ImgPath { get; set; }
+        public IFormFile? ImgFile { get; set; }
     }
 }

@@ -22,20 +22,23 @@ async function submitSpeaker(event) {
         return;
     }
 
-    const speaker = {
-        idSpeaker: idSpeaker ? parseInt(idSpeaker) : null,
-        firstName: document.getElementById("firstName").value,
-        middleName: document.getElementById("middleName").value,
-        lastName: document.getElementById("lastName").value,
-        description: document.getElementById("description").value,
-        imgPath: document.getElementById("imgPath").value,
-        idEvent: eventId,
-    };
+    const formData = new FormData();
+
+    formData.append("idSpeaker", idSpeaker ?? 0);
+    formData.append("firstName", document.getElementById("firstName").value);
+    formData.append("middleName", document.getElementById("middleName").value);
+    formData.append("lastName", document.getElementById("lastName").value);
+    formData.append("description", document.getElementById("description").value);
+    formData.append("idEvent", eventId);
+
+    const fileInput = document.getElementById("imgPath");
+    if (fileInput.files.length > 0) {
+        formData.append("image", fileInput.files[0]);
+    }
 
     const response = await fetch(`/${eventId}/speaker/data`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(speaker)
+        body: formData
     });
 
     if (response.ok) {
@@ -114,16 +117,17 @@ function loadSpeakerForEdit(speaker) {
     document.getElementById("middleName").value = speaker.middleName ?? "";
     document.getElementById("lastName").value = speaker.lastName;
     document.getElementById("description").value = speaker.description ?? "";
-    document.getElementById("imgPath").value = speaker.imgPath ?? "";
+    document.getElementById("imgPath").value = "";
+
     deleteButton.classList.remove("invisible");
     showEditButtons();
 }
 
 function unselectSpeakerForEdit() {
-    if (!idSpeaker) return;
-    const speakerRow = document.getElementById(`speaker-${idSpeaker}`);
-    speakerRow.classList.remove("bg-selected");
-    speakerRow.classList.add("bg-white");
+    document.querySelectorAll(".speaker-row").forEach(r => {
+        r.classList.remove("bg-selected");
+        r.classList.add("bg-white");
+    });
 }
 
 async function loadSpeakers() {
@@ -152,10 +156,15 @@ function renderSpeakers(speakers) {
         const row = clone.querySelector("div");
         row.id = `speaker-${speaker.idSpeaker}`;
         row.classList.add("bg-white");
+        row.classList.add("speaker-row");
 
-        clone.querySelector("[data-field='speakerLabel']").textContent = speaker.speakerLabel;
-        clone.querySelector("[data-field='capacity']").textContent = speaker.capacity;
-        clone.querySelector("[data-field='description']").textContent = speaker.description ?? "";
+        const img = clone.querySelector("[data-field='imgPath']");
+
+        img.src = speaker.imgPath || "/images/speakers/default.jpg";
+
+        clone.querySelector("[data-field='firstName']").textContent = speaker.firstName;
+        clone.querySelector("[data-field='middleName']").textContent = speaker.middleName ?? "";
+        clone.querySelector("[data-field='lastName']").textContent = speaker.lastName;
 
         row.addEventListener("click", () => loadSpeakerForEdit(speaker));
         container.appendChild(clone);

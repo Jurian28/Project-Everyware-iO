@@ -140,7 +140,8 @@ namespace DatabaseApi.Models
                     FirstName = "Jan",
                     LastName = "Smit",
                     description = "Expert in C# en Cloud.",
-                    ImgPath = ""
+                    ImgPath = "",
+                    IdEvent = 1
                 },
                 new
                 {
@@ -148,7 +149,8 @@ namespace DatabaseApi.Models
                     FirstName = "John",
                     LastName = "Doe",
                     description = "Expert in Databases en networking.",
-                    ImgPath = ""
+                    ImgPath = "",
+                    IdEvent = 1
                 }
             );
 

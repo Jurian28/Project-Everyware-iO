@@ -43,21 +43,60 @@ namespace Back_office.Controllers
         /// post or put for speaker used in js on speaker/index.cshtml
         /// </summary>
         [HttpPost("data")]
-        public async Task<IActionResult> SaveSpeaker([FromBody] SpeakerDTO speaker)
+        public async Task<IActionResult> SaveSpeaker(IFormCollection form)
         {
-            HttpResponseMessage response;
+            using var content = new MultipartFormDataContent();
 
-            if (speaker.IdSpeaker == null || speaker.IdSpeaker == 0)
+            content.Add(new StringContent(form["firstName"]), "firstName");
+            content.Add(new StringContent(form["middleName"]), "middleName");
+            content.Add(new StringContent(form["lastName"]), "lastName");
+            content.Add(new StringContent(form["description"]), "description");
+            content.Add(new StringContent(form["idEvent"]), "idEvent");
+
+            if (form.Files.Count > 0)
             {
-                response = await client.PostAsJsonAsync("speaker", speaker);
-            }
-            else
-            {
-                response = await client.PutAsJsonAsync($"speaker/{speaker.IdSpeaker}", speaker);
+                var file = form.Files[0];
+
+                var stream = file.OpenReadStream();
+                var fileContent = new StreamContent(stream);
+                fileContent.Headers.ContentType =
+                    new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+                content.Add(fileContent, "image", file.FileName);
             }
 
-            string content = await response.Content.ReadAsStringAsync();
-            return StatusCode((int)response.StatusCode, content);
+            HttpResponseMessage response = await client.PostAsync("/speaker", content);
+
+            string result = await response.Content.ReadAsStringAsync();
+            return StatusCode((int)response.StatusCode, result);
+        }
+
+        [HttpPut("data/{id}")]
+        public async Task<IActionResult> UpdateSpeaker(int id, IFormCollection form)
+        {
+            using var content = new MultipartFormDataContent();
+
+            content.Add(new StringContent(form["firstName"]), "firstName");
+            content.Add(new StringContent(form["middleName"]), "middleName");
+            content.Add(new StringContent(form["lastName"]), "lastName");
+            content.Add(new StringContent(form["description"]), "description");
+
+            if (form.Files.Count > 0)
+            {
+                var file = form.Files[0];
+
+                var stream = file.OpenReadStream();
+                var fileContent = new StreamContent(stream);
+                fileContent.Headers.ContentType =
+                    new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+                content.Add(fileContent, "image", file.FileName);
+            }
+
+            HttpResponseMessage response = await client.PutAsync($"/speaker/{id}", content);
+
+            string result = await response.Content.ReadAsStringAsync();
+            return StatusCode((int)response.StatusCode, result);
         }
 
         /// <summary>
