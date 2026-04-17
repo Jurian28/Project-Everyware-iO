@@ -81,7 +81,7 @@ namespace DatabaseApi.Controllers
         /// <summary>
         /// Creates a new event with the provided data. Handles file upload and returns the created event.
         /// </summary>
-        [HttpPost("")]
+        [HttpPost]
         public async Task<IActionResult> Store([FromForm] EventCreateDto dto)
         {
             try
@@ -224,7 +224,7 @@ namespace DatabaseApi.Controllers
         }
 
         /// <summary>
-        /// Method to handle logo file upload. Could be saved in a service in the future.
+        /// Method to handle logo file upload.
         /// </summary>
         public async Task<string> HandleLogoUpload(IEventFileDTO dto)
         {
@@ -245,6 +245,7 @@ namespace DatabaseApi.Controllers
             }
             catch (Exception ex)
             {
+                throw new Exception($"Error uploading logo: {ex.Message}");
                 Console.WriteLine($"Error uploading logo: {ex.Message}");
                 return string.Empty;
             }
