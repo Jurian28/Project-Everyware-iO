@@ -50,7 +50,7 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
         EventInvite invite = new()
         {
             Event = @event,
-            Expires = eventInviteCreateDto.Expires
+            Expires = eventInviteCreateDto.Expires.ToUniversalTime()
         };
         _applicationDbContext.EventInvites.Add(invite);
         await _applicationDbContext.SaveChangesAsync();
