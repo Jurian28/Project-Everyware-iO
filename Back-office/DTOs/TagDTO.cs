@@ -1,6 +1,6 @@
-﻿namespace Back_office.DTO
+﻿namespace Back_office.DTOs
 {
-    public class TagDto
+    public class TagDTO
     {
         public int IdTag { get; set; }
         public int IdEvent { get; set; }

@@ -6,12 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using SharedClassLibrary.ApiResponse;
 
-
 namespace DatabaseApi.Controllers
 {
-
     [ApiController]
     [Route("[controller]")]
+    /// <summary>
+    /// Controller to handle all tag input and output.
+    /// </summary>
     public class TagController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -21,6 +22,9 @@ namespace DatabaseApi.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Gets all tags. If eventId is provided, it returns only tags for that event; otherwise, it returns all tags in the database.
+        /// </summary>
         [HttpGet]
         // [Authorize]
         public async Task<ActionResult<ApiResponse<IEnumerable<TagResponseDTO>>>> GetAllTags([FromQuery] int? eventId)
@@ -30,7 +34,7 @@ namespace DatabaseApi.Controllers
             if (eventId.HasValue)
                 query = query.Where(t => t.IdEvent == eventId.Value);
 
-            var tags = await query
+            List<TagResponseDTO> tags = await query
                 .Select(t => new TagResponseDTO
                 {
                     IdTag = t.IdTag,
@@ -43,7 +47,9 @@ namespace DatabaseApi.Controllers
             return Ok(ApiResponse<IEnumerable<TagResponseDTO>>.Ok(tags));
         }
 
-
+        /// <summary>
+        /// Inserts a new tag into the database. The tag data is provided in the request body as a TagInsertDTO.
+        /// </summary>
         [HttpPost]
         // [Authorize]
         public async Task<ActionResult<ApiResponse<TagResponseDTO>>> InsertTag([FromBody] TagInsertDTO dto)
@@ -62,12 +68,12 @@ namespace DatabaseApi.Controllers
 
             try
             {
-                var tag = TagMapper.ToEntity(dto);
+                Tag? tag = TagMapper.ToEntity(dto);
 
                 _context.Tags.Add(tag);
                 await _context.SaveChangesAsync();
 
-                var response = TagMapper.ToResponseDTO(tag);
+                TagResponseDTO response = TagMapper.ToResponseDTO(tag);
 
                 return StatusCode(201, ApiResponse<TagResponseDTO>.Ok(response));
             }
@@ -88,11 +94,13 @@ namespace DatabaseApi.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Updates an existing tag in the database. The tag ID is provided as a route parameter, and the updated tag data is provided in the request body as a TagUpdateDTO.
+        /// </summary>
         [HttpPut("{idTag}")]
         public async Task<ActionResult<ApiResponse<TagResponseDTO>>> UpdateTag(int idTag, [FromBody] TagUpdateDTO dto)
         {
-            var tag = await _context.Tags
+            Tag? tag = await _context.Tags
                 .FirstOrDefaultAsync(t => t.IdTag == idTag);
 
             if (tag == null)
@@ -111,10 +119,14 @@ namespace DatabaseApi.Controllers
                 return StatusCode(500, ApiResponse<TagResponseDTO>.Fail("Unexpected error"));
             }
         }
+
+        /// <summary>
+        /// Deletes a tag from the database. The tag ID is provided as a route parameter.
+        /// </summary>
         [HttpDelete("{idTag}")]
         public async Task<IActionResult> DeleteTag(int idTag)
         {
-            var tag = await _context.Tags
+            Tag? tag = await _context.Tags
                 .FirstOrDefaultAsync(t => t.IdTag == idTag);
 
             if (tag == null)

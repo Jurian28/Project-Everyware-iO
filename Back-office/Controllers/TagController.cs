@@ -1,45 +1,61 @@
-﻿using Back_office.DTO;
+﻿using Back_office.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using SharedClassLibrary.ApiResponse;
 
 namespace Back_office.Controllers
 {
     [Route("{eventId}/[controller]")]
+    /// <summary>
+    /// Controller responsible for handling tag management (CRUD) for a specific event.
+    /// </summary>
     public class TagController : Controller
     {
         private readonly HttpClient client;
 
+        /// <summary>
+        /// Initializes the controller with an HttpClient for communicating with the Database API.
+        /// </summary>
         public TagController(IHttpClientFactory httpClientFactory)
         {
             client = httpClientFactory.CreateClient("DatabaseApi");
         }
 
+        /// <summary>
+        /// Displays the tag management page for a specific event.
+        /// </summary>
         public IActionResult Index(int eventId)
         {
             ViewData["EventId"] = eventId;
             return View(eventId);
         }
 
-        // GET DATA
+        /// <summary>
+        /// Gets all tags for a specific event. Used by JavaScript on tag/index.cshtml.
+        /// </summary>
         [HttpGet("data")]
         public async Task<IActionResult> GetTagsForEvent(int eventId)
         {
-            var response = await client.GetAsync($"/tag?eventId={eventId}");
+            HttpResponseMessage response = await client.GetAsync($"/tag?eventId={eventId}");
 
-            var apiResponse =
-                await response.Content.ReadFromJsonAsync<ApiResponse<List<TagDto>>>();
+            ApiResponse<List<TagDTO>>? apiResponse =
+                await response.Content.ReadFromJsonAsync<ApiResponse<List<TagDTO>>>();
 
             return StatusCode((int)response.StatusCode, apiResponse);
         }
 
-        // CREATE / UPDATE (now based on IdTag)
+        /// <summary>
+        /// Creates or updates a tag depending on whether IdTag is set. Used by JavaScript on tag/index.cshtml.
+        /// </summary>
         [HttpPost("data")]
-        public async Task<IActionResult> SaveTag([FromBody] TagDto tag) {
+        public async Task<IActionResult> SaveTag([FromBody] TagDTO tag)
+        {
             HttpResponseMessage response;
 
             // CREATE
-            if (tag.IdTag == 0) {
-                var dto = new TagDto {
+            if (tag.IdTag == 0)
+            {
+                TagDTO dto = new TagDTO
+                {
                     IdEvent = tag.IdEvent,
                     Title = tag.Title,
                     ColorHex = tag.ColorHex
@@ -48,8 +64,10 @@ namespace Back_office.Controllers
                 response = await client.PostAsJsonAsync("/tag", dto);
             }
             // UPDATE
-            else {
-                var dto = new TagDto {
+            else
+            {
+                TagDTO dto = new TagDTO
+                {
                     Title = tag.Title,
                     ColorHex = tag.ColorHex
                 };
@@ -57,17 +75,19 @@ namespace Back_office.Controllers
                 response = await client.PutAsJsonAsync($"/tag/{tag.IdTag}", dto);
             }
 
-            var content = await response.Content.ReadAsStringAsync();
+            string content = await response.Content.ReadAsStringAsync();
             return StatusCode((int)response.StatusCode, content);
         }
 
-        // DELETE
+        /// <summary>
+        /// Deletes a tag for a specific event using its ID.
+        /// </summary>
         [HttpDelete("{idTag}")]
         public async Task<IActionResult> DeleteTag(int idTag)
         {
-            var response = await client.DeleteAsync($"/tag/{idTag}");
+            HttpResponseMessage response = await client.DeleteAsync($"/tag/{idTag}");
 
-            var content = await response.Content.ReadAsStringAsync();
+            string content = await response.Content.ReadAsStringAsync();
             return StatusCode((int)response.StatusCode, content);
         }
     }
