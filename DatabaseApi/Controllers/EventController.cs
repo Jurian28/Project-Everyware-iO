@@ -224,14 +224,14 @@ namespace DatabaseApi.Controllers
             try
             {
                 string fileName = Guid.NewGuid() + Path.GetExtension(dto.LogoFile.FileName);
-                string filePath = Path.Combine(_environment.WebRootPath, "images", "events", fileName);
+                string filePath = Path.Combine(_environment.WebRootPath, "images/events", fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await dto.LogoFile.CopyToAsync(stream);
                 }
 
-                return $"/images/{fileName}";
+                return $"/images/events/{fileName}";
             }
             catch (Exception ex)
             {
