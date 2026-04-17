@@ -1,4 +1,5 @@
-﻿using Back_office.Models;
+﻿using Back_office.DTOs;
+using Back_office.Models;
 using Back_office.Models.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
@@ -12,30 +13,37 @@ namespace Back_office.Controllers
         private static readonly string API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://databaseapi:5000";
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
 
+        public readonly int PageSize = 1;
+
         [HttpGet]
         [Route("")]
-        public async Task<IActionResult> Index(string? search)
+        public async Task<IActionResult> Index(string? search, int page = 1)
         {
             try
             {
-                string url = $"{API_BASE_URL}/api/event";
-
+                string url = $"{API_BASE_URL}/api/event?page={page}&pageSize={PageSize}";
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    ApiResponse<List<Event>>? json = await response.Content.ReadFromJsonAsync<ApiResponse<List<Event>>>();
+                    ApiResponse<FilteredEventsDto>? json = await response.Content.ReadFromJsonAsync<ApiResponse<FilteredEventsDto>>();
 
                     if (json != null)
                     {
-                        List<Event> events = json.Data ?? new List<Event>();
+                        FilteredEventsDto data = json.Data;
+
+                        List <Event> events = data?.Events ?? new List<Event>();
                         if (!string.IsNullOrEmpty(search))
                         {
-                            events = events.Where(e => e.Title.ToLower().Contains(search.ToLower()) 
-                                                        || e.Description.ToLower().Contains(search.ToLower())).ToList();
+                            events = events.Where(e => e.Title.ToLower().Contains(search.ToLower())
+                                                        || e.Description.ToLower().Contains(search.ToLower())
+                                                        || e.StartDate.ToString().ToLower().Contains(search.ToLower())
+                                                        || e.EndDate.ToString().ToLower().Contains(search.ToLower())).ToList();
                         }
 
                         ViewData["CurrentSearch"] = search;
+                        ViewData["CurrentPage"] = page;
+                        ViewData["TotalPages"] = data?.TotalPages ?? 1;
                         return View("Index", events);
                     } 
                     else

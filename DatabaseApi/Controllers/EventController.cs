@@ -14,16 +14,27 @@ namespace DatabaseApi.Controllers
         private readonly IWebHostEnvironment _environment = environment;
 
         [HttpGet("")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                List<Event> events = await _applicationDbContext.Events.ToListAsync();
+                page = Math.Max(page, 1);
+                page = Math.Min(page, 100);
+
+                int skip = (page - 1) * pageSize;
+
+                List<Event> events = await _applicationDbContext.Events
+                                                .OrderBy(e => e.StartDate)
+                                                .Skip(skip)
+                                                .Take(pageSize)
+                                                .ToListAsync();
+                int totalCount = await _applicationDbContext.Events.CountAsync();
+                int totalPages = (int) Math.Ceiling(totalCount / (double) pageSize);
 
                 return StatusCode(201, new
                 {
                     success = true,
-                    data = events,
+                    data = new { events, totalPages },
                     error = (object)null
                 });
             }
