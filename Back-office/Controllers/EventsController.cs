@@ -7,16 +7,20 @@ using System.Reflection;
 
 namespace Back_office.Controllers
 {
-    /// <summary>
-    /// Controller responsible for managing Events
-    /// </summary>
     [Route("events")]
-    public class EventsController(IHttpClientFactory httpClientFactory) : Controller
+    public class EventsController : Controller
     {
-        private static readonly string API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://databaseapi:5000";
-        private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
+        private readonly HttpClient _httpClient;
 
         public readonly int PageSize = 10;
+
+        /// <summary>
+        /// Controller for handling events
+        /// </summary>
+        public EventsController(IHttpClientFactory httpClientFactory)
+        {
+            _httpClient = httpClientFactory.CreateClient("DatabaseApi");
+        }
 
         /// <summary>
         /// Events listing with pagination and search functionality
@@ -27,7 +31,7 @@ namespace Back_office.Controllers
         {
             try
             {
-                string url = $"{API_BASE_URL}/api/event?page={page}&pageSize={PageSize}";
+                string url = $"/api/event?page={page}&pageSize={PageSize}";
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
@@ -88,7 +92,7 @@ namespace Back_office.Controllers
         [Route("{id}/edit")]
         public async Task<IActionResult> Edit(int id)
         {
-            string url = $"{API_BASE_URL}/api/event/{id}";
+            string url = $"/api/event/{id}";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
 
@@ -127,7 +131,7 @@ namespace Back_office.Controllers
 
             try
             {
-                string url = $"{API_BASE_URL}/api/event";
+                string url = $"/api/event";
                 using var content = new MultipartFormDataContent();
 
                 content.Add(new StringContent(eventModel.Title ?? ""), "Title");
@@ -189,7 +193,7 @@ namespace Back_office.Controllers
 
             try
             {
-                string url = $"{API_BASE_URL}/api/event/{eventModel.IdEvent}";
+                string url = $"/api/event/{eventModel.IdEvent}";
                 using var content = new MultipartFormDataContent();
 
                 content.Add(new StringContent(eventModel.Title ?? ""), "Title");

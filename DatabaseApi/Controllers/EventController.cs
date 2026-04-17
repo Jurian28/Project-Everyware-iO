@@ -212,7 +212,7 @@ namespace DatabaseApi.Controllers
             try
             {
                 string fileName = Guid.NewGuid() + Path.GetExtension(dto.LogoFile.FileName);
-                string filePath = Path.Combine(_environment.WebRootPath, "images", fileName);
+                string filePath = Path.Combine(_environment.WebRootPath, "images/events", fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {

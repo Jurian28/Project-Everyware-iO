@@ -56,4 +56,4 @@ nunit-*.xml
 /.vs
 
 .env
-/DatabaseApi/wwwroot/images/*
+/DatabaseApi/wwwroot/images/events/*
