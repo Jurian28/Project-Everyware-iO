@@ -22,7 +22,7 @@ namespace DatabaseApi.Controllers
 
         [HttpGet]
         // [Authorize]
-        public async Task<ActionResult<IEnumerable<TagResponseDTO>>> GetAllTags([FromQuery] int? eventId)
+        public async Task<ActionResult<ApiResponse<IEnumerable<TagResponseDTO>>>> GetAllTags([FromQuery] int? eventId)
         {
             IQueryable<Tag> query = _context.Tags;
 
@@ -38,7 +38,7 @@ namespace DatabaseApi.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(tags);
+            return Ok(ApiResponse<IEnumerable<TagResponseDTO>>.Ok(tags));
         }
 
 
@@ -98,10 +98,20 @@ namespace DatabaseApi.Controllers
 
             try
             {
-                TagMapper.UpdateEntity(tag, dto);
+                _context.Remove(tag);
+                _context.SaveChanges();
+                Tag newTag = new Tag
+                {
+                    IdEvent = idEvent,
+                    Title = dto.Title,
+                    ColorHex = dto.ColorHex
+                };
+                _context.Tags.Add(newTag);
+
+                // TagMapper.UpdateEntity(tag, dto);
                 await _context.SaveChangesAsync();
 
-                return Ok(ApiResponse<TagResponseDTO>.Ok(TagMapper.ToResponseDTO(tag)));
+                return Ok(ApiResponse<TagResponseDTO>.Ok(TagMapper.ToResponseDTO(newTag)));
             }
             catch (Exception ex)
             {

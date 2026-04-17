@@ -16,6 +16,7 @@ namespace DatabaseApi.DTOs.Tags
 
         public static void UpdateEntity(Tag tag, TagUpdateDTO dto)
         {
+            tag.Title = dto.Title;
             tag.ColorHex = dto.ColorHex;
         }
 

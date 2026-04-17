@@ -1,0 +1,125 @@
+﻿const loadingMessage = document.getElementById("loadingMessage");
+const noTagsMessage = document.getElementById("noTagsMessage");
+const deleteButton = document.getElementById("deleteButton");
+const editButtons = document.getElementsByClassName("js-edit-btn");
+
+const eventId = parseInt(document.currentScript.dataset.eventId);
+
+let selectedTag = null;
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") clearForm();
+});
+
+async function submitTag(e) {
+    e.preventDefault();
+
+    const tag = {
+        idEvent: eventId,
+        title: document.getElementById("title").value,
+        oldTitle: selectedTag ? selectedTag.title : null,
+        colorHex: document.getElementById("colorHex").value
+    };
+
+    const response = await fetch(`/${eventId}/tag/data`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(tag)
+    });
+
+    if (response.ok) {
+        showSuccess(`Saved tag: ${tag.title}`);
+        clearForm();
+        loadTags();
+    } else {
+        const err = await response.text();
+        document.getElementById("errorMessageBox").innerText = err;
+    }
+}
+
+async function deleteTag() {
+    if (!selectedTag) return;
+
+    await fetch(
+        `/${eventId}/tag/${eventId}/${encodeURIComponent(selectedTag.title)}`,
+        { method: "DELETE" }
+    );
+
+    clearForm();
+    loadTags();
+}
+
+function loadTagForEdit(tag) {
+    selectedTag = tag;
+
+    document.getElementById("title").value = tag.title;
+    document.getElementById("colorHex").value = tag.colorHex ?? "";
+
+    document.getElementById("tagTitleOld").value = tag.title;
+
+    deleteButton.classList.remove("invisible");
+    showEditButtons();
+}
+
+function clearForm() {
+    selectedTag = null;
+
+    document.getElementById("title").value = "";
+    document.getElementById("colorHex").value = "";
+
+    deleteButton.classList.add("invisible");
+
+    for (const b of editButtons) {
+        b.classList.add("invisible");
+    }
+}
+
+function showEditButtons() {
+    for (const b of editButtons) {
+        b.classList.remove("invisible");
+    }
+}
+
+async function loadTags() {
+    const response = await fetch(`/${eventId}/tag/data`);
+    const api = await response.json();
+
+    loadingMessage.classList.add("d-none");
+
+    const tags = api.data;
+
+    if (tags) {
+        renderTags(tags);
+    } else {
+        noTagsMessage.classList.remove("d-none");
+    }
+}
+
+function renderTags(tags) {
+    const container = document.getElementById("tagList");
+    container.innerHTML = "";
+
+    const template = document.getElementById("tagRowTemplate");
+
+    tags.forEach(tag => {
+        const clone = template.content.cloneNode(true);
+
+        const row = clone.querySelector("div");
+
+        clone.querySelector("[data-field='title']").textContent = tag.title;
+        clone.querySelector("[data-field='color']").textContent = tag.colorHex ?? "NO COLOR";
+
+        row.addEventListener("click", () => loadTagForEdit(tag));
+
+        container.appendChild(clone);
+    });
+}
+
+function showSuccess(msg) {
+    const box = document.getElementById("successMessageBox");
+    box.innerText = msg;
+
+    setTimeout(() => box.innerText = "", 4000);
+}
+
+loadTags();

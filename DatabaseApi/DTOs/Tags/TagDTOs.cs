@@ -24,6 +24,8 @@ namespace DatabaseApi.DTOs.Tags
     public class TagUpdateDTO
     {
         [Required]
+        public required string Title { get; set; }
+        [Required]
         public required string ColorHex { get; set; }
     }
 }
