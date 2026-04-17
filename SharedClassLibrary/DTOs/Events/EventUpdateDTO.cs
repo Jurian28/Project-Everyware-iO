@@ -21,7 +21,7 @@ public class EventUpdateDTO : IEventFileDTO
     public DateTime EndDate { get; set; }
     [Required]
     public string Location { get; set; }
-    public string Description { get; set; }
+    public string? Description { get; set; }
     [Required]
     public string MainColorHex { get; set; }
     [Required]
