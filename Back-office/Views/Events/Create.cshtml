@@ -1,4 +1,4 @@
-﻿@model Event
+﻿@model SharedClassLibrary.DTOs.Events.EventDTO;
 
 <div class="container-lg py-5">
     <div class="card border-0 shadow-sm">
@@ -8,7 +8,7 @@
             <form method="post" asp-action="Store" asp-controller="Events" enctype="multipart/form-data">
                 <div class="row g-5">
                     @* Left Column *@
-                    <div class="col-lg-6 d-flex flex-column create-event-column-gap">
+                    <div class="col-lg-6 d-flex flex-column gap-2">
                         <div class="mb-4">
                             <label asp-for="Title" class="form-label fw-semibold io-required-label">Title</label>
                             <input type="text" class="form-control form-control-lg" id="title" asp-for="Title" placeholder="Enter event title" maxlength="100" required>

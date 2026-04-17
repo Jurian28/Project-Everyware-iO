@@ -1,8 +1,9 @@
-﻿using DatabaseApi.DTOs.Events;
+﻿using SharedClassLibrary.DTOs.Events;
 using DatabaseApi.Models;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using DatabaseApi.DTOs;
 
 namespace DatabaseApi.Controllers
 {
@@ -10,7 +11,7 @@ namespace DatabaseApi.Controllers
     /// Controller to handle all event input and output.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class EventController(ApplicationDbContext applicationDbContext, IWebHostEnvironment environment) : Controller
     {
         private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
@@ -19,34 +20,33 @@ namespace DatabaseApi.Controllers
         /// <summary>
         /// Gets a paginated list of events, ordered by start date.
         /// </summary>
-        [HttpGet("")]
-        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string title = "")
         {
             try
             {
                 page = Math.Max(page, 1);
-                page = Math.Min(page, 100);
 
                 int skip = (page - 1) * pageSize;
 
-                List<Event> events = await _applicationDbContext.Events
-                                                .OrderBy(e => e.StartDate)
-                                                .Skip(skip)
-                                                .Take(pageSize)
-                                                .ToListAsync();
+                IQueryable<Event> query = _applicationDbContext.Events.AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(title))
+                    query = query.Where(e => e.Title.Contains(title));
+
+                List<Event> events = await query
+                    .OrderBy(e => e.StartDate)
+                    .Skip(skip)
+                    .Take(pageSize)
+                    .ToListAsync();
                 int totalCount = await _applicationDbContext.Events.CountAsync();
                 int totalPages = (int) Math.Ceiling(totalCount / (double) pageSize);
 
-                return StatusCode(201, new
-                {
-                    success = true,
-                    data = new { events, totalPages },
-                    error = (object)null
-                });
+                return StatusCode(201, ApiResponse<EventListDto>.Ok(new EventListDto { TotalPages = totalPages, Events = [.. events.Select(EventMapper.ToResponseDTO)] }));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, data = (object)null, error = $"Internal Server Error: {ex.Message}" });
+                return StatusCode(500, ApiResponse<EventListDto>.Fail($"Internal Server Error: {ex.Message}"));
             }
         }
 
@@ -122,7 +122,7 @@ namespace DatabaseApi.Controllers
         /// Updates an existing event with the provided data. Handles file upload and returns the updated event.
         /// </summary>
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromForm] EventUpdateDto dto)
+        public async Task<IActionResult> Update(int id, [FromForm] EventUpdateDTO dto)
         {
             try
             {
@@ -170,10 +170,10 @@ namespace DatabaseApi.Controllers
         }
 
         /// <summary>
-        /// Publishes or unpublishes an event. Returns the updated publish status.
+        /// Publishes an event. Returns nothing.
         /// </summary>
         [HttpPost("{id}/publish")]
-        public async Task<IActionResult> Publish(int id, [FromBody] PublishEventDto dto)
+        public async Task<IActionResult> Publish(int id)
         {
             try
             {
@@ -181,30 +181,52 @@ namespace DatabaseApi.Controllers
 
                 if (eventItem == null)
                 {
-                    return NotFound(new { success = false, data = (object)null, error = "Event not found" });
+                    return NotFound(ApiResponse<Object>.Fail("Event not found"));
                 }
 
-                eventItem.IsPublished = dto.Publish;
+                eventItem.IsPublished = true;
 
                 await _applicationDbContext.SaveChangesAsync();
 
-                return Ok(new
-                {
-                    success = true,
-                    data = new { publish = eventItem.IsPublished },
-                    error = (object)null
-                });
+                return NoContent();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, data = (object)null, error = $"Internal Server Error: {ex.Message}" });
+                return StatusCode(500, ApiResponse<Object>.Fail(ex.ToString()));
+            }
+        }
+
+        /// <summary>
+        /// Unpublishes an event. Returns nothing.
+        /// </summary>
+        [HttpPost("{id}/unpublish")]
+        public async Task<IActionResult> UnPublish(int id)
+        {
+            try
+            {
+                Event? eventItem = await _applicationDbContext.Events.FindAsync(id);
+
+                if (eventItem == null) 
+                { 
+                    return NotFound(ApiResponse<Object>.Fail("Event not found"));
+                }
+
+                eventItem.IsPublished = false;
+
+                await _applicationDbContext.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<Object>.Fail(ex.ToString()));
             }
         }
 
         /// <summary>
         /// Method to handle logo file upload. Could be saved in a service in the future.
         /// </summary>
-        public async Task<string> HandleLogoUpload(EventFileDto dto)
+        public async Task<string> HandleLogoUpload(IEventFileDTO dto)
         {
             if (dto.LogoFile == null)
                 return string.Empty;

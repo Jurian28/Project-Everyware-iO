@@ -83,10 +83,6 @@ body {
     height: 50px;
 }
 
-.create-event-column-gap {
-    gap: 20px
-}
-
 .create-event-bg-light-hover:hover {
     background-color: #eee !important;
     border-color: #667 !important;

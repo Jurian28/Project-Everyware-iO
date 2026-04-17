@@ -1,4 +1,5 @@
-﻿@model List<Event>
+﻿@using SharedClassLibrary.DTOs.Events
+@model List<EventDTO>
 
 <script src="~/js/events.js" defer></script>
 
@@ -31,7 +32,7 @@
             @if (Model != null && Model.Any())
             {
                 <div class="d-flex justify-content-between flex-wrap gap-5">
-                    @foreach (Event eventItem in Model)
+                    @foreach (EventDTO eventItem in Model)
                     {
                         <partial name="Partials/EventCard" model="eventItem" />
                     }

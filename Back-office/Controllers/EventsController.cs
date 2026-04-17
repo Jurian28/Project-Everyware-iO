@@ -1,15 +1,18 @@
 ﻿using Back_office.DTOs;
 using Back_office.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SharedClassLibrary.DTOs.Events;
+using System.Diagnostics;
 
 namespace Back_office.Controllers
 {
-    [Route("events")]
+    [Route("[controller]")]
     public class EventsController : Controller
     {
         private readonly HttpClient _httpClient;
 
-        public readonly int PageSize = 10;
+        private readonly int _PageSize = 10;
 
         /// <summary>
         /// Controller for handling events
@@ -23,40 +26,44 @@ namespace Back_office.Controllers
         /// Events listing with pagination and search functionality
         /// </summary>
         [HttpGet]
-        [Route("")]
         public async Task<IActionResult> Index(string? search, int page = 1)
         {
             try
             {
-                string url = $"/api/event?page={page}&pageSize={PageSize}";
-                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                string url = $"/event?page={page}&pageSize={_PageSize}";
 
+                if (!string.IsNullOrEmpty(search))
+                    url += $"&title={search}";
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                Debug.Write(response);
                 if (response.IsSuccessStatusCode)
                 {
-                    ApiResponse<FilteredEventsDto>? json = await response.Content.ReadFromJsonAsync<ApiResponse<FilteredEventsDto>>();
+                    ApiResponse<EventListDto>? json = await response.Content.ReadFromJsonAsync<ApiResponse<EventListDto>>();
 
                     if (json != null)
                     {
-                        FilteredEventsDto data = json.Data;
+                        EventListDto data = json.Data;
 
-                        List <Event> events = data?.Events ?? new List<Event>();
-                        if (!string.IsNullOrEmpty(search))
+                        List <EventDTO> events = data?.Events ?? new List<EventDTO>();
+                        int pages = data?.TotalPages ?? 1;
+                        if(page >= pages)
                         {
-                            events = events.Where(e => e.Title.ToLower().Contains(search.ToLower())
-                                                        || e.Description.ToLower().Contains(search.ToLower())
-                                                        || e.StartDate.ToString().ToLower().Contains(search.ToLower())
-                                                        || e.EndDate.ToString().ToLower().Contains(search.ToLower())).ToList();
+                            page = pages-1;
+                        }
+                        else if(page < 1)
+                        {
+                            page = 1;
                         }
 
                         ViewData["CurrentSearch"] = search;
                         ViewData["CurrentPage"] = page;
-                        ViewData["TotalPages"] = data?.TotalPages ?? 1;
+                        ViewData["TotalPages"] = pages;
                         return View("Index", events);
                     } 
                     else
                     {
                         Console.WriteLine("Error in getting events");
-                        return View("Index", new List<Event>());
+                        return View("Index", "Home");
                     }
                 }
                 else
@@ -89,20 +96,20 @@ namespace Back_office.Controllers
         [Route("{id}/edit")]
         public async Task<IActionResult> Edit(int id)
         {
-            string url = $"/api/event/{id}";
+            string url = $"/event/{id}";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
             {
-                ApiResponse<Event>? json = await response.Content.ReadFromJsonAsync<ApiResponse<Event>>();
+                ApiResponse<EventUpdateDTO>? json = await response.Content.ReadFromJsonAsync<ApiResponse<EventUpdateDTO>>();
 
                 if(json == null || json.Data == null)
                 {
                     Console.WriteLine($"Error in getting event, ID: {id}");
                     return RedirectToAction("Index", "Events");
                 }
-
+                
                 return View(json?.Data);
             }
             else
@@ -111,11 +118,46 @@ namespace Back_office.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("{id}/publish")]
+        public async Task<IActionResult> Publish(int id)
+        {
+            try
+            {
+                string url = $"/event/{id}/publish";
+
+                HttpResponseMessage response = await _httpClient.PostAsync(url, null);
+
+                return StatusCode((int)response.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpPost]
+        [Route("{id}/unpublish")]
+        public async Task<IActionResult> Unpublish(int id)
+        {
+            try
+            {
+                string url = $"/event/{id}/unpublish";
+
+                HttpResponseMessage response = await _httpClient.PostAsync(url, null);
+                return StatusCode((int)response.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
         /// <summary>
         /// Store method for creating a new event, with form data validation
         /// </summary>
         [HttpPost("store")]
-        public async Task<IActionResult> Store(Event eventModel, IFormFile? logoFile) 
+        public async Task<IActionResult> Store(EventCreateDto eventDTO) 
         {
             if (!ModelState.IsValid)
             {
@@ -123,23 +165,24 @@ namespace Back_office.Controllers
                 {
                     Console.WriteLine($"Validation error: {error.ErrorMessage}");
                 }
-                return View("Create", eventModel);
+                return View("Create", eventDTO);
             }
 
             try
             {
-                string url = $"/api/event";
+                string url = $"/event";
                 using var content = new MultipartFormDataContent();
 
-                content.Add(new StringContent(eventModel.Title ?? ""), "Title");
-                content.Add(new StringContent(eventModel.Location ?? ""), "Location");
-                content.Add(new StringContent(eventModel.Description ?? ""), "Description");
-                content.Add(new StringContent(eventModel.MainColorHex ?? ""), "MainColorHex");
-                content.Add(new StringContent(eventModel.AccentColorHex ?? ""), "AccentColorHex");
+                content.Add(new StringContent(eventDTO.Title ?? ""), "Title");
+                content.Add(new StringContent(eventDTO.Location ?? ""), "Location");
+                content.Add(new StringContent(eventDTO.Description ?? ""), "Description");
+                content.Add(new StringContent(eventDTO.MainColorHex ?? ""), "MainColorHex");
+                content.Add(new StringContent(eventDTO.AccentColorHex ?? ""), "AccentColorHex");
 
-                content.Add(new StringContent(eventModel.StartDate.ToString("o")), "StartDate");
-                content.Add(new StringContent(eventModel.EndDate.ToString("o")), "EndDate");
+                content.Add(new StringContent(eventDTO.StartDate.ToString("o")), "StartDate");
+                content.Add(new StringContent(eventDTO.EndDate.ToString("o")), "EndDate");
 
+                IFormFile? logoFile = eventDTO.LogoFile;
                 if (logoFile != null)
                 {
                     var fileStream = logoFile.OpenReadStream();
@@ -164,12 +207,12 @@ namespace Back_office.Controllers
                     TempData["ToastMessage"] = "Error in creating event!";
                     TempData["ToastType"] = "danger";
 
-                    return View("Create", eventModel);
+                    return View("Create", eventDTO);
                 }
             }
             catch (Exception ex)
             {
-                return View("Create", eventModel);
+                return View("Create", eventDTO);
             }
         }
 
@@ -177,7 +220,7 @@ namespace Back_office.Controllers
         /// Update method for updating an existing event, with form data validation
         /// </summary>
         [HttpPost("update")]
-        public async Task<IActionResult> Update(Event eventModel, IFormFile? logoFile)
+        public async Task<IActionResult> Update(EventUpdateDTO eventDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -185,23 +228,23 @@ namespace Back_office.Controllers
                 {
                     Console.WriteLine($"Validation error: {error.ErrorMessage}");
                 }
-                return View("Edit", eventModel);
+                return View("Edit", eventDTO);
             }
 
             try
             {
-                string url = $"/api/event/{eventModel.IdEvent}";
+                string url = $"/event/{eventDTO.IdEvent}";
                 using var content = new MultipartFormDataContent();
 
-                content.Add(new StringContent(eventModel.Title ?? ""), "Title");
-                content.Add(new StringContent(eventModel.Location ?? ""), "Location");
-                content.Add(new StringContent(eventModel.Description ?? ""), "Description");
-                content.Add(new StringContent(eventModel.MainColorHex ?? ""), "MainColorHex");
-                content.Add(new StringContent(eventModel.AccentColorHex ?? ""), "AccentColorHex");
+                content.Add(new StringContent(eventDTO.Title ?? ""), "Title");
+                content.Add(new StringContent(eventDTO.Location ?? ""), "Location");
+                content.Add(new StringContent(eventDTO.Description ?? ""), "Description");
+                content.Add(new StringContent(eventDTO.MainColorHex ?? ""), "MainColorHex");
+                content.Add(new StringContent(eventDTO.AccentColorHex ?? ""), "AccentColorHex");
 
-                content.Add(new StringContent(eventModel.StartDate.ToString("o")), "StartDate");
-                content.Add(new StringContent(eventModel.EndDate.ToString("o")), "EndDate");
-
+                content.Add(new StringContent(eventDTO.StartDate.ToString("o")), "StartDate");
+                content.Add(new StringContent(eventDTO.EndDate.ToString("o")), "EndDate");
+                IFormFile? logoFile = eventDTO.LogoFile;
                 if (logoFile != null)
                 {
                     var fileStream = logoFile.OpenReadStream();
@@ -226,12 +269,12 @@ namespace Back_office.Controllers
                     TempData["ToastMessage"] = "Error in updating event!";
                     TempData["ToastType"] = "danger";
 
-                    return View("Edit", eventModel);
+                    return View("Edit", eventDTO);
                 }
             }
             catch (Exception ex)
             {
-                return View("Edit", eventModel);
+                return View("Edit", eventDTO);
             }
         }
     }

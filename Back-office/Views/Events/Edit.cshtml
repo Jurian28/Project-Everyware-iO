@@ -1,8 +1,9 @@
-﻿@{
+﻿@using SharedClassLibrary.DTOs.Events
+@{
     string imgSrc = string.IsNullOrEmpty(Model.LogoPath) ? "" : $"{Environment.GetEnvironmentVariable("API_OUTSIDE_BASE_URL") ?? "http://localhost"}:{Environment.GetEnvironmentVariable("DATABASE_API_PORT")}{Model.LogoPath}";
 }
 
-@model Event
+@model EventUpdateDTO;
 
 <div class="container-lg py-5">
     <div class="card border-0 shadow-sm">

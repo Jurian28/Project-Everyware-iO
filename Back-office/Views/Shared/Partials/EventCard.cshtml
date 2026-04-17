@@ -1,9 +1,10 @@
-﻿@{
+﻿@using SharedClassLibrary.DTOs.Events
+@{
     string apiOutsideUrl = $"{Environment.GetEnvironmentVariable("API_OUTSIDE_BASE_URL") ?? "http://localhost"}:{Environment.GetEnvironmentVariable("DATABASE_API_PORT")}";
     string imgSrc = string.IsNullOrEmpty(Model.LogoPath) ? "" : $"{apiOutsideUrl}{Model.LogoPath}";
 }
 
-@model Event
+@model EventDTO
 
 @* Event Card Component *@
 <div class="card event-card bg-light text-center">
@@ -43,7 +44,7 @@
                         @Model.StartDate.ToString("MMM dd") - @Model.EndDate.ToString("MMM dd, yyyy")
                     </p>
                     <div class="d-flex gap-3">
-                        <button class="btn btn-secondary" onclick="togglePublish(@Model.IdEvent, @((!Model.IsPublished).ToString().ToLower()))">@(Model.IsPublished ? "Unpublish" : "Publish")</button>
+                        <button class="btn btn-secondary" onclick="togglePublish(@Model.IdEvent, @((Model.IsPublished).ToString().ToLower()))">@(Model.IsPublished ? "Unpublish" : "Publish")</button>
                         <a asp-action="Edit" asp-route-id="@Model.IdEvent" class="btn btn-primary d-inline-flex gap-2">
                             <span class="">Edit</span>
                             <img src="~/img/icons/edit-icon.svg" alt="Edit" />

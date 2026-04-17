@@ -21,18 +21,14 @@ function closeToast() {
 }
 
 async function togglePublish(eventId, published) {
-    const apiBaseUrl = document.getElementById('api-url').value;
-    const url = `${apiBaseUrl}/api/event/${eventId}/publish`;
-
+    console.log(`Toggling publish for event ${eventId} to ${published}`);
+    const url = `events/${eventId}/` + (published ? "unpublish" : "publish");
     try {
         const response = await fetch(url, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                publish: published
-            }),
         });
 
         if (!response.ok) {
