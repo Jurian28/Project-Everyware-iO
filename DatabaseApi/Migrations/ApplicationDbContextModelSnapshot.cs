@@ -272,17 +272,24 @@ namespace DatabaseApi.Migrations
 
             modelBuilder.Entity("DatabaseApi.Models.Tag", b =>
                 {
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("IdEvent")
+                    b.Property<int>("IdTag")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdTag"));
 
                     b.Property<string>("ColorHex")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Title", "IdEvent");
+                    b.Property<int>("IdEvent")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("IdTag");
 
                     b.HasIndex("IdEvent");
 
@@ -291,15 +298,17 @@ namespace DatabaseApi.Migrations
                     b.HasData(
                         new
                         {
-                            Title = "Plenaire sessie",
+                            IdTag = 1,
+                            ColorHex = "#D5B82C",
                             IdEvent = 1,
-                            ColorHex = "#D5B82C"
+                            Title = "Plenaire sessie"
                         },
                         new
                         {
-                            Title = "Technology",
+                            IdTag = 2,
+                            ColorHex = "#2CCFD5",
                             IdEvent = 1,
-                            ColorHex = "#2CCFD5"
+                            Title = "Technology"
                         });
                 });
 
@@ -619,15 +628,12 @@ namespace DatabaseApi.Migrations
                     b.Property<int>("SessionsIdSession")
                         .HasColumnType("int");
 
-                    b.Property<string>("TagsTitle")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("TagsIdEvent")
+                    b.Property<int>("TagsIdTag")
                         .HasColumnType("int");
 
-                    b.HasKey("SessionsIdSession", "TagsTitle", "TagsIdEvent");
+                    b.HasKey("SessionsIdSession", "TagsIdTag");
 
-                    b.HasIndex("TagsTitle", "TagsIdEvent");
+                    b.HasIndex("TagsIdTag");
 
                     b.ToTable("Session_has_Tag");
 
@@ -635,14 +641,12 @@ namespace DatabaseApi.Migrations
                         new
                         {
                             SessionsIdSession = 1,
-                            TagsTitle = "Plenaire sessie",
-                            TagsIdEvent = 1
+                            TagsIdTag = 1
                         },
                         new
                         {
                             SessionsIdSession = 1,
-                            TagsTitle = "Technology",
-                            TagsIdEvent = 1
+                            TagsIdTag = 2
                         });
                 });
 
@@ -814,7 +818,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasOne("DatabaseApi.Models.Tag", null)
                         .WithMany()
-                        .HasForeignKey("TagsTitle", "TagsIdEvent")
+                        .HasForeignKey("TagsIdTag")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

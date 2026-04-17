@@ -5,6 +5,7 @@ namespace DatabaseApi.DTOs.Tags
 
     public class TagResponseDTO
     {
+        public int IdTag { get; set; }
         public int IdEvent { get; set; }
         public string Title { get; set; }
         public string? ColorHex { get; set; }
@@ -23,9 +24,7 @@ namespace DatabaseApi.DTOs.Tags
 
     public class TagUpdateDTO
     {
-        [Required]
         public required string Title { get; set; }
-        [Required]
         public required string ColorHex { get; set; }
     }
 }

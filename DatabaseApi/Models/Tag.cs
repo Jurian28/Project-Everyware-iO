@@ -3,11 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DatabaseApi.Models
 {
-    [PrimaryKey(nameof(Title), nameof(IdEvent))]
     public class Tag
     {
+        [Key]
+        public int IdTag { get; set; }
         [Required]
         public string Title { get; set; }
+        [Required]
         public string ColorHex { get; set; }
         [Required]
         public int IdEvent { get; set; }

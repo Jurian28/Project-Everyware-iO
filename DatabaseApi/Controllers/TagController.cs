@@ -3,6 +3,7 @@ using DatabaseApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using SharedClassLibrary.ApiResponse;
 
 
@@ -32,6 +33,7 @@ namespace DatabaseApi.Controllers
             var tags = await query
                 .Select(t => new TagResponseDTO
                 {
+                    IdTag = t.IdTag,
                     IdEvent = t.IdEvent,
                     Title = t.Title,
                     ColorHex = t.ColorHex
@@ -87,31 +89,21 @@ namespace DatabaseApi.Controllers
         }
 
 
-        [HttpPut("{idEvent}/{title}")]
-        public async Task<ActionResult<ApiResponse<TagResponseDTO>>> UpdateTag(int idEvent, string title, [FromBody] TagUpdateDTO dto)
+        [HttpPut("{idTag}")]
+        public async Task<ActionResult<ApiResponse<TagResponseDTO>>> UpdateTag(int idTag, [FromBody] TagUpdateDTO dto)
         {
             var tag = await _context.Tags
-                .FirstOrDefaultAsync(t => t.IdEvent == idEvent && t.Title == title);
+                .FirstOrDefaultAsync(t => t.IdTag == idTag);
 
             if (tag == null)
                 return NotFound(ApiResponse<TagResponseDTO>.Fail("Tag not found."));
 
             try
             {
-                _context.Remove(tag);
-                _context.SaveChanges();
-                Tag newTag = new Tag
-                {
-                    IdEvent = idEvent,
-                    Title = dto.Title,
-                    ColorHex = dto.ColorHex
-                };
-                _context.Tags.Add(newTag);
-
-                // TagMapper.UpdateEntity(tag, dto);
+                TagMapper.UpdateEntity(tag, dto);
                 await _context.SaveChangesAsync();
 
-                return Ok(ApiResponse<TagResponseDTO>.Ok(TagMapper.ToResponseDTO(newTag)));
+                return Ok(ApiResponse<TagResponseDTO>.Ok(TagMapper.ToResponseDTO(tag)));
             }
             catch (Exception ex)
             {
@@ -119,11 +111,11 @@ namespace DatabaseApi.Controllers
                 return StatusCode(500, ApiResponse<TagResponseDTO>.Fail("Unexpected error"));
             }
         }
-        [HttpDelete("{idEvent}/{title}")]
-        public async Task<IActionResult> DeleteTag(int idEvent, string title)
+        [HttpDelete("{idTag}")]
+        public async Task<IActionResult> DeleteTag(int idTag)
         {
             var tag = await _context.Tags
-                .FirstOrDefaultAsync(t => t.IdEvent == idEvent && t.Title == title);
+                .FirstOrDefaultAsync(t => t.IdTag == idTag);
 
             if (tag == null)
                 return NotFound(ApiResponse<TagResponseDTO>.Fail("Tag not found."));
@@ -133,7 +125,7 @@ namespace DatabaseApi.Controllers
                 _context.Tags.Remove(tag);
                 await _context.SaveChangesAsync();
 
-                return NoContent();
+                return StatusCode(204, ApiResponse<TagResponseDTO>.Ok(null));
             }
             catch (DbUpdateException)
             {

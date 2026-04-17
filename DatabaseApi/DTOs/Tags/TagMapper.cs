@@ -16,14 +16,15 @@ namespace DatabaseApi.DTOs.Tags
 
         public static void UpdateEntity(Tag tag, TagUpdateDTO dto)
         {
-            tag.Title = dto.Title;
-            tag.ColorHex = dto.ColorHex;
+            tag.Title = dto.Title ?? tag.Title;
+            tag.ColorHex = dto.ColorHex ?? tag.ColorHex;
         }
 
         public static TagResponseDTO ToResponseDTO(Tag tag)
         {
             return new TagResponseDTO
             {
+                IdTag = tag.IdTag,
                 IdEvent = tag.IdEvent,
                 Title = tag.Title,
                 ColorHex = tag.ColorHex
