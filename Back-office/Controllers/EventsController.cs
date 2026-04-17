@@ -1,9 +1,7 @@
 ﻿using Back_office.DTOs;
 using Back_office.Models;
-using Back_office.Models.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Json;
-using System.Reflection;
+using SharedClassLibrary.ApiResponse;
 
 namespace Back_office.Controllers
 {
@@ -65,13 +63,13 @@ namespace Back_office.Controllers
                 else
                 {
                     Console.WriteLine($"Error in getting events: {response.StatusCode} | {response.ReasonPhrase}");
-                    return View("Index", "Home");
+                    return RedirectToAction("Index", "Home");
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception in getting event: {ex.Message}");
-                return View("Index", "Home");
+                return RedirectToAction("Index", "Home");
             }
         }
 
