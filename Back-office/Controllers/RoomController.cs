@@ -10,7 +10,7 @@ namespace Back_office.Controllers
         private readonly HttpClient client;
 
         /// <summary>
-        /// Controller responsible for handling user authentication actions such as login, registration, and logout.
+        /// Controller responsible for managing Rooms
         /// </summary>
         public RoomController(IHttpClientFactory httpClientFactory)
         {

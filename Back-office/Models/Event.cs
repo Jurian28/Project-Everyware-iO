@@ -32,6 +32,9 @@ namespace Back_office.Models
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();
         public ICollection<User> Users { get; set; } = new List<User>();
 
+        /// <summary>
+        /// Date validation for the event, can be extended if needed
+        /// </summary>
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (StartDate < DateTime.Today)

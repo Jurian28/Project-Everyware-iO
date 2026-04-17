@@ -26,6 +26,7 @@
             <a class="btn btn-primary" asp-controller="Events" asp-action="Create">Add Event</a>
         </div>
 
+        @* List of Events *@
         <div>
             @if (Model != null && Model.Any())
             {
@@ -46,6 +47,7 @@
                 int currentPage = (int) ViewData["CurrentPage"];
             }
 
+            @* Pagination *@
             <div class="d-flex justify-content-center mt-5">
                 <ul class="pagination gap-3">
                     <a class="page-link event-page-link d-inline-flex align-items-center gap-1" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-search="@ViewData["CurrentSearch"]">

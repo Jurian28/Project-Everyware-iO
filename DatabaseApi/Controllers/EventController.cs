@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseApi.Controllers
 {
+    /// <summary>
+    /// Controller to handle all event input and output.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class EventController(ApplicationDbContext applicationDbContext, IWebHostEnvironment environment) : Controller
@@ -13,6 +16,9 @@ namespace DatabaseApi.Controllers
         private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
         private readonly IWebHostEnvironment _environment = environment;
 
+        /// <summary>
+        /// Gets a paginated list of events, ordered by start date.
+        /// </summary>
         [HttpGet("")]
         public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
@@ -44,6 +50,9 @@ namespace DatabaseApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets a single event by its ID.
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -69,6 +78,9 @@ namespace DatabaseApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates a new event with the provided data. Handles file upload and returns the created event.
+        /// </summary>
         [HttpPost("")]
         public async Task<IActionResult> Store([FromForm] EventCreateDto dto)
         {
@@ -105,7 +117,10 @@ namespace DatabaseApi.Controllers
                 return StatusCode(500, new { success = false, data = (object)null, error = $"Internal Server Error: {ex.Message}" });
             }
         }
-        
+
+        /// <summary>
+        /// Updates an existing event with the provided data. Handles file upload and returns the updated event.
+        /// </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromForm] EventUpdateDto dto)
         {
@@ -154,6 +169,9 @@ namespace DatabaseApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Publishes or unpublishes an event. Returns the updated publish status.
+        /// </summary>
         [HttpPost("{id}/publish")]
         public async Task<IActionResult> Publish(int id, [FromBody] PublishEventDto dto)
         {
@@ -183,6 +201,9 @@ namespace DatabaseApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Method to handle logo file upload. Could be saved in a service in the future.
+        /// </summary>
         public async Task<string> HandleLogoUpload(EventFileDto dto)
         {
             if (dto.LogoFile == null)
@@ -207,6 +228,9 @@ namespace DatabaseApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Method to delete a logo file. Could be saved in a service in the future.
+        /// </summary>
         public void DeleteLogo(string logoPath)
         {
             if (string.IsNullOrEmpty(logoPath))

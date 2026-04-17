@@ -7,6 +7,9 @@ using System.Reflection;
 
 namespace Back_office.Controllers
 {
+    /// <summary>
+    /// Controller responsible for managing Events
+    /// </summary>
     [Route("events")]
     public class EventsController(IHttpClientFactory httpClientFactory) : Controller
     {
@@ -15,6 +18,9 @@ namespace Back_office.Controllers
 
         public readonly int PageSize = 10;
 
+        /// <summary>
+        /// Events listing with pagination and search functionality
+        /// </summary>
         [HttpGet]
         [Route("")]
         public async Task<IActionResult> Index(string? search, int page = 1)
@@ -65,6 +71,9 @@ namespace Back_office.Controllers
             }
         }
 
+        /// <summary>
+        /// Event creation page
+        /// </summary>
         [HttpGet]
         [Route("create")]
         public IActionResult Create()
@@ -72,6 +81,9 @@ namespace Back_office.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Event edition page, with pre-filled data of the selected event
+        /// </summary>
         [HttpGet]
         [Route("{id}/edit")]
         public async Task<IActionResult> Edit(int id)
@@ -98,6 +110,9 @@ namespace Back_office.Controllers
             }
         }
 
+        /// <summary>
+        /// Store method for creating a new event, with form data validation
+        /// </summary>
         [HttpPost("store")]
         public async Task<IActionResult> Store(Event eventModel, IFormFile? logoFile) 
         {
@@ -157,6 +172,9 @@ namespace Back_office.Controllers
             }
         }
 
+        /// <summary>
+        /// Update method for updating an existing event, with form data validation
+        /// </summary>
         [HttpPost("update")]
         public async Task<IActionResult> Update(Event eventModel, IFormFile? logoFile)
         {

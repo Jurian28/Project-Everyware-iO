@@ -1,5 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+/// <summary>
+/// All DTOs for the Event model.
+/// </summary>
 namespace DatabaseApi.DTOs.Events
 {
     /// <summary>
@@ -10,7 +13,7 @@ namespace DatabaseApi.DTOs.Events
     }
 
     /// <summary>
-    /// Represents the input data transfer object used for creating an Event.
+    /// Represents the input DTO used for creating an Event.
     /// </summary>
     public class EventCreateDto : EventFileDto
     {
@@ -28,12 +31,11 @@ namespace DatabaseApi.DTOs.Events
         [Required]
         public string AccentColorHex { get; set; }
 
-        // Include the file directly in the DTO
         public IFormFile? LogoFile { get; set; }
     }
 
     /// <summary>
-    /// Represents the input data transfer object used for updating an Event.
+    /// Represents the input DTO used for updating an Event.
     /// </summary>
     public class EventUpdateDto : EventFileDto
     {
@@ -54,11 +56,14 @@ namespace DatabaseApi.DTOs.Events
         public string AccentColorHex { get; set; }
         public bool IsPublished { get; set; }
 
-        // Include the file directly in the DTO
+
         public IFormFile? LogoFile { get; set; }
         public string? LogoPath { get; set; }
     }
 
+    /// <summary>
+    /// Represents the input DTO used for publishing or unpublishing an Event.
+    /// </summary>
     public class PublishEventDto
     {
         [Required]
