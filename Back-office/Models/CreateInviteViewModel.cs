@@ -1,4 +1,4 @@
-﻿namespace WebApp.Models.ViewModels;
+﻿namespace Back_office.Models.ViewModels;
 
 public class CreateInviteViewModel
 {

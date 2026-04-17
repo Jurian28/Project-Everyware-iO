@@ -1,4 +1,4 @@
-﻿namespace WebApp.Models.Dtos;
+﻿namespace Back_office.DTOs;
 
 public class InviteData
 {
