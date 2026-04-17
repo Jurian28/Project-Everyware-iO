@@ -12,9 +12,7 @@ namespace Back_office.Controllers;
 [Route("invites")]
 public class EventInviteController(IHttpClientFactory httpClientFactory) : Controller
 {
-    private static readonly string API_BASE_URL = "http://databaseapi:5000/api/invites";
-
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("DatabaseApi");
 
     /// <summary>
     /// Creates a new event invite and generates an invite link.
@@ -34,7 +32,7 @@ public class EventInviteController(IHttpClientFactory httpClientFactory) : Contr
             });
         }
 
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"{API_BASE_URL}/create", createInviteViewModel);
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/invites/create", createInviteViewModel);
         CreateInviteDto? json = await response.Content.ReadFromJsonAsync<CreateInviteDto>();
 
         if (!response.IsSuccessStatusCode)
