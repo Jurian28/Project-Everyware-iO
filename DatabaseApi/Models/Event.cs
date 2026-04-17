@@ -21,5 +21,6 @@ namespace DatabaseApi.Models
         public ICollection<Room> Rooms { get; set; } = new List<Room>();
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();
         public ICollection<User> Users { get; set; } = new List<User>();
+        public ICollection<Speaker> Speakers { get; set; } = new List<Speaker>();
     }
 }
