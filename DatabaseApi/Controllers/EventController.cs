@@ -62,15 +62,10 @@ namespace DatabaseApi.Controllers
 
                 if (eventItem == null)
                 {
-                    return NotFound(new { success = false, data = (object)null, error = "Event not found" });
+                    return NotFound(ApiResponse<Object>.Fail("Event not found"));
                 }
 
-                return StatusCode(201, new
-                {
-                    success = true,
-                    data = eventItem,
-                    error = (object)null
-                });
+                return StatusCode(201, ApiResponse<EventDTO>.Ok(EventMapper.ToResponseDTO(eventItem)));
             }
             catch (Exception ex)
             {
@@ -86,7 +81,7 @@ namespace DatabaseApi.Controllers
         {
             try
             {
-                if (!ModelState.IsValid) return BadRequest(new { success = false, data = ModelState, error = "Bad Request: Invalid Data" });
+                if (!ModelState.IsValid) return BadRequest(ApiResponse<Object>.Fail("Bad Request: Invalid Data"));
 
                 string logoPath = await HandleLogoUpload(dto);
 
@@ -114,7 +109,7 @@ namespace DatabaseApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, data = (object)null, error = $"Internal Server Error: {ex.Message}" });
+                return StatusCode(500, ApiResponse<Object>.Fail($"Internal Server Error: {ex.Message}"));
             }
         }
 
@@ -132,7 +127,7 @@ namespace DatabaseApi.Controllers
 
                 if (eventItem == null)
                 {
-                    return NotFound(new { success = false, data = (object)null, error = "Event not found" });
+                    return NotFound(ApiResponse<Object>.Fail("Event not found"));
                 }
 
                 string logoPath = eventItem.LogoPath;
@@ -156,16 +151,11 @@ namespace DatabaseApi.Controllers
 
                 await _applicationDbContext.SaveChangesAsync();
 
-                return Ok(new
-                {
-                    success = true,
-                    data = eventItem,
-                    error = (object)null
-                });
+                return Ok(ApiResponse<EventDTO>.Ok(EventMapper.ToResponseDTO(eventItem)));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, data = (object)null, error = $"Internal Server Error: {ex.Message}" });
+                return StatusCode(500, ApiResponse<Object>.Fail($"Internal Server Error: {ex.Message}"));
             }
         }
 
