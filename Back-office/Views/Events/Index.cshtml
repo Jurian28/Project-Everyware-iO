@@ -52,7 +52,7 @@
             <div class="d-flex justify-content-center mt-5">
                 <ul class="pagination gap-3">
                     <a class="page-link event-page-link d-inline-flex align-items-center gap-1" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-search="@ViewData["CurrentSearch"]">
-                        <img src="~/img/icons/arrow-left.svg" alt="Previous" />
+                        <i class="bi bi-arrow-left"></i>
                         Previous
                     </a>
                     <ul class="pagination">
@@ -65,7 +65,7 @@
                     </ul>
                     <a class="page-link event-page-link d-inline-flex align-items-center gap-1" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-search="@ViewData["CurrentSearch"]">
                         Next
-                        <img src="~/img/icons/arrow-right.svg" alt="Next" />
+                        <i class="bi bi-arrow-right"></i>
                     </a>
                 </ul>
             </div>

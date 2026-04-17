@@ -47,7 +47,7 @@
                         <button class="btn btn-secondary" onclick="togglePublish(@Model.IdEvent, @((Model.IsPublished).ToString().ToLower()))">@(Model.IsPublished ? "Unpublish" : "Publish")</button>
                         <a asp-action="Edit" asp-route-id="@Model.IdEvent" class="btn btn-primary d-inline-flex gap-2">
                             <span class="">Edit</span>
-                            <img src="~/img/icons/edit-icon.svg" alt="Edit" />
+                            <i class="bi bi-pencil-square"></i>
                         </a>
                     </div>
                 </div>

@@ -36,41 +36,35 @@ namespace Back_office.Controllers
                     url += $"&title={search}";
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
                 Debug.Write(response);
-                if (response.IsSuccessStatusCode)
-                {
-                    ApiResponse<EventListDto>? json = await response.Content.ReadFromJsonAsync<ApiResponse<EventListDto>>();
-
-                    if (json != null)
-                    {
-                        EventListDto data = json.Data;
-
-                        List <EventDTO> events = data?.Events ?? new List<EventDTO>();
-                        int pages = data?.TotalPages ?? 1;
-                        if(page >= pages)
-                        {
-                            page = pages-1;
-                        }
-                        else if(page < 1)
-                        {
-                            page = 1;
-                        }
-
-                        ViewData["CurrentSearch"] = search;
-                        ViewData["CurrentPage"] = page;
-                        ViewData["TotalPages"] = pages;
-                        return View("Index", events);
-                    } 
-                    else
-                    {
-                        Console.WriteLine("Error in getting events");
-                        return View("Index", "Home");
-                    }
-                }
-                else
+                if (!response.IsSuccessStatusCode)
                 {
                     Console.WriteLine($"Error in getting events: {response.StatusCode} | {response.ReasonPhrase}");
                     return RedirectToAction("Index", "Home");
                 }
+                ApiResponse<EventListDto>? json = await response.Content.ReadFromJsonAsync<ApiResponse<EventListDto>>();
+
+                if (json == null)
+                {
+                    Console.WriteLine("Error in getting events");
+                    return View("Index", "Home");
+                }
+                EventListDto data = json.Data;
+
+                List <EventDTO> events = data?.Events ?? new List<EventDTO>();
+                int pages = data?.TotalPages ?? 1;
+                if(page >= pages)
+                {
+                    page = pages-1;
+                }
+                else if(page < 1)
+                {
+                    page = 1;
+                }
+
+                ViewData["CurrentSearch"] = search;
+                ViewData["CurrentPage"] = page;
+                ViewData["TotalPages"] = pages;
+                return View("Index", events);
             }
             catch (Exception ex)
             {
@@ -100,22 +94,19 @@ namespace Back_office.Controllers
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
 
-            if (response.IsSuccessStatusCode)
-            {
-                ApiResponse<EventUpdateDTO>? json = await response.Content.ReadFromJsonAsync<ApiResponse<EventUpdateDTO>>();
-
-                if(json == null || json.Data == null)
-                {
-                    Console.WriteLine($"Error in getting event, ID: {id}");
-                    return RedirectToAction("Index", "Events");
-                }
-                
-                return View(json?.Data);
-            }
-            else
+            if (!response.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index", "Events");
             }
+            ApiResponse<EventUpdateDTO>? json = await response.Content.ReadFromJsonAsync<ApiResponse<EventUpdateDTO>>();
+
+            if(json == null || json.Data == null)
+            {
+                Console.WriteLine($"Error in getting event, ID: {id}");
+                return RedirectToAction("Index", "Events");
+            }
+                
+            return View(json?.Data);
         }
 
         [HttpPost]
@@ -192,14 +183,7 @@ namespace Back_office.Controllers
 
                 HttpResponseMessage response = await _httpClient.PostAsync(url, content);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["ToastMessage"] = "Event created successfully!";
-                    TempData["ToastType"] = "success";
-
-                    return RedirectToAction("Index");
-                }
-                else
+                if (!response.IsSuccessStatusCode)
                 {
                     ModelState.AddModelError(string.Empty, "Error in Store method...");
                     Console.WriteLine($"Error in Store method: {response.StatusCode} | {response.ReasonPhrase}");
@@ -209,6 +193,11 @@ namespace Back_office.Controllers
 
                     return View("Create", eventDTO);
                 }
+                TempData["ToastMessage"] = "Event created successfully!";
+                TempData["ToastType"] = "success";
+
+                return RedirectToAction("Index");
+                
             }
             catch (Exception ex)
             {
@@ -254,14 +243,7 @@ namespace Back_office.Controllers
 
                 HttpResponseMessage response = await _httpClient.PutAsync(url, content);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["ToastMessage"] = "Event updated successfully!";
-                    TempData["ToastType"] = "success";
-
-                    return RedirectToAction("Index");
-                }
-                else
+                if (!response.IsSuccessStatusCode)
                 {
                     ModelState.AddModelError(string.Empty, "Error in Update method...");
                     Console.WriteLine($"Error in Store method: {response.StatusCode} | {response.ReasonPhrase}");
@@ -271,6 +253,10 @@ namespace Back_office.Controllers
 
                     return View("Edit", eventDTO);
                 }
+                TempData["ToastMessage"] = "Event updated successfully!";
+                TempData["ToastType"] = "success";
+
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
