@@ -156,6 +156,10 @@ body {
     transition: fill 0.2s;
 }
 
+.event-page-link {
+    border: none;
+}
+
 #event-toast {
     width: 30%;
     left: auto;

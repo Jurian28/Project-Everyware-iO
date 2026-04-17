@@ -13,7 +13,7 @@ namespace Back_office.Controllers
         private static readonly string API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://databaseapi:5000";
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
 
-        public readonly int PageSize = 1;
+        public readonly int PageSize = 10;
 
         [HttpGet]
         [Route("")]
