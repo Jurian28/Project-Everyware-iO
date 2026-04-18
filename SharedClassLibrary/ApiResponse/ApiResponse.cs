@@ -1,4 +1,4 @@
-namespace SharedClassLibrary.ApiResponse
+﻿namespace SharedClassLibrary.ApiResponse
 {
     public class ApiResponse<T>
     {
@@ -20,4 +20,5 @@ namespace SharedClassLibrary.ApiResponse
             Error = error
         };
     }
+
 }
