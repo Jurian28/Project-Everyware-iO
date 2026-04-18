@@ -54,7 +54,7 @@ namespace DatabaseApi.Controllers
                         e => e.Value.Errors.Select(err => err.ErrorMessage).ToArray()
                     );
 
-                return BadRequest(ApiResponse<object>.Fail("Validation failed", errors));
+                return BadRequest(ApiResponse<object>.Fail("Validation failed"));
             }
 
             try
@@ -104,7 +104,7 @@ namespace DatabaseApi.Controllers
                         e => e.Value.Errors.Select(err => err.ErrorMessage).ToArray()
                     );
 
-                return BadRequest(ApiResponse<object>.Fail("Validation failed", errors));
+                return BadRequest(ApiResponse<object>.Fail("Validation failed"));
             }
 
 
