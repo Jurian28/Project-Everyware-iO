@@ -3,6 +3,7 @@ using Back_office.DTOs;
 using SharedClassLibrary.ApiResponse;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Net.Http.Headers;
 
 namespace Back_office.Controllers
 {
@@ -59,8 +60,11 @@ namespace Back_office.Controllers
 
                 var stream = file.OpenReadStream();
                 var fileContent = new StreamContent(stream);
-                fileContent.Headers.ContentType =
-                    new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+                if (!string.IsNullOrWhiteSpace(file.ContentType) &&
+                    MediaTypeHeaderValue.TryParse(file.ContentType, out var mediaType))
+                {
+                    fileContent.Headers.ContentType = mediaType;
+                }
 
                 content.Add(fileContent, "image", file.FileName);
             }
@@ -87,8 +91,11 @@ namespace Back_office.Controllers
 
                 var stream = file.OpenReadStream();
                 var fileContent = new StreamContent(stream);
-                fileContent.Headers.ContentType =
-                    new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+                if (!string.IsNullOrWhiteSpace(file.ContentType) &&
+                    MediaTypeHeaderValue.TryParse(file.ContentType, out var mediaType))
+                {
+                    fileContent.Headers.ContentType = mediaType;
+                }
 
                 content.Add(fileContent, "image", file.FileName);
             }
@@ -109,6 +116,39 @@ namespace Back_office.Controllers
 
             string content = await response.Content.ReadAsStringAsync();
             return StatusCode((int)response.StatusCode, content);
+        }
+
+        /// <summary>
+        /// Proxies speaker images from DatabaseApi so the browser only calls Back-office.
+        /// </summary>
+        [HttpGet("image")]
+        public async Task<IActionResult> GetSpeakerImage(int eventId, [FromQuery] string? imagePath)
+        {
+            string normalizedPath = string.IsNullOrWhiteSpace(imagePath)
+                ? "/images/speakers/default.jpg"
+                : imagePath.Trim();
+
+            if (!normalizedPath.StartsWith('/'))
+            {
+                normalizedPath = "/" + normalizedPath;
+            }
+
+            if (!normalizedPath.StartsWith("/images/speakers/", StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest("Invalid image path.");
+            }
+
+            HttpResponseMessage response = await client.GetAsync(normalizedPath);
+            if (!response.IsSuccessStatusCode)
+            {
+                return NotFound();
+            }
+
+            MediaTypeHeaderValue? contentType = response.Content.Headers.ContentType;
+            string mimeType = contentType?.MediaType ?? "application/octet-stream";
+            Stream stream = await response.Content.ReadAsStreamAsync();
+
+            return File(stream, mimeType);
         }
     }
 }

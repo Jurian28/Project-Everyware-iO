@@ -25,7 +25,7 @@ namespace DatabaseApi.DTOs.Speakers
         [Required(ErrorMessage = "firstName is required.")]
         public string FirstName { get; set; }
 
-        public string MiddleName { get; set; }
+        public string? MiddleName { get; set; }
 
         [Required(ErrorMessage = "lastName is required.")]
         public string LastName { get; set; }
@@ -45,7 +45,7 @@ namespace DatabaseApi.DTOs.Speakers
         [Required(ErrorMessage = "firstName is required.")]
         public string FirstName { get; set; }
 
-        public string MiddleName { get; set; }
+        public string? MiddleName { get; set; }
 
         [Required(ErrorMessage = "lastName is required.")]
         public string LastName { get; set; }

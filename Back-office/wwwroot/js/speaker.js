@@ -36,15 +36,23 @@ async function submitSpeaker(event) {
         formData.append("image", fileInput.files[0]);
     }
 
-    const response = await fetch(`/${eventId}/speaker/data`, {
-        method: "POST",
+    const isEditing = !!idSpeaker;
+    const endpoint = isEditing
+        ? `/${eventId}/speaker/data/${idSpeaker}`
+        : `/${eventId}/speaker/data`;
+
+    const response = await fetch(endpoint, {
+        method: isEditing ? "PUT" : "POST",
         body: formData
     });
 
     if (response.ok) {
         try {
-            const isEditing = !!idSpeaker;
-            document.getElementById("successMessageBox").innerText = `Successfully ${isEditing ? 'updated' : 'created'} a speaker with name: ${speaker.firstName} ${speaker.middleName} ${speaker.lastName}`;
+            const firstName = document.getElementById("firstName").value;
+            const middleName = document.getElementById("middleName").value;
+            const lastName = document.getElementById("lastName").value;
+            const fullName = [firstName, middleName, lastName].filter(Boolean).join(" ");
+            
             setTimeout(() => {
                 document.getElementById("successMessageBox").innerText = "";
             }, 5000);
@@ -159,8 +167,8 @@ function renderSpeakers(speakers) {
         row.classList.add("speaker-row");
 
         const img = clone.querySelector("[data-field='imgPath']");
-
-        img.src = speaker.imgPath || "/images/speakers/default.jpg";
+        const requestedImagePath = speaker.imgPath || "/images/speakers/default.jpg";
+        img.src = `/${eventId}/speaker/image?imagePath=${encodeURIComponent(requestedImagePath)}`;
 
         clone.querySelector("[data-field='firstName']").textContent = speaker.firstName;
         clone.querySelector("[data-field='middleName']").textContent = speaker.middleName ?? "";
