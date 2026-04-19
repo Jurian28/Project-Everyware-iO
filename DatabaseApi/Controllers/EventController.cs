@@ -146,16 +146,13 @@ namespace DatabaseApi.Controllers
                 }
 
                 string? logoPath = eventItem.LogoPath;
-                Console.WriteLine($"Existing logo path: {logoPath}");
                 if (dto.LogoFile != null)
                 {
                     if(!string.IsNullOrEmpty(logoPath))
                     {
-                        Console.WriteLine($"Existing logo path: {logoPath}");
                         DeleteLogo(logoPath);
                     } 
                     logoPath = await HandleLogoUpload(dto);
-                    Console.WriteLine($"new logo path: {logoPath}");
                 }
 
                 eventItem.Title = dto.Title;
@@ -243,11 +240,9 @@ namespace DatabaseApi.Controllers
             {
                 string fileName = Guid.NewGuid() + Path.GetExtension(dto.LogoFile.FileName);
                 string fullFilePath = Path.Combine(_environment.ContentRootPath, "uploads/events", fileName);
-                Console.WriteLine(Path.GetDirectoryName(fullFilePath));
                 Directory.CreateDirectory(Path.GetDirectoryName(fullFilePath));
                 using (var stream = new FileStream(fullFilePath, FileMode.Create))
                 {
-                    Console.WriteLine($"Saving logo to: {fullFilePath}");
                     await dto.LogoFile.CopyToAsync(stream);
                 }
 
