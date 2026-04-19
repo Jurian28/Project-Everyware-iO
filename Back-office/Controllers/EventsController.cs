@@ -53,13 +53,12 @@ namespace Back_office.Controllers
 
                 List <EventDTO> events = data?.Events ?? new List<EventDTO>();
                 int pages = data?.TotalPages ?? 1;
-                if(page >= pages)
+                Console.WriteLine($"Total pages: {pages}");
+                if (page > pages || page < 1)
                 {
-                    page = pages-1;
-                }
-                else if(page < 1)
-                {
-                    page = 1;
+                    page = Math.Max(page, 1);
+                    page = Math.Min(page, pages);
+                    return RedirectToAction("Index", new { search, page });
                 }
 
                 ViewData["CurrentSearch"] = search;
