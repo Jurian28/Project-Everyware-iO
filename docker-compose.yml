@@ -29,6 +29,7 @@ services:
     env_file:
       - .env
     volumes:
+      - ./Back-office:/app/Back-office
       - backofficekeys:/root/.aspnet/DataProtection-Keys
     develop:
       watch:
@@ -98,6 +99,7 @@ services:
       - .env
     volumes:
       - databaseapikeys:/root/.aspnet/DataProtection-Keys
+      - uploads:/app/DatabaseApi/uploads
     develop:
       watch:
         - action: sync
@@ -106,6 +108,7 @@ services:
           ignore:
             - bin/
             - obj/
+            - wwwroot/
         - action: sync
           path: ./SharedClassLibrary
           target: /app/SharedClassLibrary
@@ -123,3 +126,4 @@ volumes:
   backofficekeys:
   webappkeys:
   databaseapikeys:
+  uploads:
