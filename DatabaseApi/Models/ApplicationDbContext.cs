@@ -85,6 +85,13 @@ namespace DatabaseApi.Models
                 .WithMany(sp => sp.Sessions)
                 .UsingEntity("Session_has_Speaker");
 
+            // Speaker relationship with Event
+            modelBuilder.Entity<Speaker>()
+                .HasOne(s => s.Event)
+                .WithMany(e => e.Speakers)
+                .HasForeignKey(s => s.IdEvent)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Seeddata
             AddSeeddata(modelBuilder);
         }
@@ -137,6 +144,7 @@ namespace DatabaseApi.Models
                 new
                 {
                     IdSpeaker = 1,
+                    IdEvent = 1,
                     FirstName = "Jan",
                     LastName = "Smit",
                     description = "Expert in C# en Cloud.",
@@ -145,6 +153,7 @@ namespace DatabaseApi.Models
                 new
                 {
                     IdSpeaker = 2,
+                    IdEvent = 1,
                     FirstName = "John",
                     LastName = "Doe",
                     description = "Expert in Databases en networking.",

@@ -28,7 +28,7 @@ namespace DatabaseApi.Controllers
             IQueryable<Room> query = _context.Rooms;
 
             if (eventId.HasValue)
-            {   
+            {
                 query = query.Where(r => r.IdEvent == eventId.Value);
             }
 
