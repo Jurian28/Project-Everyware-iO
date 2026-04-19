@@ -4,6 +4,7 @@ using DatabaseApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260331204720_SeedInitialData")]
+    partial class SeedInitialData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,7 +105,7 @@ namespace DatabaseApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdRoom"));
 
-                    b.Property<int>("Capacity")
+                    b.Property<int?>("Capacity")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -113,12 +116,11 @@ namespace DatabaseApi.Migrations
 
                     b.Property<string>("RoomLabel")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IdRoom");
 
-                    b.HasIndex("IdEvent", "RoomLabel")
-                        .IsUnique();
+                    b.HasIndex("IdEvent");
 
                     b.ToTable("Rooms");
 
@@ -234,9 +236,6 @@ namespace DatabaseApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdEvent")
-                        .HasColumnType("int");
-
                     b.Property<string>("ImgPath")
                         .HasColumnType("nvarchar(max)");
 
@@ -252,8 +251,6 @@ namespace DatabaseApi.Migrations
 
                     b.HasKey("IdSpeaker");
 
-                    b.HasIndex("IdEvent");
-
                     b.ToTable("Speakers");
 
                     b.HasData(
@@ -261,7 +258,6 @@ namespace DatabaseApi.Migrations
                         {
                             IdSpeaker = 1,
                             FirstName = "Jan",
-                            IdEvent = 1,
                             ImgPath = "",
                             LastName = "Smit",
                             description = "Expert in C# en Cloud."
@@ -270,7 +266,6 @@ namespace DatabaseApi.Migrations
                         {
                             IdSpeaker = 2,
                             FirstName = "John",
-                            IdEvent = 1,
                             ImgPath = "",
                             LastName = "Doe",
                             description = "Expert in Databases en networking."
@@ -715,17 +710,6 @@ namespace DatabaseApi.Migrations
                     b.Navigation("Room");
                 });
 
-            modelBuilder.Entity("DatabaseApi.Models.Speaker", b =>
-                {
-                    b.HasOne("DatabaseApi.Models.Event", "Event")
-                        .WithMany("Speakers")
-                        .HasForeignKey("IdEvent")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-                });
-
             modelBuilder.Entity("DatabaseApi.Models.Tag", b =>
                 {
                     b.HasOne("DatabaseApi.Models.Event", "Event")
@@ -855,8 +839,6 @@ namespace DatabaseApi.Migrations
             modelBuilder.Entity("DatabaseApi.Models.Event", b =>
                 {
                     b.Navigation("Rooms");
-
-                    b.Navigation("Speakers");
 
                     b.Navigation("Tags");
                 });

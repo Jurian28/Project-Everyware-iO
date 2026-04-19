@@ -4,6 +4,7 @@ using DatabaseApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260326102228_auth")]
+    partial class auth
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,18 +34,22 @@ namespace DatabaseApi.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdEvent"));
 
                     b.Property<string>("AccentColorHex")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LogoPath")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MainColorHex")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
@@ -55,19 +62,6 @@ namespace DatabaseApi.Migrations
                     b.HasKey("IdEvent");
 
                     b.ToTable("Events");
-
-                    b.HasData(
-                        new
-                        {
-                            IdEvent = 1,
-                            AccentColorHex = "#B0B0B0",
-                            Description = "Hier zal besproken worden wat er allemaal gemaakt moet worden voor de beste event calender ooit.",
-                            EndDate = new DateTime(2026, 10, 10, 17, 0, 0, 0, DateTimeKind.Unspecified),
-                            LogoPath = "",
-                            MainColorHex = "#D9D9D9",
-                            StartDate = new DateTime(2026, 10, 10, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Title = "iO Event Connect"
-                        });
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.RefreshToken", b =>
@@ -106,6 +100,7 @@ namespace DatabaseApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("IdEvent")
@@ -113,40 +108,13 @@ namespace DatabaseApi.Migrations
 
                     b.Property<string>("RoomLabel")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IdRoom");
 
-                    b.HasIndex("IdEvent", "RoomLabel")
-                        .IsUnique();
+                    b.HasIndex("IdEvent");
 
                     b.ToTable("Rooms");
-
-                    b.HasData(
-                        new
-                        {
-                            IdRoom = 1,
-                            Capacity = 100,
-                            Description = "Grote conferentiezaal.",
-                            IdEvent = 1,
-                            RoomLabel = "Hoofdzaal"
-                        },
-                        new
-                        {
-                            IdRoom = 2,
-                            Capacity = 20,
-                            Description = "Grote meeting zaal.",
-                            IdEvent = 1,
-                            RoomLabel = "Kamer 1"
-                        },
-                        new
-                        {
-                            IdRoom = 3,
-                            Capacity = 2,
-                            Description = "Kleine meeting zaal.",
-                            IdEvent = 1,
-                            RoomLabel = "Kamer 2"
-                        });
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Session", b =>
@@ -157,7 +125,7 @@ namespace DatabaseApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdSession"));
 
-                    b.Property<int?>("Capacity")
+                    b.Property<int>("Capacity")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("EndTime")
@@ -186,40 +154,6 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("IdRoom");
 
                     b.ToTable("Sessions");
-
-                    b.HasData(
-                        new
-                        {
-                            IdSession = 1,
-                            EndTime = new DateTime(2026, 10, 10, 10, 0, 0, 0, DateTimeKind.Unspecified),
-                            IdEvent = 1,
-                            IdRoom = 1,
-                            Plenary = true,
-                            StartTime = new DateTime(2026, 10, 10, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Title = "Bespreking algemene eisen en wensen."
-                        },
-                        new
-                        {
-                            IdSession = 2,
-                            Capacity = 20,
-                            EndTime = new DateTime(2026, 10, 10, 11, 30, 0, 0, DateTimeKind.Unspecified),
-                            IdEvent = 1,
-                            IdRoom = 2,
-                            Plenary = false,
-                            StartTime = new DateTime(2026, 10, 10, 10, 30, 0, 0, DateTimeKind.Unspecified),
-                            Title = "Database architectuur."
-                        },
-                        new
-                        {
-                            IdSession = 3,
-                            Capacity = 2,
-                            EndTime = new DateTime(2026, 10, 10, 11, 30, 0, 0, DateTimeKind.Unspecified),
-                            IdEvent = 1,
-                            IdRoom = 3,
-                            Plenary = false,
-                            StartTime = new DateTime(2026, 10, 10, 10, 30, 0, 0, DateTimeKind.Unspecified),
-                            Title = "Routing architectuur."
-                        });
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Speaker", b =>
@@ -234,47 +168,21 @@ namespace DatabaseApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdEvent")
-                        .HasColumnType("int");
-
                     b.Property<string>("ImgPath")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MiddleName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IdSpeaker");
 
-                    b.HasIndex("IdEvent");
-
                     b.ToTable("Speakers");
-
-                    b.HasData(
-                        new
-                        {
-                            IdSpeaker = 1,
-                            FirstName = "Jan",
-                            IdEvent = 1,
-                            ImgPath = "",
-                            LastName = "Smit",
-                            description = "Expert in C# en Cloud."
-                        },
-                        new
-                        {
-                            IdSpeaker = 2,
-                            FirstName = "John",
-                            IdEvent = 1,
-                            ImgPath = "",
-                            LastName = "Doe",
-                            description = "Expert in Databases en networking."
-                        });
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Tag", b =>
@@ -294,20 +202,6 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("IdEvent");
 
                     b.ToTable("Tags");
-
-                    b.HasData(
-                        new
-                        {
-                            Title = "Plenaire sessie",
-                            IdEvent = 1,
-                            ColorHex = "#D5B82C"
-                        },
-                        new
-                        {
-                            Title = "Technology",
-                            IdEvent = 1,
-                            ColorHex = "#2CCFD5"
-                        });
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.User", b =>
@@ -373,53 +267,6 @@ namespace DatabaseApi.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            AccessFailedCount = 0,
-                            Email = "jan.smit@example.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "JAN.SMIT@EXAMPLE.COM",
-                            NormalizedUserName = "JAN.SMIT@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEE9XsCMDkXMdTDw5BcaJ7teKfgRDJpxSUt6WF2/3BaCbJaJkCFImPUBAKfygEXtbVg==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "STATIC-STAMP-001",
-                            TwoFactorEnabled = false,
-                            UserName = "jan.smit@example.com"
-                        },
-                        new
-                        {
-                            Id = "2",
-                            AccessFailedCount = 0,
-                            Email = "john.doe@example.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "JOHN.DOE@EXAMPLE.COM",
-                            NormalizedUserName = "JOHN.DOE@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEE9XsCMDkXMdTDw5BcaJ7teKfgRDJpxSUt6WF2/3BaCbJaJkCFImPUBAKfygEXtbVg==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "STATIC-STAMP-002",
-                            TwoFactorEnabled = false,
-                            UserName = "john.doe@example.com"
-                        },
-                        new
-                        {
-                            Id = "3",
-                            AccessFailedCount = 0,
-                            Email = "jane.smith@example.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "JANE.SMITH@EXAMPLE.COM",
-                            NormalizedUserName = "JANE.SMITH@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEE9XsCMDkXMdTDw5BcaJ7teKfgRDJpxSUt6WF2/3BaCbJaJkCFImPUBAKfygEXtbVg==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "STATIC-STAMP-003",
-                            TwoFactorEnabled = false,
-                            UserName = "jane.smith@example.com"
-                        });
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.User_has_Session", b =>
@@ -441,29 +288,6 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("IdSession");
 
                     b.ToTable("User_has_Sessions");
-
-                    b.HasData(
-                        new
-                        {
-                            IdUser = "1",
-                            IdSession = 1,
-                            InWaitingList = false,
-                            JoinedDate = new DateTime(2026, 10, 10, 8, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            IdUser = "1",
-                            IdSession = 3,
-                            InWaitingList = false,
-                            JoinedDate = new DateTime(2026, 10, 10, 8, 5, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            IdUser = "2",
-                            IdSession = 3,
-                            InWaitingList = false,
-                            JoinedDate = new DateTime(2026, 10, 10, 10, 10, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -612,13 +436,6 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("SpeakersIdSpeaker");
 
                     b.ToTable("Session_has_Speaker");
-
-                    b.HasData(
-                        new
-                        {
-                            SessionsIdSession = 1,
-                            SpeakersIdSpeaker = 1
-                        });
                 });
 
             modelBuilder.Entity("Session_has_Tag", b =>
@@ -637,20 +454,6 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("TagsTitle", "TagsIdEvent");
 
                     b.ToTable("Session_has_Tag");
-
-                    b.HasData(
-                        new
-                        {
-                            SessionsIdSession = 1,
-                            TagsTitle = "Plenaire sessie",
-                            TagsIdEvent = 1
-                        },
-                        new
-                        {
-                            SessionsIdSession = 1,
-                            TagsTitle = "Technology",
-                            TagsIdEvent = 1
-                        });
                 });
 
             modelBuilder.Entity("User_has_Event", b =>
@@ -666,23 +469,6 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("UsersId");
 
                     b.ToTable("User_has_Event");
-
-                    b.HasData(
-                        new
-                        {
-                            EventsIdEvent = 1,
-                            UsersId = "1"
-                        },
-                        new
-                        {
-                            EventsIdEvent = 1,
-                            UsersId = "2"
-                        },
-                        new
-                        {
-                            EventsIdEvent = 1,
-                            UsersId = "3"
-                        });
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Room", b =>
@@ -713,17 +499,6 @@ namespace DatabaseApi.Migrations
                     b.Navigation("Event");
 
                     b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("DatabaseApi.Models.Speaker", b =>
-                {
-                    b.HasOne("DatabaseApi.Models.Event", "Event")
-                        .WithMany("Speakers")
-                        .HasForeignKey("IdEvent")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Tag", b =>
@@ -855,8 +630,6 @@ namespace DatabaseApi.Migrations
             modelBuilder.Entity("DatabaseApi.Models.Event", b =>
                 {
                     b.Navigation("Rooms");
-
-                    b.Navigation("Speakers");
 
                     b.Navigation("Tags");
                 });
