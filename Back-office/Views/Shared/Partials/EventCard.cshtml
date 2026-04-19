@@ -1,7 +1,6 @@
 ﻿@using SharedClassLibrary.DTOs.Events
 @{
-    string apiOutsideUrl = $"{Environment.GetEnvironmentVariable("API_OUTSIDE_BASE_URL") ?? "http://localhost"}:{Environment.GetEnvironmentVariable("DATABASE_API_PORT")}";
-    string imgSrc = string.IsNullOrEmpty(Model.LogoPath) ? "" : $"{apiOutsideUrl}{Model.LogoPath}";
+    string imgSrc = string.IsNullOrEmpty(Model.LogoPath) ? "" : $"/events{Model.LogoPath}";
 }
 
 @model EventDTO
@@ -9,7 +8,6 @@
 @* Event Card Component *@
 <div class="card event-card bg-light text-center">
     <div class="card-body d-flex flex-column container">
-        <input type="hidden" value="@apiOutsideUrl" id="api-url" />
 
         <div class="row">
             <div class="col-12 p-1">

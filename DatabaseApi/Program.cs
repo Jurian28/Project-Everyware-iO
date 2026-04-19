@@ -32,16 +32,6 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
-
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")

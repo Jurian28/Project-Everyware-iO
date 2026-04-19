@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SharedClassLibrary.DTOs.Events;
 using System.Diagnostics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Back_office.Controllers
 {
@@ -109,6 +110,23 @@ namespace Back_office.Controllers
             return View(json?.Data);
         }
 
+        /// <summary>
+        /// Get image from the API and return it as a file result, used for displaying event logos
+        /// </summary>
+        [HttpGet("images/{fileName}")]
+        public async Task<IActionResult> GetImage(string fileName)
+        {
+            Console.WriteLine($"loading image");
+            var response = await _httpClient.GetAsync($"/event/images/{fileName}");
+
+            if (!response.IsSuccessStatusCode)
+                return NotFound();
+
+            byte[] imageBytes = await response.Content.ReadAsByteArrayAsync();
+            string mimeType = response.Content.Headers.ContentType?.MediaType ?? "image/jpeg";
+            return File(imageBytes, mimeType);
+        }
+
         [HttpPost]
         [Route("{id}/publish")]
         public async Task<IActionResult> Publish(int id)
@@ -116,7 +134,7 @@ namespace Back_office.Controllers
             try
             {
                 string url = $"/event/{id}/publish";
-
+                 
                 HttpResponseMessage response = await _httpClient.PostAsync(url, null);
 
                 return StatusCode((int)response.StatusCode);
@@ -213,11 +231,12 @@ namespace Back_office.Controllers
         {
             if (!ModelState.IsValid)
             {
+                Console.WriteLine($"Validation error: {ModelState.Values}");
                 foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
                 {
                     Console.WriteLine($"Validation error: {error.ErrorMessage}");
                 }
-                return View("Edit", eventDTO);
+                return View("Index", "Home");
             }
 
             try
@@ -242,11 +261,12 @@ namespace Back_office.Controllers
                 }
 
                 HttpResponseMessage response = await _httpClient.PutAsync(url, content);
+                ApiResponse<EventUpdateDTO>? responseObject = await response.Content.ReadFromJsonAsync<ApiResponse<EventUpdateDTO>>();
 
                 if (!response.IsSuccessStatusCode)
                 {
                     ModelState.AddModelError(string.Empty, "Error in Update method...");
-                    Console.WriteLine($"Error in Store method: {response.StatusCode} | {response.ReasonPhrase}");
+                    Console.WriteLine($"Error in Update method: {response.StatusCode} | {responseObject?.Error}");
 
                     TempData["ToastMessage"] = "Error in updating event!";
                     TempData["ToastType"] = "danger";
@@ -260,7 +280,7 @@ namespace Back_office.Controllers
             }
             catch (Exception ex)
             {
-                return View("Edit", eventDTO);
+                return View("Index", "Home");
             }
         }
     }

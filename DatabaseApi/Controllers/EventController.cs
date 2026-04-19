@@ -74,6 +74,21 @@ namespace DatabaseApi.Controllers
         }
 
         /// <summary>
+        /// get the image file for an event. The file name is the last part of the logo path, which is stored in the database. Returns a 404 if the file is not found.
+        /// </summary>
+        [HttpGet("images/{fileName}")]
+        public IActionResult GetImage(string fileName)
+        {
+            string filePath = Path.Combine(_environment.ContentRootPath, "uploads/events", fileName);
+
+            if (!System.IO.File.Exists(filePath))
+                return NotFound();
+
+            string mimeType = "image/" + Path.GetExtension(fileName).TrimStart('.').ToLower();
+            return PhysicalFile(filePath, mimeType);
+        }
+
+        /// <summary>
         /// Creates a new event with the provided data. Handles file upload and returns the created event.
         /// </summary>
         [HttpPost]
@@ -109,7 +124,7 @@ namespace DatabaseApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<Object>.Fail($"Internal Server Error: {ex.Message}"));
+                return StatusCode(500, ApiResponse<Object>.Fail($"Store: Internal Server Error: {ex.Message}"));
             }
         }
 
@@ -130,14 +145,17 @@ namespace DatabaseApi.Controllers
                     return NotFound(ApiResponse<Object>.Fail("Event not found"));
                 }
 
-                string logoPath = eventItem.LogoPath;
+                string? logoPath = eventItem.LogoPath;
+                Console.WriteLine($"Existing logo path: {logoPath}");
                 if (dto.LogoFile != null)
                 {
-                    if(!string.IsNullOrEmpty(eventItem.LogoPath))
+                    if(!string.IsNullOrEmpty(logoPath))
                     {
-                        DeleteLogo(eventItem.LogoPath);
+                        Console.WriteLine($"Existing logo path: {logoPath}");
+                        DeleteLogo(logoPath);
                     } 
                     logoPath = await HandleLogoUpload(dto);
+                    Console.WriteLine($"new logo path: {logoPath}");
                 }
 
                 eventItem.Title = dto.Title;
@@ -155,7 +173,7 @@ namespace DatabaseApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<Object>.Fail($"Internal Server Error: {ex.Message}"));
+                return StatusCode(500, ApiResponse<Object>.Fail($"Update:Internal Server Error: {ex.Message}"));
             }
         }
 
@@ -224,18 +242,19 @@ namespace DatabaseApi.Controllers
             try
             {
                 string fileName = Guid.NewGuid() + Path.GetExtension(dto.LogoFile.FileName);
-                string filePath = Path.Combine(_environment.WebRootPath, "images/events", fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                string fullFilePath = Path.Combine(_environment.ContentRootPath, "uploads/events", fileName);
+                Console.WriteLine(Path.GetDirectoryName(fullFilePath));
+                Directory.CreateDirectory(Path.GetDirectoryName(fullFilePath));
+                using (var stream = new FileStream(fullFilePath, FileMode.Create))
                 {
+                    Console.WriteLine($"Saving logo to: {fullFilePath}");
                     await dto.LogoFile.CopyToAsync(stream);
                 }
 
-                return $"/images/events/{fileName}";
+                return $"/images/{fileName}";
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error uploading logo: {ex.Message}");
                 Console.WriteLine($"Error uploading logo: {ex.Message}");
                 return string.Empty;
             }
@@ -250,7 +269,7 @@ namespace DatabaseApi.Controllers
                 return;
             try
             {
-                string existingFilePath = Path.Combine(_environment.WebRootPath, logoPath.TrimStart('/'));
+                string existingFilePath = Path.Combine(_environment.ContentRootPath, logoPath.TrimStart('/'));
                 if (System.IO.File.Exists(existingFilePath))
                 {
                     System.IO.File.Delete(existingFilePath);

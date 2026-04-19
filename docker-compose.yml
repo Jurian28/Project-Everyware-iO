@@ -99,7 +99,7 @@ services:
       - .env
     volumes:
       - databaseapikeys:/root/.aspnet/DataProtection-Keys
-      - ./DatabaseApi/wwwroot/images:/app/DatabaseApi/wwwroot/images
+      - uploads:/app/DatabaseApi/uploads
     develop:
       watch:
         - action: sync
@@ -126,3 +126,4 @@ volumes:
   backofficekeys:
   webappkeys:
   databaseapikeys:
+  uploads:
