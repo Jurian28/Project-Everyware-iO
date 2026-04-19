@@ -4,7 +4,7 @@
     {
         public int IdTag { get; set; }
         public int IdEvent { get; set; }
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "";
 
 
         public string? ColorHex { get; set; }

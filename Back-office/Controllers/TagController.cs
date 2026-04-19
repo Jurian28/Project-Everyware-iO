@@ -53,25 +53,12 @@ namespace Back_office.Controllers
             // CREATE
             if (tag.IdTag == 0)
             {
-                TagDTO dto = new TagDTO
-                {
-                    IdEvent = tag.IdEvent,
-                    Title = tag.Title,
-                    ColorHex = tag.ColorHex
-                };
-
-                response = await client.PostAsJsonAsync("/tag", dto);
+                response = await client.PostAsJsonAsync("/tag", tag);
             }
             // UPDATE
             else
             {
-                TagDTO dto = new TagDTO
-                {
-                    Title = tag.Title,
-                    ColorHex = tag.ColorHex
-                };
-
-                response = await client.PutAsJsonAsync($"/tag/{tag.IdTag}", dto);
+                response = await client.PutAsJsonAsync($"/tag/{tag.IdTag}", tag);
             }
 
             string content = await response.Content.ReadAsStringAsync();
