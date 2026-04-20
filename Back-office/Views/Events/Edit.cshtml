@@ -1,0 +1,124 @@
+﻿@using SharedClassLibrary.DTOs.Events
+@{
+    string? imgSrc = "/events"+Model.LogoPath;
+}
+
+@model EventUpdateDTO;
+
+<div class="container-lg py-5">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-5">
+            <h1 class="fw-bold mb-4">Edit Event</h1>
+
+            <form method="post" asp-action="Update" asp-controller="Events" enctype="multipart/form-data">
+                <input type="hidden" asp-for="IdEvent" />
+
+                <div class="row g-5">
+                    @* Left Column *@
+                    <div class="col-lg-6 d-flex flex-column create-event-column-gap">
+                        <div class="mb-4">
+                            <label asp-for="Title" class="form-label fw-semibold io-required-label">Title</label>
+                            <input type="text" class="form-control form-control-lg" id="title" asp-for="Title" placeholder="Enter event title" maxlength="100" required>
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold mb-3">Dates</label>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label asp-for="StartDate" class="form-label small text-muted io-required-label">Start Date</label>
+                                    <input type="date" class="form-control" id="start-date" asp-for="StartDate" required>
+                                    <span asp-validation-for="StartDate" class="text-danger small"></span>
+                                </div>
+                                <div class="col-6">
+                                    <label asp-for="EndDate" class="form-label small text-muted io-required-label">End Date</label>
+                                    <input type="date" class="form-control" id="end-date" asp-for="EndDate" required>
+                                    <span asp-validation-for="EndDate" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Location" class="form-label fw-semibold io-required-label">Location</label>
+                            <input type="text" class="form-control form-control-lg" id="location" asp-for="Location" placeholder="Enter event location" maxlength="250" required>
+                            <span asp-validation-for="Location" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                            <textarea class="form-control" id="description" asp-for="Description" placeholder="Enter event description" rows="5" maxlength="5000"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    @* Right Column *@
+                    <div class="col-lg-6 d-flex flex-column align-items-center">
+                        <div class="col-lg-6 w-50">
+                            <div class="mb-4">
+                                <p class="form-label fw-semibold mb-3">Logo</p>
+                                <label for="logoFile" class="border-secondary d-flex flex-column align-items-center justify-content-center bg-light create-event-bg-light-hover cursor-pointer rounded border-2 p-5 text-center" style="min-height: 150px;">
+                                    <span><em>Click to upload an image</em></span>
+                                    <input type="file" id="logoFile" name="logoFile" class="d-none" accept="image/*">
+                                </label>
+                            </div>
+
+                            <div class="mb-4">
+                                <span class="border-secondary d-flex align-items-center justify-content-center bg-light overflow-hidden rounded border-2" style="height: 150px; width: 150px;">
+                                    <em id="uploadText" class="m-0 text-center @(string.IsNullOrEmpty(Model.LogoPath) ? "" : "d-none")">Preview</em>
+                                    <img id="logoPreview" src="@imgSrc" alt="Logo preview" class="@(string.IsNullOrEmpty(Model.LogoPath) ? "d-none" : "")" style="max-width: 100%; max-height: 100%; object-fit: cover;">
+                                </span>
+                            </div>
+
+                            <input type="hidden" asp-for="LogoPath" />
+
+                            <div class="mb-4">
+                                <div class="mb-3">
+                                    <label asp-for="MainColorHex" class="form-label fw-semibold io-required-label">Main Color</label>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input type="color" id="main-color-hex" asp-for="MainColorHex" class="form-control form-control-color create-event-color-input" required>
+                                        <span asp-validation-for="MainColorHex" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="AccentColorHex" class="form-label fw-semibold io-required-label">Accent Color</label>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input type="color" id="accent-color-hex" asp-for="AccentColorHex" class="form-control form-control-color create-event-color-input" required>
+                                        <span asp-validation-for="AccentColorHex" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-5">
+                    <em>Fields with <span class="text-danger">*</span> are required</em>
+                    <div class="d-flex justify-content-end gap-3">
+                        <a asp-action="Index" asp-controller="Events" class="btn btn-secondary btn-lg">Cancel</a>
+                        <button type="submit" class="btn btn-success btn-lg">Update</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* Logo preview script *@
+<script>
+    document.getElementById('logoFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const logoPreview = document.getElementById('logoPreview');
+                const uploadText = document.getElementById('uploadText');
+
+                logoPreview.src = event.target.result;
+                logoPreview.classList.remove('d-none');
+                uploadText.classList.add('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
