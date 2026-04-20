@@ -4,6 +4,7 @@ using DatabaseApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260419132606_AddIdTag")]
+    partial class AddIdTag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,12 +42,6 @@ namespace DatabaseApi.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsPublished")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("LogoPath")
                         .HasColumnType("nvarchar(max)");
 
@@ -69,8 +66,6 @@ namespace DatabaseApi.Migrations
                             AccentColorHex = "#B0B0B0",
                             Description = "Hier zal besproken worden wat er allemaal gemaakt moet worden voor de beste event calender ooit.",
                             EndDate = new DateTime(2026, 10, 10, 17, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsPublished = false,
-                            Location = "'s-Hertogenbosch",
                             LogoPath = "",
                             MainColorHex = "#D9D9D9",
                             StartDate = new DateTime(2026, 10, 10, 9, 0, 0, 0, DateTimeKind.Unspecified),

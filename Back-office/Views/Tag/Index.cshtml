@@ -1,0 +1,83 @@
+﻿@model int
+
+@{
+	ViewData["Title"] = "Tags";
+}
+
+@section Scripts {
+	<script src="~/js/tags.js" defer data-event-id="@Model"></script>
+}
+
+<div class="d-flex flex-fill m-4 gap-3 mh-100 max-h-100 pb-1 overflow-hidden">
+
+	<!-- LIST -->
+	<div style="flex: 2" class="bg-dark-subtle rounded-3 px-4 py-1 h-100 overflow-hidden">
+		<div id="tagList" class="overflow-auto h-100">
+			<div id="loadingMessage" class="text-center my-auto">Loading...</div>
+			<div id="noTagsMessage" class="text-center my-auto d-none">No tags found</div>
+		</div>
+	</div>
+
+	<!-- FORM -->
+	<div style="flex: 1" class="px-4">
+		<form id="tagForm" class="d-flex flex-column h-100"
+			  onsubmit="submitTag(event)"
+			  oninput="showEditButtons()">
+
+			<div class="flex-grow-1">
+
+				<input type="hidden" id="tagTitleOld" />
+
+				<div class="mb-3">
+					<label class="form-label">Title</label>
+					<input type="text" id="title" class="form-control" required />
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Color</label>
+					<input type="color" id="colorHex" class="form-control form-control-color" />
+				</div>
+
+			</div>
+
+			<div>
+				<div id="errorMessageBox" class="text-danger text-center"></div>
+				<div id="successMessageBox" class="text-success text-center"></div>
+
+				<div class="d-flex justify-content-between">
+					<button type="button"
+							id="deleteButton"
+							class="btn btn-danger invisible"
+							onclick="deleteTag()">
+						Delete
+					</button>
+
+					<button type="button"
+							class="btn btn-dark js-edit-btn invisible"
+							onclick="clearForm()">
+						Cancel
+					</button>
+
+					<button type="submit" class="btn btn-success">
+						Save
+					</button>
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>
+
+<!-- TEMPLATE -->
+<template id="tagRowTemplate">
+	<div class="p-3 my-1 tag-row bg-white rounded d-flex align-items-center" style="cursor:pointer">
+
+		<span class="fw-bold me-2" data-field="title"></span>
+
+		<!-- color indicator -->
+		<span data-field="color"
+			  class="color-dot"
+			  style="width:14px; height:14px; border-radius:50%; display:inline-block; border:1px solid #ddd;"></span>
+
+	</div>
+</template>

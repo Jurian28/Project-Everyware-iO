@@ -200,14 +200,14 @@ namespace DatabaseApi.Models
 
             // Tags
             modelBuilder.Entity<Tag>().HasData(
-                new { IdEvent = 1, Title = "Plenaire sessie", ColorHex = "#D5B82C" },
-                new { IdEvent = 1, Title = "Technology", ColorHex = "#2CCFD5" }
+                new { IdTag = 1, IdEvent = 1, Title = "Plenaire sessie", ColorHex = "#D5B82C" },
+                new { IdTag = 2, IdEvent = 1, Title = "Technology", ColorHex = "#2CCFD5" }
             );
 
             // Session has tags
             modelBuilder.Entity("Session_has_Tag").HasData(
-                new { SessionsIdSession = 1, TagsTitle = "Plenaire sessie", TagsIdEvent = 1 },
-                new { SessionsIdSession = 1, TagsTitle = "Technology", TagsIdEvent = 1 }
+                new { SessionsIdSession = 1, TagsIdTag = 1 },
+                new { SessionsIdSession = 1, TagsIdTag = 2 }
             );
 
             // Session has speakers
