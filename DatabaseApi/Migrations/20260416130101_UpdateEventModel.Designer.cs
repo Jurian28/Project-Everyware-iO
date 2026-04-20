@@ -4,6 +4,7 @@ using DatabaseApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260416130101_UpdateEventModel")]
+    partial class UpdateEventModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,9 +245,6 @@ namespace DatabaseApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdEvent")
-                        .HasColumnType("int");
-
                     b.Property<string>("ImgPath")
                         .HasColumnType("nvarchar(max)");
 
@@ -260,8 +260,6 @@ namespace DatabaseApi.Migrations
 
                     b.HasKey("IdSpeaker");
 
-                    b.HasIndex("IdEvent");
-
                     b.ToTable("Speakers");
 
                     b.HasData(
@@ -269,7 +267,6 @@ namespace DatabaseApi.Migrations
                         {
                             IdSpeaker = 1,
                             FirstName = "Jan",
-                            IdEvent = 1,
                             ImgPath = "",
                             LastName = "Smit",
                             description = "Expert in C# en Cloud."
@@ -278,7 +275,6 @@ namespace DatabaseApi.Migrations
                         {
                             IdSpeaker = 2,
                             FirstName = "John",
-                            IdEvent = 1,
                             ImgPath = "",
                             LastName = "Doe",
                             description = "Expert in Databases en networking."
@@ -287,24 +283,17 @@ namespace DatabaseApi.Migrations
 
             modelBuilder.Entity("DatabaseApi.Models.Tag", b =>
                 {
-                    b.Property<int>("IdTag")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdTag"));
+                    b.Property<int>("IdEvent")
+                        .HasColumnType("int");
 
                     b.Property<string>("ColorHex")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdEvent")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("IdTag");
+                    b.HasKey("Title", "IdEvent");
 
                     b.HasIndex("IdEvent");
 
@@ -313,17 +302,15 @@ namespace DatabaseApi.Migrations
                     b.HasData(
                         new
                         {
-                            IdTag = 1,
-                            ColorHex = "#D5B82C",
+                            Title = "Plenaire sessie",
                             IdEvent = 1,
-                            Title = "Plenaire sessie"
+                            ColorHex = "#D5B82C"
                         },
                         new
                         {
-                            IdTag = 2,
-                            ColorHex = "#2CCFD5",
+                            Title = "Technology",
                             IdEvent = 1,
-                            Title = "Technology"
+                            ColorHex = "#2CCFD5"
                         });
                 });
 
@@ -643,12 +630,15 @@ namespace DatabaseApi.Migrations
                     b.Property<int>("SessionsIdSession")
                         .HasColumnType("int");
 
-                    b.Property<int>("TagsIdTag")
+                    b.Property<string>("TagsTitle")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("TagsIdEvent")
                         .HasColumnType("int");
 
-                    b.HasKey("SessionsIdSession", "TagsIdTag");
+                    b.HasKey("SessionsIdSession", "TagsTitle", "TagsIdEvent");
 
-                    b.HasIndex("TagsIdTag");
+                    b.HasIndex("TagsTitle", "TagsIdEvent");
 
                     b.ToTable("Session_has_Tag");
 
@@ -656,12 +646,14 @@ namespace DatabaseApi.Migrations
                         new
                         {
                             SessionsIdSession = 1,
-                            TagsIdTag = 1
+                            TagsTitle = "Plenaire sessie",
+                            TagsIdEvent = 1
                         },
                         new
                         {
                             SessionsIdSession = 1,
-                            TagsIdTag = 2
+                            TagsTitle = "Technology",
+                            TagsIdEvent = 1
                         });
                 });
 
@@ -725,17 +717,6 @@ namespace DatabaseApi.Migrations
                     b.Navigation("Event");
 
                     b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("DatabaseApi.Models.Speaker", b =>
-                {
-                    b.HasOne("DatabaseApi.Models.Event", "Event")
-                        .WithMany("Speakers")
-                        .HasForeignKey("IdEvent")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Tag", b =>
@@ -844,7 +825,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasOne("DatabaseApi.Models.Tag", null)
                         .WithMany()
-                        .HasForeignKey("TagsIdTag")
+                        .HasForeignKey("TagsTitle", "TagsIdEvent")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -867,8 +848,6 @@ namespace DatabaseApi.Migrations
             modelBuilder.Entity("DatabaseApi.Models.Event", b =>
                 {
                     b.Navigation("Rooms");
-
-                    b.Navigation("Speakers");
 
                     b.Navigation("Tags");
                 });

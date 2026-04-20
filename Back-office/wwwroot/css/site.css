@@ -76,3 +76,89 @@ body {
     background-color: #e0e0e0;
 }
 
+/* Events */
+
+.create-event-color-input {
+    width: 300px;
+    height: 50px;
+}
+
+.create-event-bg-light-hover:hover {
+    background-color: #eee !important;
+    border-color: #667 !important;
+    transition: all 0.3s ease;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.io-required-label::after {
+    content: " *";
+    color: red;
+}
+
+.event-card {
+    border: none;
+    width: 48%;
+}
+
+.event-card-logo {
+    height: 150px;
+    width: 150px;
+    object-fit: cover;
+}
+
+.event-card-meta {
+    border-top: 1px solid #dee2e6;
+    padding-top: 16px;
+}
+
+.event-search-input-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}
+
+.event-search-input {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.event-search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.event-search-icon:hover svg {
+    fill: #333;
+}
+
+.event-search-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: #999;
+    transition: fill 0.2s;
+}
+
+.event-page-link {
+    border: none;
+}
+
+#event-toast {
+    width: 30%;
+    left: auto;
+    right: 16px;
+    bottom: 16px;
+}
