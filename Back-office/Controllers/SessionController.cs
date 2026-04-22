@@ -66,7 +66,6 @@ namespace Back_office.Controllers
             }
 
             CUSessionDTO session = (await response.Content.ReadFromJsonAsync<ApiResponse<CUSessionDTO>>()).Data ?? new CUSessionDTO();
-
             return View("SessionForm", session);
         }
 

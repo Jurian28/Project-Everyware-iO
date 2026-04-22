@@ -74,7 +74,7 @@
                 <option value="">Select a tag...</option>
                 @foreach (SessionTagDTO tag in Model.AvailableTags)
                 {
-                    <option value="@tag.Title">@tag.Title</option>
+                    <option value="@tag.Title" data-color="@tag.ColorHex">@tag.Title</option>
                 }
             </select>
             <div id="tagContainer" class="p-3"
@@ -83,12 +83,7 @@
                 {
                     @foreach (SessionTagDTO tag in Model.session.Tags)
                     {
-                        <div class="tag-item d-flex justify-content-between align-items-center mb-2 p-2 rounded border border-dark"
-                             style="background-color: #E2F37C; font-weight: 600;">
-                            <span>@tag.Title</span>
-                            <input type="hidden" name="selectedTagTitles" value="@tag.Title" />
-                            <i class="bi bi-x-circle-fill cursor-pointer"></i>
-                        </div>
+                        <input type="hidden" name="selectedTagTitles" value="@tag.Title" data-color="@tag.ColorHex" />
                     }
                 }
             </div>

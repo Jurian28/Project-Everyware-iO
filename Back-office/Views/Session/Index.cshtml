@@ -16,7 +16,7 @@
             <i class="bi bi-search" style="position: absolute; right: 15px; top: 10px; color: #666;"></i>
         </div>
         
-        <a asp-controller="Session" asp-action="AddSession" asp-route-eventId="@Model.EventId"
+        <a asp-controller="Session" asp-action="AddSession" asp-route-eventId="@ViewData["EventId"]"
                class="btn btn-light shadow-sm px-4" style="border-radius: 8px; font-weight: 500;">
             New Session <span class="ms-2">+</span>
         </a>
@@ -66,7 +66,7 @@
                             @foreach (SessionTagDTO tag in session.Tags)
                             {
                                 <span class="badge rounded-pill"
-                                      style="background-color: #B2EBF2; color: #006064; border: 1px solid #4DD0E1; padding: 8px 15px;">
+                                      style="background-color: @tag.ColorHex; color: contrast-color(@tag.ColorHex); border: 1px solid black; padding: 8px 15px;">
                                     @tag.Title
                                 </span>
                             }

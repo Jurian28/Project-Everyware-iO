@@ -39,7 +39,8 @@ namespace DatabaseApi.Controllers
                     Tags = s.Tags.Select(t => new SessionTagDTO
                     {
                         EventId = t.IdEvent,
-                        Title = t.Title
+                        Title = t.Title,
+                        ColorHex = t.ColorHex,
                     }).ToList(),
                     SpeakerId = s.Speakers.Select(s => s.IdSpeaker).FirstOrDefault(),
                     SpeakerName = s.Speakers
@@ -82,7 +83,8 @@ namespace DatabaseApi.Controllers
                     Tags = s.Tags.Select(t => new SessionTagDTO
                     {
                         EventId = t.IdEvent,
-                        Title = t.Title
+                        Title = t.Title,
+                        ColorHex = t.ColorHex,
                     }).ToList(),
                     SpeakerId = s.Speakers.Select(s => s.IdSpeaker).FirstOrDefault(),
                     SpeakerName = s.Speakers
