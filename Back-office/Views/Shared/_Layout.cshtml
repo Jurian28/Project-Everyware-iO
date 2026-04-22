@@ -20,30 +20,37 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1 gap-4">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Event</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Session" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Session</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Speaker</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Room" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Rooms</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Tag" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Tags</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Events" asp-action="Index">Events</a>
-                        </li>
-                    </ul>
-                    <div id="userDropdown">
+                    @if (ViewData["EventId"] != null)
+                        {
+                            <ul class="navbar-nav flex-grow-1 gap-4">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Events" asp-action="Index"><i class="bi bi-arrow-left"></i> </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Events" asp-route-eventId="@ViewData["EventId"]" asp-action="Edit">Event</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Session" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Session</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Speaker</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Room" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Rooms</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Tag" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Tags</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
+                                </li>
+                            </ul>
+                        }
+                        else
+                        {
+                            <div class="mx-5">Select an event to edit the event data</div>
+                        }
+                        <div id="userDropdown">
                         <button id="userDropdownToggle" aria-expanded="false">
                             <span>@(User.Identity?.Name ?? "Account")</span>
                             <img id="dropDownToggleIcon" src="~/img/icons/chevron-down.svg" alt="arrow down" width="20" height="20" />
@@ -69,6 +76,10 @@
         </nav>
     </header>
     <main role="main" class="flex-fill d-flex flex-column height-main">
+        <div id="toast" class="bg-@TempData["ToastType"] p-3 m-2 w-25 align-items-center align-self-end justify-content-between position-fixed bottom-0 end-0 z-3 @(TempData["ToastMessage"] != null && TempData["ToastType"] != null ? "d-flex" : "d-none")">
+            <p class="m-0 text-white">@TempData["ToastMessage"]</p>
+            <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeToast()"></button>
+        </div>
         @RenderBody()
     </main>
 

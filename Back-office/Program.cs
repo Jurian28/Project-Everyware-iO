@@ -49,9 +49,9 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
+app.MapGet("/", () => Results.Redirect("/Events"));
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Events}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 app.Run();

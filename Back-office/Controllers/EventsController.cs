@@ -29,6 +29,7 @@ namespace Back_office.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string? search, int page = 1)
         {
+            Console.WriteLine("test");
             try
             {
                 string url = $"/event?page={page}&pageSize={_PageSize}";
@@ -36,7 +37,6 @@ namespace Back_office.Controllers
                 if (!string.IsNullOrEmpty(search))
                     url += $"&title={search}";
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
-                Debug.Write(response);
                 if (!response.IsSuccessStatusCode)
                 {
                     Console.WriteLine($"Error in getting events: {response.StatusCode} | {response.ReasonPhrase}");
@@ -53,18 +53,20 @@ namespace Back_office.Controllers
 
                 List <EventDTO> events = data?.Events ?? new List<EventDTO>();
                 int pages = data?.TotalPages ?? 1;
-                Console.WriteLine($"Total pages: {pages}");
+
                 if (page > pages || page < 1)
                 {
-                    page = Math.Max(page, 1);
                     page = Math.Min(page, pages);
+                    page = Math.Max(page, 1);
+                    Console.WriteLine("Page number out of range, redirecting to page " + page);
                     return RedirectToAction("Index", new { search, page });
                 }
 
                 ViewData["CurrentSearch"] = search;
                 ViewData["CurrentPage"] = page;
                 ViewData["TotalPages"] = pages;
-                return View("Index", events);
+                Console.WriteLine($"Events retrieved successfully: {events.Count} events found");
+                return View(events);
             }
             catch (Exception ex)
             {
@@ -87,10 +89,10 @@ namespace Back_office.Controllers
         /// Event edition page, with pre-filled data of the selected event
         /// </summary>
         [HttpGet]
-        [Route("{id}/edit")]
-        public async Task<IActionResult> Edit(int id)
+        [Route("{eventId}/edit")]
+        public async Task<IActionResult> Edit(int eventId)
         {
-            string url = $"/event/{id}";
+            string url = $"/event/{eventId}";
 
             HttpResponseMessage response = await _httpClient.GetAsync(url);
 
@@ -102,10 +104,11 @@ namespace Back_office.Controllers
 
             if(json == null || json.Data == null)
             {
-                Console.WriteLine($"Error in getting event, ID: {id}");
+                Console.WriteLine($"Error in getting event, ID: {eventId}");
                 return RedirectToAction("Index", "Events");
             }
-                
+
+            ViewData["EventId"] = eventId;
             return View(json?.Data);
         }
 
@@ -127,12 +130,12 @@ namespace Back_office.Controllers
         }
 
         [HttpPost]
-        [Route("{id}/publish")]
-        public async Task<IActionResult> Publish(int id)
+        [Route("{eventId}/publish")]
+        public async Task<IActionResult> Publish(int eventId)
         {
             try
             {
-                string url = $"/event/{id}/publish";
+                string url = $"/event/{eventId}/publish";
                  
                 HttpResponseMessage response = await _httpClient.PostAsync(url, null);
 
@@ -145,12 +148,12 @@ namespace Back_office.Controllers
         }
 
         [HttpPost]
-        [Route("{id}/unpublish")]
-        public async Task<IActionResult> Unpublish(int id)
+        [Route("{eventId}/unpublish")]
+        public async Task<IActionResult> Unpublish(int eventId)
         {
             try
             {
-                string url = $"/event/{id}/unpublish";
+                string url = $"/event/{eventId}/unpublish";
 
                 HttpResponseMessage response = await _httpClient.PostAsync(url, null);
                 return StatusCode((int)response.StatusCode);
@@ -235,7 +238,8 @@ namespace Back_office.Controllers
                 {
                     Console.WriteLine($"Validation error: {error.ErrorMessage}");
                 }
-                return View("Index", "Home");
+                ViewData["EventId"] = eventDTO.IdEvent;
+                return View("Edit", eventDTO);
             }
 
             try
@@ -269,16 +273,18 @@ namespace Back_office.Controllers
 
                     TempData["ToastMessage"] = "Error in updating event!";
                     TempData["ToastType"] = "danger";
+                    ViewData["EventId"] = eventDTO.IdEvent;
 
                     return View("Edit", eventDTO);
                 }
                 TempData["ToastMessage"] = "Event updated successfully!";
                 TempData["ToastType"] = "success";
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Edit", new { eventId = eventDTO.IdEvent });
             }
             catch (Exception ex)
             {
+                ViewData["EventId"] = eventDTO.IdEvent;
                 return View("Index", "Home");
             }
         }
