@@ -13,14 +13,29 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigator = useNavigation<NavigationProp<ParamListBase>>();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
 
-  async function submitForm() {
+  const trimmedEmail = email.trim();
+  const isFormInvalid = !trimmedEmail || !password;
+
+  function goToRegister() {
+    navigation.navigate('Register');
+  }
+
+  function getSubmitButtonStyle({ pressed }: { pressed: boolean }) {
+    return [
+      authStyles.button,
+      pressed && authStyles.buttonPressed,
+      isSubmitting && authStyles.buttonDisabled,
+    ];
+  }
+
+  async function handleSubmit() {
     if (isSubmitting) {
       return;
     }
 
-    if (!email.trim() || !password) {
+    if (isFormInvalid) {
       Alert.alert('Validation', 'Please fill in all fields.');
       return;
     }
@@ -28,10 +43,10 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const loginResult = await AuthService.login(email.trim(), password);
+      const loginResult = await AuthService.login(trimmedEmail, password);
 
       if (loginResult.success) {
-        navigator.navigate('Home');
+        navigation.navigate('Home');
       } else {
         Alert.alert(
           'Login Failed',
@@ -71,13 +86,9 @@ export default function LoginPage() {
       />
 
       <Pressable
-        onPress={submitForm}
+        onPress={handleSubmit}
         disabled={isSubmitting}
-        style={({ pressed }) => [
-          authStyles.button,
-          pressed && authStyles.buttonPressed,
-          isSubmitting && authStyles.buttonDisabled,
-        ]}
+        style={getSubmitButtonStyle}
       >
         <Text style={authStyles.buttonText}>
           {isSubmitting ? 'Signing in...' : 'Login'}
@@ -86,7 +97,7 @@ export default function LoginPage() {
 
       <View style={authStyles.linkRow}>
         <Text style={authStyles.linkLabel}>No account yet?</Text>
-        <Pressable onPress={() => navigator.navigate('Register')}>
+        <Pressable onPress={goToRegister}>
           <Text style={authStyles.linkText}>Register</Text>
         </Pressable>
       </View>

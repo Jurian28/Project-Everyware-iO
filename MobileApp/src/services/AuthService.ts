@@ -6,16 +6,77 @@ type AuthResult = {
   message?: string;
 };
 
+type AuthResponseBody = {
+  accessToken?: string;
+  refreshToken?: string;
+};
+
+type AuthAction = 'login' | 'register';
+
+const authActionConfig: Record<
+  AuthAction,
+  {
+    requestFailedLog: string;
+    invalidResponseLog: string;
+    invalidResponseMessage: string;
+    failureLog: string;
+    failureMessage: string;
+  }
+> = {
+  login: {
+    requestFailedLog: 'Login request failed',
+    invalidResponseLog: 'Invalid login response',
+    invalidResponseMessage: 'Invalid login response from the server.',
+    failureLog: 'Login failed',
+    failureMessage: 'Login failed. Please check your connection and try again.',
+  },
+  register: {
+    requestFailedLog: 'Registration request failed',
+    invalidResponseLog: 'Invalid registration response',
+    invalidResponseMessage: 'Invalid registration response from the server.',
+    failureLog: 'Registration failed',
+    failureMessage:
+      'Registration failed. Please check your connection and try again.',
+  },
+};
+
 export default class AuthService {
   private static readonly _authServiceKey = 'auth';
   private static readonly _refreshTokenServiceKey = 'auth_refresh';
 
-  public static async login(
+  private static async saveTokens(
+    email: string,
+    accessToken: string,
+    refreshToken: string,
+  ): Promise<boolean> {
+    const accessTokenStored = await Keychain.setGenericPassword(
+      email,
+      accessToken,
+      {
+        service: AuthService._authServiceKey,
+      },
+    );
+
+    const refreshTokenStored = await Keychain.setGenericPassword(
+      email,
+      refreshToken,
+      {
+        service: AuthService._refreshTokenServiceKey,
+      },
+    );
+
+    return !!accessTokenStored && !!refreshTokenStored;
+  }
+
+  private static async submitAuth(
+    action: AuthAction,
     email: string,
     password: string,
   ): Promise<AuthResult> {
+    const configForAction = authActionConfig[action];
+
     try {
-      const response = await fetch(`${config.apiBaseUrl}/api/auth/login`, {
+      const response = await fetch(`${config.apiBaseUrl}/api/auth/${action}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,37 +86,31 @@ export default class AuthService {
 
       if (!response.ok) {
         const message = await response.text();
-        console.error('Login request failed', response.status, message);
+        console.error(
+          configForAction.requestFailedLog,
+          response.status,
+          message,
+        );
         return { success: false, message };
       }
 
-      const json = await response.json();
+      const json: AuthResponseBody = await response.json();
 
       if (!json.accessToken || !json.refreshToken) {
-        console.error('Invalid login response', json);
+        console.error(configForAction.invalidResponseLog, json);
         return {
           success: false,
-          message: 'Invalid login response from the server.',
+          message: configForAction.invalidResponseMessage,
         };
       }
 
-      const accessTokenStored = await Keychain.setGenericPassword(
+      const stored = await AuthService.saveTokens(
         email,
         json.accessToken,
-        {
-          service: AuthService._authServiceKey,
-        },
-      );
-
-      const refreshTokenStored = await Keychain.setGenericPassword(
-        email,
         json.refreshToken,
-        {
-          service: AuthService._refreshTokenServiceKey,
-        },
       );
 
-      if (!accessTokenStored || !refreshTokenStored) {
+      if (!stored) {
         console.error('Failed to store credentials');
         return {
           success: false,
@@ -65,76 +120,26 @@ export default class AuthService {
 
       return { success: true };
     } catch (error) {
-      console.error('Login failed', error);
+      console.error(configForAction.failureLog, error);
       return {
         success: false,
-        message: 'Login failed. Please check your connection and try again.',
+        message: configForAction.failureMessage,
       };
     }
+  }
+
+  public static async login(
+    email: string,
+    password: string,
+  ): Promise<AuthResult> {
+    return AuthService.submitAuth('login', email, password);
   }
 
   public static async register(
     email: string,
     password: string,
   ): Promise<AuthResult> {
-    try {
-      const response = await fetch(`${config.apiBaseUrl}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const message = await response.text();
-        console.error('Registration request failed', response.status, message);
-        return { success: false, message };
-      }
-
-      const json = await response.json();
-
-      if (!json.accessToken || !json.refreshToken) {
-        console.error('Invalid registration response', json);
-        return {
-          success: false,
-          message: 'Invalid registration response from the server.',
-        };
-      }
-
-      const accessTokenStored = await Keychain.setGenericPassword(
-        email,
-        json.accessToken,
-        {
-          service: AuthService._authServiceKey,
-        },
-      );
-
-      const refreshTokenStored = await Keychain.setGenericPassword(
-        email,
-        json.refreshToken,
-        {
-          service: AuthService._refreshTokenServiceKey,
-        },
-      );
-
-      if (!accessTokenStored || !refreshTokenStored) {
-        console.error('Failed to store credentials');
-        return {
-          success: false,
-          message: 'Failed to store credentials securely.',
-        };
-      }
-
-      return { success: true };
-    } catch (error) {
-      console.error('Registration failed', error);
-      return {
-        success: false,
-        message:
-          'Registration failed. Please check your connection and try again.',
-      };
-    }
+    return AuthService.submitAuth('register', email, password);
   }
 
   public static async logout(): Promise<void> {

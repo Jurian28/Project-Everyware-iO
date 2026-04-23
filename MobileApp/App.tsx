@@ -14,8 +14,8 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import HomePage from './src/pages/Home';
-import LoginPage from './src/pages/auth/login';
-import RegisterPage from './src/pages/auth/register';
+import LoginPage from './src/pages/auth/Login';
+import RegisterPage from './src/pages/auth/Register';
 import AuthService from './src/services/AuthService';
 
 function LogoutPage() {

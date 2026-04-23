@@ -9,19 +9,34 @@ import AuthLayout from '../../layouts/AuthLayout';
 import AuthService from '../../services/AuthService';
 import authStyles from '../../styles/authStyles';
 
-export default function RegisterScreen() {
+export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigator = useNavigation<NavigationProp<ParamListBase>>();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
 
-  async function onSubmit() {
+  const trimmedEmail = email.trim();
+  const hasMissingFields = !trimmedEmail || !password || !confirmPassword;
+
+  function goToLogin() {
+    navigation.navigate('Login');
+  }
+
+  function getSubmitButtonStyle({ pressed }: { pressed: boolean }) {
+    return [
+      authStyles.button,
+      pressed && authStyles.buttonPressed,
+      isSubmitting && authStyles.buttonDisabled,
+    ];
+  }
+
+  async function handleSubmit() {
     if (isSubmitting) {
       return;
     }
 
-    if (!email.trim() || !password || !confirmPassword) {
+    if (hasMissingFields) {
       Alert.alert('Validation', 'Please fill in all fields.');
       return;
     }
@@ -34,10 +49,10 @@ export default function RegisterScreen() {
     setIsSubmitting(true);
 
     try {
-      const registerResult = await AuthService.register(email.trim(), password);
+      const registerResult = await AuthService.register(trimmedEmail, password);
 
       if (registerResult.success) {
-        navigator.navigate('Home');
+        navigation.navigate('Home');
       } else {
         Alert.alert(
           'Registration Failed',
@@ -87,13 +102,9 @@ export default function RegisterScreen() {
       />
 
       <Pressable
-        onPress={onSubmit}
+        onPress={handleSubmit}
         disabled={isSubmitting}
-        style={({ pressed }) => [
-          authStyles.button,
-          pressed && authStyles.buttonPressed,
-          isSubmitting && authStyles.buttonDisabled,
-        ]}
+        style={getSubmitButtonStyle}
       >
         <Text style={authStyles.buttonText}>
           {isSubmitting ? 'Creating account...' : 'Register'}
@@ -102,7 +113,7 @@ export default function RegisterScreen() {
 
       <View style={authStyles.linkRow}>
         <Text style={authStyles.linkLabel}>Already have an account?</Text>
-        <Pressable onPress={() => navigator.navigate('Login')}>
+        <Pressable onPress={goToLogin}>
           <Text style={authStyles.linkText}>Login</Text>
         </Pressable>
       </View>
