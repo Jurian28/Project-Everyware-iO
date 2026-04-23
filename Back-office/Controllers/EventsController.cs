@@ -100,7 +100,7 @@ namespace Back_office.Controllers
             }
             ApiResponse<EventUpdateDTO>? json = await response.Content.ReadFromJsonAsync<ApiResponse<EventUpdateDTO>>();
 
-            if(json == null || json.Data == null)
+            if (json == null || json.Data == null)
             {
                 Console.WriteLine($"Error in getting event, ID: {id}");
                 return RedirectToAction("Index", "Events");

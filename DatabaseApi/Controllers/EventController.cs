@@ -50,6 +50,38 @@ namespace DatabaseApi.Controllers
             }
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetAllFromUser(string userId)
+        {
+            try
+            {
+                bool userExists = await _applicationDbContext.Users.AnyAsync(u => u.Id == userId);
+
+                if(!userExists)
+                {
+                    return NotFound(ApiResponse<EventListDto>.Fail("User not found"));
+                }
+
+                List<Event> events = await _applicationDbContext.Events
+                    .Include(e => e.Users)
+                    .Where(e => e.Users.Any(u => u.Id == userId))
+                    .ToListAsync();
+
+                events.ForEach(e => Console.WriteLine($"Event: {e.Title}, Users: {string.Join(", ", e.Users.Select(u => u.Id))}"));
+
+                if (events.Count == 0)
+                {
+                    return NotFound(ApiResponse<EventListDto>.Fail("No events found for this user"));
+                }
+
+                return StatusCode(201, ApiResponse<EventListDto>.Ok(new EventListDto { Events = [.. events.Select(EventMapper.ToResponseDTO)] }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<EventListDto>.Fail($"Internal Server Error: {ex.Message}"));
+            }
+        }
+
         /// <summary>
         /// Gets a single event by its ID.
         /// </summary>
