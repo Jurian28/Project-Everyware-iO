@@ -1,12 +1,15 @@
+import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { Alert, Button, Text, TextInput, View } from 'react-native';
+import AuthService from '../../services/AuthService';
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const navigator = useNavigation();
 
-  function onSubmit() {
+  async function onSubmit() {
     if (!email.trim() || !password || !confirmPassword) {
       Alert.alert('Validation', 'Please fill in all fields.');
       return;
@@ -17,7 +20,16 @@ export default function RegisterScreen() {
       return;
     }
 
-    Alert.alert('Success', 'Registration form is valid.');
+    const registered = await AuthService.register(email, password);
+
+    if (registered) {
+      navigator.navigate('Home');
+    } else {
+      Alert.alert(
+        'Registration Failed',
+        'An error occurred during registration. Please try again.',
+      );
+    }
   }
 
   return (

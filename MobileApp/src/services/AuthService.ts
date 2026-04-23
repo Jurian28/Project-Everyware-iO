@@ -60,7 +60,31 @@ export default class AuthService {
       });
 
       if (!response.ok) {
-        console.error('Registration request failed', response.status);
+        console.error(
+          'Registration request failed',
+          response.status,
+          await response.text(),
+        );
+        return false;
+      }
+
+      const json = await response.json();
+
+      if (!json.accessToken || !json.refreshToken) {
+        console.error('Invalid registration response', json);
+        return false;
+      }
+
+      const success = await Keychain.setGenericPassword(
+        email,
+        json.accessToken,
+        {
+          service: AuthService._authServiceKey,
+        },
+      );
+
+      if (!success) {
+        console.error('Failed to store credentials');
         return false;
       }
 
