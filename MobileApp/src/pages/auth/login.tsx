@@ -80,7 +80,6 @@ export default function LoginPage() {
       <TextInput
         autoCapitalize="none"
         autoComplete="password"
-        keyboardType="visible-password"
         placeholder="Password"
         placeholderTextColor="#7c8698"
         style={authStyles.input}
