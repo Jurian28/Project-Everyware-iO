@@ -41,8 +41,8 @@ const authActionConfig: Record<
 };
 
 export default class AuthService {
-  private static readonly _authServiceKey = 'auth';
-  private static readonly _refreshTokenServiceKey = 'auth_refresh';
+  private static readonly _accessTokenServiceKey = 'auth_access_token';
+  private static readonly _refreshTokenServiceKey = 'auth_refresh_token';
 
   private static async saveTokens(
     email: string,
@@ -53,7 +53,7 @@ export default class AuthService {
       email,
       accessToken,
       {
-        service: AuthService._authServiceKey,
+        service: AuthService._accessTokenServiceKey,
       },
     );
 
@@ -145,7 +145,7 @@ export default class AuthService {
   public static async logout(): Promise<void> {
     try {
       const token = await Keychain.getGenericPassword({
-        service: AuthService._authServiceKey,
+        service: AuthService._accessTokenServiceKey,
       });
 
       if (token) {
@@ -159,7 +159,7 @@ export default class AuthService {
       }
 
       await Keychain.resetGenericPassword({
-        service: AuthService._authServiceKey,
+        service: AuthService._accessTokenServiceKey,
       });
       await Keychain.resetGenericPassword({
         service: AuthService._refreshTokenServiceKey,
@@ -172,7 +172,7 @@ export default class AuthService {
   public static async isAuthenticated(): Promise<boolean> {
     try {
       const credentials = await Keychain.getGenericPassword({
-        service: AuthService._authServiceKey,
+        service: AuthService._accessTokenServiceKey,
       });
       return !!credentials;
     } catch (error) {
