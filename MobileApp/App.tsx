@@ -12,7 +12,13 @@ import {
   type ParamListBase,
 } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import HomePage from './src/pages/Home';
 import LoginPage from './src/pages/auth/Login';
 import RegisterPage from './src/pages/auth/Register';
@@ -53,13 +59,39 @@ function AuthenticatedDrawerContent(
   );
 }
 
+type DrawerToggleProps = {
+  readonly navigation: { toggleDrawer: () => void };
+  readonly tintColor?: string;
+};
+
+function DrawerToggleButton({
+  navigation,
+  tintColor,
+}: Readonly<DrawerToggleProps>) {
+  return (
+    <Pressable
+      accessibilityLabel="Open navigation menu"
+      accessibilityRole="button"
+      onPress={navigation.toggleDrawer}
+      style={styles.drawerToggleButton}
+    >
+      <Text style={[styles.drawerToggleIcon, tintColor ? { color: tintColor } : null]}>
+        {'\u2630'}
+      </Text>
+    </Pressable>
+  );
+}
+
 const authenticatedDrawerNavigation = createDrawerNavigator({
   drawerContent: props => <AuthenticatedDrawerContent {...props} />,
-  screenOptions: {
+  screenOptions: ({ navigation }) => ({
     drawerLabelStyle: {
       color: 'black',
     },
-  },
+    headerLeft: ({ tintColor }) => (
+      <DrawerToggleButton navigation={navigation} tintColor={tintColor} />
+    ),
+  }),
 
   screens: {
     Home: {
@@ -184,5 +216,14 @@ const styles = StyleSheet.create({
   },
   logoutLabel: {
     color: '#111827',
+  },
+  drawerToggleButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  drawerToggleIcon: {
+    color: '#111827',
+    fontSize: 20,
+    lineHeight: 20,
   },
 });
