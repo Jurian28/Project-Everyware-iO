@@ -3,16 +3,18 @@ import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import authStyles from '../styles/authStyles';
 
 type AuthLayoutProps = {
-  title: string;
-  subtitle: string;
-  children: ReactNode;
+  readonly title: string;
+  readonly subtitle: string;
+  readonly children: ReactNode;
+  readonly watermarkText?: string;
 };
 
 export default function AuthLayout({
   title,
   subtitle,
   children,
-}: AuthLayoutProps) {
+  watermarkText,
+}: Readonly<AuthLayoutProps>) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -23,6 +25,9 @@ export default function AuthLayout({
         <Text style={authStyles.subtitle}>{subtitle}</Text>
         {children}
       </View>
+      {!!watermarkText && (
+        <Text style={authStyles.watermarkText}>{watermarkText}</Text>
+      )}
     </KeyboardAvoidingView>
   );
 }

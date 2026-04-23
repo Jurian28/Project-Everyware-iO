@@ -59,7 +59,11 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthLayout title="Welcome back" subtitle="Sign in to continue">
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Sign in to continue"
+      watermarkText="Event Connect by iO"
+    >
       <Text style={authStyles.label}>Email</Text>
       <TextInput
         autoCapitalize="none"

@@ -66,7 +66,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthLayout title="Create account" subtitle="Sign up to get started">
+    <AuthLayout
+      title="Create account"
+      subtitle="Sign up to get started"
+      watermarkText="Event Connect by iO"
+    >
       <Text style={authStyles.label}>Email</Text>
       <TextInput
         autoCapitalize="none"

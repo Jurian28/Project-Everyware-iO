@@ -70,6 +70,14 @@ const authStyles = StyleSheet.create({
     color: '#1e4ea3',
     fontWeight: '700',
   },
+  watermarkText: {
+    position: 'absolute',
+    right: 20,
+    bottom: 12,
+    color: '#8a93a3',
+    fontSize: 11,
+    fontWeight: '500',
+  },
 });
 
 export default authStyles;
