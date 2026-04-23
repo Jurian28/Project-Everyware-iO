@@ -33,7 +33,7 @@ namespace DatabaseApi.Controllers
                     StartTime = s.StartTime,
                     EndTime = s.EndTime,
                     Plenary = s.Plenary,
-                    Capacity = s.Capacity,
+                    Capacity = s.Room.Capacity,
                     IdRoom = s.IdRoom,
                     RoomName = s.Room.RoomLabel ?? noRoomErrorMessage,
                     Tags = s.Tags.Select(t => new SessionTagDTO
@@ -77,7 +77,7 @@ namespace DatabaseApi.Controllers
                     StartTime = s.StartTime,
                     EndTime = s.EndTime,
                     Plenary = s.Plenary,
-                    Capacity = s.Capacity,
+                    Capacity = s.Room.Capacity,
                     IdRoom = s.IdRoom,
                     RoomName = s.Room.RoomLabel ?? noRoomErrorMessage,
                     Tags = s.Tags.Select(t => new SessionTagDTO

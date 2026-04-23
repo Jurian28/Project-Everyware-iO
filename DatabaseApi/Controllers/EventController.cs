@@ -99,7 +99,8 @@ namespace DatabaseApi.Controllers
                 if (!ModelState.IsValid) return BadRequest(ApiResponse<Object>.Fail("Bad Request: Invalid Data"));
 
                 string logoPath = await HandleLogoUpload(dto);
-
+                dto.EndDate.AddHours(23 - dto.EndDate.Hour);
+                dto.EndDate.AddMinutes(59 - dto.EndDate.Minute);
                 Event newEvent = new Event
                 {
                     Title = dto.Title,
@@ -154,7 +155,9 @@ namespace DatabaseApi.Controllers
                     } 
                     logoPath = await HandleLogoUpload(dto);
                 }
-
+                dto.EndDate = dto.EndDate.AddHours(23 - dto.EndDate.Hour);
+                dto.EndDate = dto.EndDate.AddMinutes(59 - dto.EndDate.Minute);
+                Console.Write(dto.EndDate);
                 eventItem.Title = dto.Title;
                 eventItem.StartDate = dto.StartDate;
                 eventItem.EndDate = dto.EndDate;

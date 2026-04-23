@@ -38,13 +38,18 @@
     
                     <div class="text-dark mb-1">@(session.SpeakerName)</div>
 
-                    <div class="d-flex gap-3" style="font-weight: 600;">
-                        <span>@session.StartTime.ToString("HH:mm") - @session.EndTime.ToString("HH:mm")</span>
-                        <span>@session.RoomName</span>
-                        @if (session.Capacity != null)
-                        {
-                            <span>@session.Capacity spots</span>
-                        }
+                    <div class="d-flex flex-column gap-2" style="font-weight: 600;">
+                        <div>
+                            <span>@session.StartTime.ToString("f") - @session.EndTime.ToString("HH:mm")</span>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <span class="col-6">@session.RoomName</span>
+                            @if (session.Capacity != null)
+                            {
+                                <span>|</span>
+                                <span>@session.Capacity spots</span>
+                            }
+                        </div>
                     </div>
                 </div>
 

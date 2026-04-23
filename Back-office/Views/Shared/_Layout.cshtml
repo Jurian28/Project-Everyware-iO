@@ -30,10 +30,10 @@
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Events" asp-route-eventId="@ViewData["EventId"]" asp-action="Edit">Event</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Session" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Session</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Session" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Sessions</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Speaker</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Speakers</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Room" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Rooms</a>
@@ -41,9 +41,9 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Tag" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Tags</a>
                                 </li>
-                                <li class="nav-item">
+                                @* <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
-                                </li>
+                                </li> *@
                             </ul>
                         }
                         else
