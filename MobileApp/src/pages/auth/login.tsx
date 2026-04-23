@@ -28,12 +28,15 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const loggedIn = await AuthService.login(email.trim(), password);
+      const loginResult = await AuthService.login(email.trim(), password);
 
-      if (loggedIn) {
+      if (loginResult.success) {
         navigator.navigate('Home');
       } else {
-        Alert.alert('Login Failed', 'Invalid email or password.');
+        Alert.alert(
+          'Login Failed',
+          loginResult.message ?? 'Invalid email or password.',
+        );
       }
     } finally {
       setIsSubmitting(false);

@@ -34,14 +34,15 @@ export default function RegisterScreen() {
     setIsSubmitting(true);
 
     try {
-      const registered = await AuthService.register(email.trim(), password);
+      const registerResult = await AuthService.register(email.trim(), password);
 
-      if (registered) {
+      if (registerResult.success) {
         navigator.navigate('Home');
       } else {
         Alert.alert(
           'Registration Failed',
-          'An error occurred during registration. Please try again.',
+          registerResult.message ??
+            'An error occurred during registration. Please try again.',
         );
       }
     } finally {
