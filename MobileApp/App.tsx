@@ -23,6 +23,7 @@ import HomePage from './src/pages/Home';
 import LoginPage from './src/pages/auth/Login';
 import RegisterPage from './src/pages/auth/Register';
 import AuthService from './src/services/AuthService';
+import EventsOverview from './src/pages/events/overview';
 
 function LogoutPage() {
   const navigator = useNavigation<NavigationProp<ParamListBase>>();
@@ -111,6 +112,13 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
         },
       },
     },
+
+    EventsOverview: {
+      screen: EventsOverview,
+      options: {
+        title: 'Events Overview',
+      },
+    }
   },
 });
 
