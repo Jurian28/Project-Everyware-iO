@@ -7,6 +7,7 @@
 }
 
 @section Scripts {
+    <script src="~/js/confirmModal.js"></script>
     <script src="~/js/sessionForm.js" defer></script>
 }
 
@@ -103,7 +104,7 @@
         @if (isEdit)
         {
             <a href="javascript:void(0)"
-                   onclick="if(confirm('Weet je zeker dat je deze sessie wilt verwijderen?')) { document.getElementById('delete-form').submit(); }"
+                   onclick="showModal('deleteSessionModal', function() { document.getElementById('delete-form').submit(); }, '@Model.session?.Title')"
                    class="btn btn-danger px-5" style="border-radius: 20px; background-color: #EF4444; border:none;">
                 Delete
             </a>
@@ -118,3 +119,9 @@
       asp-route-eventId="@Context.GetRouteValue("eventId")" asp-route-sessionId="@Model.session?.SessionId" method="post"
       style="display:none;">
 </form>
+@await Html.PartialAsync("~/Views/Shared/Partials/_ConfirmModal.cshtml", null, new ViewDataDictionary(ViewData)
+{
+    { "ModalId", "deleteSessionModal" },
+    { "Text1",   "Are you sure you want to delete the following session?" },
+    { "Text2",   "This may affect or delete connected data." }
+})

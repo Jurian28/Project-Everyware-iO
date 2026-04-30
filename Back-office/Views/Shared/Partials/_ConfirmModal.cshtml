@@ -1,0 +1,22 @@
+﻿@{
+    var modalId = (string)ViewData["ModalId"];
+    var text1 = (string)ViewData["Text1"];
+    var text2 = (string)ViewData["Text2"];
+}
+
+<div id="@modalId" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p class="text-muted small text-uppercase fw-semibold mb-2">@modalId</p>
+                <p class="fw-semibold mb-1">@text1</p>
+                <p class="text-primary mb-1" id="@(modalId)-name" style="display:none"></p>
+                <p class="text-muted small mb-0">@text2</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-danger" id="@(modalId)-yes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
