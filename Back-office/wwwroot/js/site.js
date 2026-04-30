@@ -22,15 +22,13 @@ if (toggle && menu) {
 function openMenu() {
     menu.classList.add('d-block');
     toggle.setAttribute('aria-expanded', true);
-    icon.setAttribute('src', "../img/icons/chevron-up.svg");
-    icon.setAttribute('alt', "arrow up");
+    icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
 }
 
 function closeMenu() {
     menu.classList.remove('d-block');
     toggle.setAttribute('aria-expanded', false)
-    icon.setAttribute('src', "../img/icons/chevron-down.svg");
-    icon.setAttribute('alt', "arrow down");
+    icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
 }
 
 

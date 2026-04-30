@@ -53,7 +53,7 @@
                         <div id="userDropdown">
                         <button id="userDropdownToggle" aria-expanded="false">
                             <span>@(User.Identity?.Name ?? "Account")</span>
-                            <img id="dropDownToggleIcon" src="~/img/icons/chevron-down.svg" alt="arrow down" width="20" height="20" />
+                            <i class="bi bi-chevron-down fs-5" id="dropDownToggleIcon"></i>
                             @{
                                 var userPicture = User.FindFirst("picture")?.Value;
                             }
