@@ -1,4 +1,5 @@
-﻿using DatabaseApi.DTOs.Tags;
+﻿using DatabaseApi.DTOs;
+using SharedClassLibrary.DTOs.Tags;
 using DatabaseApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;

@@ -1,4 +1,5 @@
-﻿using DatabaseApi.DTOs.Rooms;
+﻿using DatabaseApi.DTOs;
+using SharedClassLibrary.DTOs.Rooms;
 using DatabaseApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
