@@ -2,6 +2,8 @@ using System.Text.Json;
 using DatabaseApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SharedClassLibrary.DTOs.Rooms;
+using SharedClassLibrary.DTOs.Tags;
 
 namespace DatabaseApi.Controllers
 {
@@ -33,12 +35,18 @@ namespace DatabaseApi.Controllers
                     StartTime = s.StartTime,
                     EndTime = s.EndTime,
                     Plenary = s.Plenary,
-                    Capacity = s.Room.Capacity,
-                    IdRoom = s.IdRoom,
-                    RoomName = s.Room.RoomLabel ?? noRoomErrorMessage,
-                    Tags = s.Tags.Select(t => new SessionTagDTO
+                    Room = s.Room != null
+                        ? new RoomResponseDTO
+                        {
+                            IdRoom = s.Room.IdRoom,
+                            RoomLabel = s.Room.RoomLabel,
+                            Capacity = s.Room.Capacity
+                        }
+                        : new RoomResponseDTO { RoomLabel = noRoomErrorMessage },
+                    Tags = s.Tags.Select(t => new TagResponseDTO
                     {
-                        EventId = t.IdEvent,
+                        IdTag = t.IdTag,
+                        IdEvent = t.IdEvent,
                         Title = t.Title,
                         ColorHex = t.ColorHex,
                     }).ToList(),
@@ -77,12 +85,18 @@ namespace DatabaseApi.Controllers
                     StartTime = s.StartTime,
                     EndTime = s.EndTime,
                     Plenary = s.Plenary,
-                    Capacity = s.Room.Capacity,
-                    IdRoom = s.IdRoom,
-                    RoomName = s.Room.RoomLabel ?? noRoomErrorMessage,
-                    Tags = s.Tags.Select(t => new SessionTagDTO
+                    Room = s.Room != null
+                        ? new RoomResponseDTO
+                        {
+                            IdRoom = s.Room.IdRoom,
+                            RoomLabel = s.Room.RoomLabel,
+                            Capacity = s.Room.Capacity
+                        }
+                        : new RoomResponseDTO { RoomLabel = noRoomErrorMessage },
+                    Tags = s.Tags.Select(t => new TagResponseDTO
                     {
-                        EventId = t.IdEvent,
+                        IdTag = t.IdTag,
+                        IdEvent = t.IdEvent,
                         Title = t.Title,
                         ColorHex = t.ColorHex,
                     }).ToList(),
@@ -100,21 +114,22 @@ namespace DatabaseApi.Controllers
 
         private async Task<CUSessionDTO> GetFormOptions(int eventId)
         {
-            List<SessionRoomDTO> availableRooms = await _context.Rooms
+            List<RoomResponseDTO> availableRooms = await _context.Rooms
                 .Where(r => r.IdEvent == eventId)
-                .Select(r => new SessionRoomDTO
+                .Select(r => new RoomResponseDTO
                 {
-                    RoomId = r.IdRoom,
+                    IdRoom = r.IdRoom,
                     RoomLabel = r.RoomLabel,
                     Capacity = r.Capacity
                 })
                 .ToListAsync();
 
-            List<SessionTagDTO> availableTags = await _context.Tags
+            List<TagResponseDTO> availableTags = await _context.Tags
                 .Where(t => t.IdEvent == eventId)
-                .Select(t => new SessionTagDTO
+                .Select(t => new TagResponseDTO
                 {
-                    EventId = t.IdEvent,
+                    IdTag = t.IdTag,
+                    IdEvent = t.IdEvent,
                     Title = t.Title,
                     ColorHex = t.ColorHex
                 })
@@ -149,11 +164,9 @@ namespace DatabaseApi.Controllers
         [HttpPost("save")]
         public async Task<IActionResult> SaveSession(int eventId, [FromBody] SessionDTO dto)
         {
-            Console.WriteLine("Save");
             Session? session;
-            Console.WriteLine("database:");
+            Console.WriteLine("Received SessionDTO:");
             Console.WriteLine(JsonSerializer.Serialize(dto));
-
             if (dto.SessionId > 0)
             {
                 session = await _context.Sessions
@@ -173,13 +186,12 @@ namespace DatabaseApi.Controllers
             session.StartTime = dto.StartTime;
             session.EndTime = dto.EndTime;
             session.Plenary = dto.Plenary;
-            session.Capacity = dto.Plenary ? null : dto.Capacity;
-            session.IdRoom = dto.IdRoom ?? 0;
+            session.IdRoom = dto.IdRoom;
 
-            var incomingTagTitles = dto.Tags?.Select(t => t.Title).ToList() ?? new List<string>();
+            var incomingTagIds = dto.Tags?.Select(t => t.IdTag).ToList() ?? new List<int>();
 
             session.Tags = await _context.Tags
-                .Where(t => t.IdEvent == eventId && incomingTagTitles.Contains(t.Title))
+                .Where(t => t.IdEvent == eventId && incomingTagIds.Contains(t.IdTag))
                 .ToListAsync();
 
             session.Speakers ??= new List<Speaker>();

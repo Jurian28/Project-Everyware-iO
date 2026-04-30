@@ -1,3 +1,5 @@
+@using SharedClassLibrary.DTOs.Rooms
+@using SharedClassLibrary.DTOs.Tags
 @model CUSessionDTO
 @{
     bool isEdit = Model.session?.SessionId > 0;
@@ -24,10 +26,9 @@
                 <label class="fw-bold">Room</label>
                 <select name="IdRoom" id="roomSelector" class="form-select bg-light border-dark shadow-sm" required>
                     <option value="">Select a room...</option>
-                    @foreach (SessionRoomDTO room in Model.AvailableRooms)
+                    @foreach (RoomResponseDTO room in Model.AvailableRooms)
                     {
-                        <option value="@room.RoomId" data-capacity="@room.Capacity"
-                                selected="@(room.RoomId == Model.session?.IdRoom)">
+                        <option value="@room.IdRoom" selected="@(room.IdRoom == Model.session?.Room?.IdRoom)">
                             @room.RoomLabel (@room.Capacity plaatsen)
                         </option>
                     }
@@ -65,10 +66,10 @@
             <label class="fw-bold">Select Tag</label>
             <select id="tagSelector" class="form-select bg-light border-dark shadow-sm mb-3">
                 <option value="">Select a tag...</option>
-                @foreach (SessionTagDTO tag in Model.AvailableTags)
-                {
+                    @foreach (TagResponseDTO tag in Model.AvailableTags)
+                    {
                     @if(!string.IsNullOrEmpty(tag.ColorHex)){
-                        <option value="@tag.Title" data-color="@tag.ColorHex">@tag.Title</option>
+                        <option value="@tag.IdTag" data-color="@tag.ColorHex">@tag.Title</option>
                     }
                 }
             </select>
@@ -76,9 +77,9 @@
                  style="background-color: #8E8E8E; min-height: 250px; border-radius: 12px; border: 2px solid #000;">
                 @if (Model.session?.Tags != null)
                 {
-                    @foreach (SessionTagDTO tag in Model.session.Tags)
+                    @foreach (TagResponseDTO tag in Model.session.Tags)
                     {
-                        <input type="hidden" name="selectedTagTitles" value="@tag.Title" data-color="@tag.ColorHex" />
+                        <input type="hidden" name="selectedTagIds" value="@tag.IdTag" data-Title="@tag.Title" data-color="@tag.ColorHex" />
                     }
                 }
             </div>

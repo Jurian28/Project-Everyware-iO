@@ -32,7 +32,7 @@ async function submitTag(e) {
         clearForm();
         loadTags();
     } else {
-        const err = await response.text();
+        const err = (await response.json()).error;
         document.getElementById("errorMessageBox").innerText = err;
     }
 }
@@ -68,6 +68,7 @@ function loadTagForEdit(tag) {
 function clearForm() {
     selectedTag = null;
     unselectTagForEdit()
+    document.getElementById("errorMessageBox").innerText = "";
 
     document.getElementById("title").value = "";
     document.getElementById("colorHex").value = "";

@@ -20,16 +20,16 @@ startTime.addEventListener("change", updateEndTimeConstraint);
 if (startTime.value) {
     updateEndTimeConstraint();
 }
-function removeTag(tagDiv, title, colorHex) {
+function removeTag(tagDiv, title, colorHex, id) {
     const opt = document.createElement('option');
-    opt.value = title;
+    opt.value = id;
     opt.text = title;
     opt.setAttribute('data-color', colorHex);
     tagSelector.add(opt);
     tagDiv.remove();
 }
 
-function addTag(title, colorHex) {
+function addTag(title, colorHex, id) {
     if (!title) return;
     
     const tagDiv = document.createElement('div');
@@ -45,31 +45,33 @@ function addTag(title, colorHex) {
             `;
 
     tagDiv.querySelector('.bi-x-circle-fill').addEventListener('click', function () {
-        removeTag(tagDiv, title, colorHex);
+        removeTag(tagDiv, title, colorHex, id);
     });
 
     tagContainer.appendChild(tagDiv);
 
     for (let i = 0; i < tagSelector.options.length; i++) {
-        if (tagSelector.options[i].value === title) {
+        if (tagSelector.options[i].value === id) {
             tagSelector.remove(i);
             break;
         }
     }
 }
 
-const existingHiddenInputs = tagContainer.querySelectorAll('input[name="selectedTagTitles"]');
+const existingHiddenInputs = tagContainer.querySelectorAll('input[name="selectedTagIds"]');
 existingHiddenInputs.forEach(input => {
-    const title = input.value;
+    const id = input.value;
     const colorHex = input.getAttribute('data-color');
-    addTag(title, colorHex);
+    const title = input.getAttribute('data-title');
+    addTag(title, colorHex, id);
 });
 
 tagSelector.addEventListener("change", function () {
-    const title = this.value;
+    const id = this.value;
     const colorHex = this.options[this.selectedIndex].getAttribute("data-color");
+    const title = this.options[this.selectedIndex].text;
     if (title && colorHex) {
-        addTag(title,colorHex);
+        addTag(title,colorHex, id);
         this.value = "";
     }
 });

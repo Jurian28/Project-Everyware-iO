@@ -73,6 +73,10 @@ namespace DatabaseApi.Models
                 .HasForeignKey(t => t.IdEvent)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Tag>()
+            .HasIndex(t => new { t.IdEvent, t.Title })
+            .IsUnique();
+
             // Session_has_Tag relationship
             modelBuilder.Entity<Session>()
                 .HasMany(s => s.Tags)
@@ -91,9 +95,6 @@ namespace DatabaseApi.Models
                 .WithMany(e => e.Speakers)
                 .HasForeignKey(s => s.IdEvent)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            // Seeddata
-            AddSeeddata(modelBuilder);
         }
 
         private void AddSeeddata(ModelBuilder modelBuilder)

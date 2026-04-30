@@ -1,3 +1,4 @@
+@using SharedClassLibrary.DTOs.Tags
 @model SessionListDto
 @{
     ViewData["Title"] = "Sessions";
@@ -43,12 +44,7 @@
                             <span>@session.StartTime.ToString("f") - @session.EndTime.ToString("HH:mm")</span>
                         </div>
                         <div class="d-flex gap-3">
-                            <span class="col-6">@session.RoomName</span>
-                            @if (session.Capacity != null)
-                            {
-                                <span>|</span>
-                                <span>@session.Capacity spots</span>
-                            }
+                            <span class="col-6">@session.Room.RoomLabel | @session.Room.Capacity spots</span>
                         </div>
                     </div>
                 </div>
@@ -68,7 +64,7 @@
                         }
                         else
                         {
-                            @foreach (SessionTagDTO tag in session.Tags)
+                            @foreach (TagResponseDTO tag in session.Tags)
                             {
                                 <span class="badge rounded-pill"
                                       style="background-color: @tag.ColorHex; color: contrast-color(@tag.ColorHex); border: 1px solid black; padding: 8px 15px;">

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using SharedClassLibrary.DTOs.Tags;
 
 namespace Back_office.Controllers
 {
@@ -42,6 +43,7 @@ namespace Back_office.Controllers
             ViewData["EventId"] = eventId;
             if(error != null)
             {
+                Console.WriteLine(error);
                 TempData["ToastMessage"] = error;
                 TempData["ToastType"] = "error";
             }
@@ -75,19 +77,16 @@ namespace Back_office.Controllers
         }
 
         [HttpPost("save")]
-        public async Task<IActionResult> HandleSubmit(int eventId, SessionDTO session, List<string> selectedTagTitles)
+        public async Task<IActionResult> HandleSubmit(int eventId, SessionDTO session, List<int> selectedTagIds)
         {
-            session.Tags = selectedTagTitles
-                .Select(t => new SessionTagDTO { Title = t, EventId = eventId })
+            session.Tags = selectedTagIds
+                .Select(t => new TagResponseDTO { IdTag = t, IdEvent = eventId })
                 .ToList()
-                ?? new List<SessionTagDTO>();
-
-            foreach (var tag in session.Tags)
-            {
-                Console.WriteLine(tag.Title);
-            }
+                ?? new List<TagResponseDTO>();
 
             HttpResponseMessage response = await client.PostAsJsonAsync($"{eventId}/sessions/save", session);
+            Console.WriteLine("Ontvangen DTO:");
+            Console.WriteLine(JsonSerializer.Serialize(session));
 
             if (!response.IsSuccessStatusCode)
             {
