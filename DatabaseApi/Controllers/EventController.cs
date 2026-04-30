@@ -145,19 +145,22 @@ namespace DatabaseApi.Controllers
                 {
                     return NotFound(ApiResponse<Object>.Fail("Event not found"));
                 }
-
+                Console.WriteLine(dto.RemoveLogo);
                 string? logoPath = eventItem.LogoPath;
-                if (dto.LogoFile != null)
+                if (dto.LogoFile != null || dto.RemoveLogo)
                 {
                     if(!string.IsNullOrEmpty(logoPath))
                     {
                         DeleteLogo(logoPath);
-                    } 
-                    logoPath = await HandleLogoUpload(dto);
+                        logoPath = null;
+                    }
+                    if (dto.LogoFile != null)
+                    {
+                        logoPath = await HandleLogoUpload(dto);
+                    }
                 }
                 dto.EndDate = dto.EndDate.AddHours(23 - dto.EndDate.Hour);
                 dto.EndDate = dto.EndDate.AddMinutes(59 - dto.EndDate.Minute);
-                Console.Write(dto.EndDate);
                 eventItem.Title = dto.Title;
                 eventItem.StartDate = dto.StartDate;
                 eventItem.EndDate = dto.EndDate;

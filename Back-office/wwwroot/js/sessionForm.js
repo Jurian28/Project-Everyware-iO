@@ -20,38 +20,6 @@ startTime.addEventListener("change", updateEndTimeConstraint);
 if (startTime.value) {
     updateEndTimeConstraint();
 }
-
-function getSelectedRoomCapacity() {
-    const selectedOption = roomSelector.options[roomSelector.selectedIndex];
-    return selectedOption ? selectedOption.getAttribute('data-capacity') : null;
-}
-
-function handlePlenaryLogic() {
-    const roomCapacity = getSelectedRoomCapacity();
-
-    if (plenaryToggle.checked) {
-        capacityInput.value = "";
-        capacityInput.disabled = true;
-        capacityInput.style.opacity = "0.2";
-    } else {
-        capacityInput.disabled = false;
-        capacityInput.style.opacity = "1";
-        if (roomCapacity && (capacityInput.value === "" || capacityInput.value === "0")) {
-            capacityInput.value = roomCapacity;
-        }
-    }
-}
-
-roomSelector.addEventListener("change", function () {
-    const roomCapacity = getSelectedRoomCapacity();
-    if (roomCapacity && !plenaryToggle.checked) {
-        capacityInput.value = roomCapacity;
-    }
-});
-
-plenaryToggle.addEventListener("change", handlePlenaryLogic);
-handlePlenaryLogic();
-
 function removeTag(tagDiv, title, colorHex) {
     const opt = document.createElement('option');
     opt.value = title;
@@ -63,7 +31,7 @@ function removeTag(tagDiv, title, colorHex) {
 
 function addTag(title, colorHex) {
     if (!title) return;
-
+    
     const tagDiv = document.createElement('div');
     tagDiv.className = "tag-item d-flex justify-content-between align-items-center mb-2 p-2 rounded border border-dark";
     tagDiv.style.backgroundColor = colorHex;

@@ -37,9 +37,14 @@ namespace Back_office.Controllers
         }
 
         [HttpGet("add")]
-        public async Task<IActionResult> AddSession(int eventId)
+        public async Task<IActionResult> AddSession(int eventId, string? error = null)
         {
             ViewData["EventId"] = eventId;
+            if(error != null)
+            {
+                TempData["ToastMessage"] = error;
+                TempData["ToastType"] = "error";
+            }
             HttpResponseMessage response = await client.GetAsync($"{eventId}/sessions/getAdd");
 
             if (!response.IsSuccessStatusCode)
@@ -77,12 +82,19 @@ namespace Back_office.Controllers
                 .ToList()
                 ?? new List<SessionTagDTO>();
 
+            foreach (var tag in session.Tags)
+            {
+                Console.WriteLine(tag.Title);
+            }
+
             HttpResponseMessage response = await client.PostAsJsonAsync($"{eventId}/sessions/save", session);
 
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Error"] = $"Kon de sessie niet opslaan: {response.ReasonPhrase}";
-                return RedirectToAction("Index", new { eventId = eventId });
+                ViewData["EventId"] = eventId;
+                string error = $"Kon de sessie niet opslaan: {response.ReasonPhrase}";
+                
+                return RedirectToAction("AddSession",new { eventId, error });
             }
 
             return RedirectToAction("Index", new { eventId = eventId });

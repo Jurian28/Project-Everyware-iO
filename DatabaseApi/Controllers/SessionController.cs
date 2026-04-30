@@ -115,7 +115,8 @@ namespace DatabaseApi.Controllers
                 .Select(t => new SessionTagDTO
                 {
                     EventId = t.IdEvent,
-                    Title = t.Title
+                    Title = t.Title,
+                    ColorHex = t.ColorHex
                 })
                 .ToListAsync();
 
@@ -148,6 +149,7 @@ namespace DatabaseApi.Controllers
         [HttpPost("save")]
         public async Task<IActionResult> SaveSession(int eventId, [FromBody] SessionDTO dto)
         {
+            Console.WriteLine("Save");
             Session? session;
             Console.WriteLine("database:");
             Console.WriteLine(JsonSerializer.Serialize(dto));

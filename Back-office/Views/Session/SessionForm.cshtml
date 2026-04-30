@@ -67,7 +67,9 @@
                 <option value="">Select a tag...</option>
                 @foreach (SessionTagDTO tag in Model.AvailableTags)
                 {
-                    <option value="@tag.Title" data-color="@tag.ColorHex">@tag.Title</option>
+                    @if(!string.IsNullOrEmpty(tag.ColorHex)){
+                        <option value="@tag.Title" data-color="@tag.ColorHex">@tag.Title</option>
+                    }
                 }
             </select>
             <div id="tagContainer" class="p-3"

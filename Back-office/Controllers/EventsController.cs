@@ -248,6 +248,7 @@ namespace Back_office.Controllers
                 using var content = new MultipartFormDataContent();
 
                 content.Add(new StringContent(eventDTO.Title ?? ""), "Title");
+                content.Add(new StringContent(eventDTO.RemoveLogo.ToString() ?? "false"), "RemoveLogo");
                 content.Add(new StringContent(eventDTO.Location ?? ""), "Location");
                 content.Add(new StringContent(eventDTO.Description ?? ""), "Description");
                 content.Add(new StringContent(eventDTO.MainColorHex ?? ""), "MainColorHex");
