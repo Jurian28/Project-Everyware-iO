@@ -1,3 +1,4 @@
+import React from 'react';
 import { type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import authStyles from '../styles/authStyles';
