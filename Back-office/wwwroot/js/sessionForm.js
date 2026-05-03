@@ -20,12 +20,24 @@ startTime.addEventListener("change", updateEndTimeConstraint);
 if (startTime.value) {
     updateEndTimeConstraint();
 }
+
+const existingHiddenInputs = tagContainer.querySelectorAll('input[name="selectedTagIds"]');
+existingHiddenInputs.forEach(input => {
+    const id = input.value;
+    const colorHex = input.getAttribute('data-color');
+    const title = input.getAttribute('data-title');
+    addTag(title, colorHex, id);
+});
 function removeTag(tagDiv, title, colorHex, id) {
     const opt = document.createElement('option');
+    const inputs = tagContainer.querySelectorAll(`input[name="selectedTagIds"][value="${id}"]`);
     opt.value = id;
     opt.text = title;
     opt.setAttribute('data-color', colorHex);
     tagSelector.add(opt);
+    for (const input of inputs) {
+        input.remove();
+    }
     tagDiv.remove();
 }
 
@@ -40,7 +52,7 @@ function addTag(title, colorHex, id) {
 
     tagDiv.innerHTML = `
                 <span>${title}</span>
-                <input type="hidden" name="selectedTagTitles" value="${title}" data-color="${colorHex}" />
+                <input type="hidden" name="selectedTagIds" value="${id}" data-color="${colorHex}" />
                 <i class="bi bi-x-circle-fill cursor-pointer" style="cursor:pointer"></i>
             `;
 
@@ -57,14 +69,6 @@ function addTag(title, colorHex, id) {
         }
     }
 }
-
-const existingHiddenInputs = tagContainer.querySelectorAll('input[name="selectedTagIds"]');
-existingHiddenInputs.forEach(input => {
-    const id = input.value;
-    const colorHex = input.getAttribute('data-color');
-    const title = input.getAttribute('data-title');
-    addTag(title, colorHex, id);
-});
 
 tagSelector.addEventListener("change", function () {
     const id = this.value;

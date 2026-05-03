@@ -54,7 +54,7 @@ namespace Back_office.Controllers
                 List <EventDTO> events = data?.Events ?? new List<EventDTO>();
                 int pages = data?.TotalPages ?? 1;
 
-                if (page > pages || page < 1)
+                if (page != 1 && (page > pages || page < 1))
                 {
                     page = Math.Min(page, pages);
                     page = Math.Max(page, 1);

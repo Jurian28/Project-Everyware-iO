@@ -79,6 +79,7 @@ namespace Back_office.Controllers
         [HttpPost("save")]
         public async Task<IActionResult> HandleSubmit(int eventId, SessionDTO session, List<int> selectedTagIds)
         {
+            Console.WriteLine(selectedTagIds.Count);
             session.Tags = selectedTagIds
                 .Select(t => new TagResponseDTO { IdTag = t, IdEvent = eventId })
                 .ToList()
