@@ -67,8 +67,15 @@
                             }
                         </button>
                         <ul id="userDropdownMenu" class="dropdown-menu">
-                            <li><hr class="dropdown-divider" /></li>
-                            <li><a class="dropdown-item text-danger" asp-area="" asp-controller="Home" asp-action="Index">Log out</a></li>
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <li><a class="dropdown-item text-danger" asp-area="" asp-controller="Home" asp-action="Index">Log out</a></li>
+                            }
+                            else
+                            {
+                                <li><a class="dropdown-item" asp-controller="Auth" asp-action="Login">Login</a></li>
+                                <li><a class="dropdown-item" asp-controller="Auth" asp-action="Register">Register</a></li>
+                            }
                         </ul>
                     </div>
                 </div>

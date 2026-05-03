@@ -4,6 +4,7 @@ using DatabaseApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260413130558_add_event_invites")]
+    partial class add_event_invites
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,24 +34,22 @@ namespace DatabaseApi.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdEvent"));
 
                     b.Property<string>("AccentColorHex")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsPublished")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("LogoPath")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MainColorHex")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
@@ -120,6 +121,7 @@ namespace DatabaseApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("IdEvent")
@@ -127,12 +129,11 @@ namespace DatabaseApi.Migrations
 
                     b.Property<string>("RoomLabel")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IdRoom");
 
-                    b.HasIndex("IdEvent", "RoomLabel")
-                        .IsUnique();
+                    b.HasIndex("IdEvent");
 
                     b.ToTable("Rooms");
                 });
@@ -144,6 +145,9 @@ namespace DatabaseApi.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdSession"));
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
@@ -181,56 +185,42 @@ namespace DatabaseApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdSpeaker"));
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdEvent")
-                        .HasColumnType("int");
-
                     b.Property<string>("ImgPath")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MiddleName")
+                    b.Property<string>("description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IdSpeaker");
-
-                    b.HasIndex("IdEvent");
 
                     b.ToTable("Speakers");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Tag", b =>
                 {
-                    b.Property<int>("IdTag")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdTag"));
+                    b.Property<int>("IdEvent")
+                        .HasColumnType("int");
 
                     b.Property<string>("ColorHex")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdEvent")
-                        .HasColumnType("int");
+                    b.HasKey("Title", "IdEvent");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("IdTag");
-
-                    b.HasIndex("IdEvent", "Title")
-                        .IsUnique();
+                    b.HasIndex("IdEvent");
 
                     b.ToTable("Tags");
                 });
@@ -474,12 +464,15 @@ namespace DatabaseApi.Migrations
                     b.Property<int>("SessionsIdSession")
                         .HasColumnType("int");
 
-                    b.Property<int>("TagsIdTag")
+                    b.Property<string>("TagsTitle")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("TagsIdEvent")
                         .HasColumnType("int");
 
-                    b.HasKey("SessionsIdSession", "TagsIdTag");
+                    b.HasKey("SessionsIdSession", "TagsTitle", "TagsIdEvent");
 
-                    b.HasIndex("TagsIdTag");
+                    b.HasIndex("TagsTitle", "TagsIdEvent");
 
                     b.ToTable("Session_has_Tag");
                 });
@@ -502,7 +495,7 @@ namespace DatabaseApi.Migrations
             modelBuilder.Entity("DatabaseApi.Models.EventInvite", b =>
                 {
                     b.HasOne("DatabaseApi.Models.Event", "Event")
-                        .WithMany()
+                        .WithMany("Invites")
                         .HasForeignKey("EventIdEvent")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -538,17 +531,6 @@ namespace DatabaseApi.Migrations
                     b.Navigation("Event");
 
                     b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("DatabaseApi.Models.Speaker", b =>
-                {
-                    b.HasOne("DatabaseApi.Models.Event", "Event")
-                        .WithMany("Speakers")
-                        .HasForeignKey("IdEvent")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Tag", b =>
@@ -657,7 +639,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasOne("DatabaseApi.Models.Tag", null)
                         .WithMany()
-                        .HasForeignKey("TagsIdTag")
+                        .HasForeignKey("TagsTitle", "TagsIdEvent")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -679,9 +661,9 @@ namespace DatabaseApi.Migrations
 
             modelBuilder.Entity("DatabaseApi.Models.Event", b =>
                 {
-                    b.Navigation("Rooms");
+                    b.Navigation("Invites");
 
-                    b.Navigation("Speakers");
+                    b.Navigation("Rooms");
 
                     b.Navigation("Tags");
                 });

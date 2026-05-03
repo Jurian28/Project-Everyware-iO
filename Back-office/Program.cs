@@ -26,7 +26,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddHttpClient("DatabaseApi", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]);
-});
+})
+    .AddHttpMessageHandler<JwtHandler>();
 
 var app = builder.Build();
 
