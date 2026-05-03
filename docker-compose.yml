@@ -95,6 +95,7 @@ services:
       - RUNNING_IN_DOCKER=true
       - ASPNETCORE_ENVIRONMENT=Development
       - DOTNET_USE_POLLING_FILE_WATCHER=1
+      - RUN_SEED=${RUN_SEED}
     env_file:
       - .env
     volumes:

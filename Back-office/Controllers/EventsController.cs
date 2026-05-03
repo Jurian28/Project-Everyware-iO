@@ -29,7 +29,6 @@ namespace Back_office.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string? search, int page = 1)
         {
-            Console.WriteLine("test");
             try
             {
                 string url = $"/event?page={page}&pageSize={_PageSize}";

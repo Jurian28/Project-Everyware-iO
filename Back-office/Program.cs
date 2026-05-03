@@ -49,7 +49,11 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapGet("/", () => Results.Redirect("/Events"));
+app.MapGet("/", () =>
+{
+    Console.WriteLine("[DEBUG] Root hit, redirecting to /Events");
+    return Results.Redirect("/Events");
+});
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Events}/{action=Index}/{id?}")
