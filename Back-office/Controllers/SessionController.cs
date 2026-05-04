@@ -43,7 +43,6 @@ namespace Back_office.Controllers
             ViewData["EventId"] = eventId;
             if(error != null)
             {
-                Console.WriteLine(error);
                 TempData["ToastMessage"] = error;
                 TempData["ToastType"] = "error";
             }
@@ -79,15 +78,12 @@ namespace Back_office.Controllers
         [HttpPost("save")]
         public async Task<IActionResult> HandleSubmit(int eventId, SessionDTO session, List<int> selectedTagIds)
         {
-            Console.WriteLine(selectedTagIds.Count);
             session.Tags = selectedTagIds
                 .Select(t => new TagResponseDTO { IdTag = t, IdEvent = eventId })
                 .ToList()
                 ?? new List<TagResponseDTO>();
 
             HttpResponseMessage response = await client.PostAsJsonAsync($"{eventId}/sessions/save", session);
-            Console.WriteLine("Ontvangen DTO:");
-            Console.WriteLine(JsonSerializer.Serialize(session));
 
             if (!response.IsSuccessStatusCode)
             {

@@ -57,14 +57,12 @@ namespace Back_office.Controllers
                 {
                     page = Math.Min(page, pages);
                     page = Math.Max(page, 1);
-                    Console.WriteLine("Page number out of range, redirecting to page " + page);
                     return RedirectToAction("Index", new { search, page });
                 }
 
                 ViewData["CurrentSearch"] = search;
                 ViewData["CurrentPage"] = page;
                 ViewData["TotalPages"] = pages;
-                Console.WriteLine($"Events retrieved successfully: {events.Count} events found");
                 return View(events);
             }
             catch (Exception ex)
@@ -117,7 +115,6 @@ namespace Back_office.Controllers
         [HttpGet("images/{fileName}")]
         public async Task<IActionResult> GetImage(string fileName)
         {
-            Console.WriteLine($"loading image");
             var response = await _httpClient.GetAsync($"/event/images/{fileName}");
 
             if (!response.IsSuccessStatusCode)

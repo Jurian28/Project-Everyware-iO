@@ -2,7 +2,9 @@
 @{
     string? imgSrc = "/events"+Model.LogoPath;
 }
-
+@section Scripts {
+    <script src="~/js/eventValidation.js" defer></script>
+}
 @model EventUpdateDTO;
 
 <div class="container-lg py-5">
@@ -10,7 +12,7 @@
         <div class="card-body p-5">
             <h1 class="fw-bold mb-4">Edit Event</h1>
 
-            <form method="post" asp-action="Update" asp-controller="Events" enctype="multipart/form-data">
+            <form id="eventForm" method="post" asp-action="Update" asp-controller="Events" enctype="multipart/form-data">
                 <input type="hidden" asp-for="IdEvent" />
 
                 <div class="row g-5">

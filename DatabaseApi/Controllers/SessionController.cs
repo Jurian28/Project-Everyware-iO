@@ -164,8 +164,6 @@ namespace DatabaseApi.Controllers
         [HttpPost("save")]
         public async Task<IActionResult> SaveSession(int eventId, [FromBody] SessionDTO dto)
         {
-            Console.WriteLine("Received request to save session:");
-            Console.WriteLine(JsonSerializer.Serialize(dto));
             Session? session;
             if (dto.SessionId > 0)
             {

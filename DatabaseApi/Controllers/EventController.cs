@@ -101,6 +101,9 @@ namespace DatabaseApi.Controllers
                 string logoPath = await HandleLogoUpload(dto);
                 dto.EndDate = dto.EndDate.AddHours(23 - dto.EndDate.Hour);
                 dto.EndDate = dto.EndDate.AddMinutes(59 - dto.EndDate.Minute);
+
+                if(dto.EndDate < dto.StartDate) return BadRequest(ApiResponse<Object>.Fail("Bad Request: startDate cannot be before endDate"));
+
                 Event newEvent = new Event
                 {
                     Title = dto.Title,
@@ -137,7 +140,22 @@ namespace DatabaseApi.Controllers
         {
             try
             {
-                if (!ModelState.IsValid) return BadRequest(new { success = false, data = ModelState, error = "Bad Request: Invalid Data" });
+                if (dto.EndDate < dto.StartDate)
+                    ModelState.AddModelError("EndDate", "End time must be after start time.");
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState
+                        .Where(x => x.Value?.Errors.Count > 0)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value!.Errors.Select(e => e.ErrorMessage).ToList()
+                        );
+
+                    return BadRequest(new { success = false, errors, error = "Bad Request: Invalid Data" });
+                }
+                dto.EndDate = dto.EndDate.AddHours(23 - dto.EndDate.Hour);
+                dto.EndDate = dto.EndDate.AddMinutes(59 - dto.EndDate.Minute);
 
                 Event? eventItem = await _applicationDbContext.Events.FindAsync(id);
 
@@ -145,7 +163,6 @@ namespace DatabaseApi.Controllers
                 {
                     return NotFound(ApiResponse<Object>.Fail("Event not found"));
                 }
-                Console.WriteLine(dto.RemoveLogo);
                 string? logoPath = eventItem.LogoPath;
                 if (dto.LogoFile != null || dto.RemoveLogo)
                 {
@@ -159,8 +176,6 @@ namespace DatabaseApi.Controllers
                         logoPath = await HandleLogoUpload(dto);
                     }
                 }
-                dto.EndDate = dto.EndDate.AddHours(23 - dto.EndDate.Hour);
-                dto.EndDate = dto.EndDate.AddMinutes(59 - dto.EndDate.Minute);
                 eventItem.Title = dto.Title;
                 eventItem.StartDate = dto.StartDate;
                 eventItem.EndDate = dto.EndDate;
