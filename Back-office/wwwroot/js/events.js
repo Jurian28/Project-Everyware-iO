@@ -1,5 +1,4 @@
 ﻿async function togglePublish(eventId, published) {
-    console.log(`Toggling publish for event ${eventId} to ${published}`);
     const url = `events/${eventId}/` + (published ? "unpublish" : "publish");
     try {
         const response = await fetch(url, {
