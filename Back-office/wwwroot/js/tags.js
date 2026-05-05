@@ -32,7 +32,7 @@ async function submitTag(e) {
         clearForm();
         loadTags();
     } else {
-        const err = await response.text();
+        const err = (await response.json()).error;
         document.getElementById("errorMessageBox").innerText = err;
     }
 }
@@ -51,6 +51,13 @@ async function deleteTag() {
 function loadTagForEdit(tag) {
     selectedTag = tag;
 
+    const tagRow = document.getElementById(`tag-${tag.idTag}`);
+    if (tagRow) {
+        unselectTagForEdit()
+        tagRow.classList.add("bg-selected");
+        tagRow.classList.remove("bg-white");
+    }
+
     document.getElementById("title").value = tag.title;
     document.getElementById("colorHex").value = tag.colorHex ?? "";
 
@@ -60,6 +67,8 @@ function loadTagForEdit(tag) {
 
 function clearForm() {
     selectedTag = null;
+    unselectTagForEdit()
+    document.getElementById("errorMessageBox").innerText = "";
 
     document.getElementById("title").value = "";
     document.getElementById("colorHex").value = "";
@@ -101,8 +110,8 @@ function renderTags(tags) {
 
     tags.forEach(tag => {
         const clone = template.content.cloneNode(true);
-
         const row = clone.querySelector("div");
+        row.id = `tag-${tag.idTag}`;
 
         clone.querySelector("[data-field='title']").textContent = tag.title;
         const colorEl = clone.querySelector("[data-field='color']");
@@ -123,4 +132,11 @@ function showSuccess(msg) {
     setTimeout(() => box.innerText = "", 4000);
 }
 
+function unselectTagForEdit() {
+    const tagRows = document.querySelectorAll(`.bg-selected`);
+    tagRows.forEach(tagRow => {
+        tagRow.classList.remove("bg-selected");
+        tagRow.classList.add("bg-white");
+    });
+}
 loadTags();

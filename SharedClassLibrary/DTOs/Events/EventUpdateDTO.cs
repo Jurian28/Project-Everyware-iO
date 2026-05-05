@@ -29,4 +29,9 @@ public class EventUpdateDTO : IEventFileDTO
     public bool IsPublished { get; set; }
     public IFormFile? LogoFile { get; set; }
     public string? LogoPath { get; set; }
+    /// <summary>
+    /// this value is used as a way to show the deletion of the logoFile, for an actual delete the Logofile value should be empty and this value set to true
+    /// this is to make sure that if the file fails to upload correctly it is not deleted as this is an important value.
+    /// </summary>
+    public bool RemoveLogo { get; set; } = false;
 }

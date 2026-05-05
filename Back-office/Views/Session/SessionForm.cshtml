@@ -1,3 +1,5 @@
+@using SharedClassLibrary.DTOs.Rooms
+@using SharedClassLibrary.DTOs.Tags
 @model CUSessionDTO
 @{
     bool isEdit = Model.session?.SessionId > 0;
@@ -5,6 +7,7 @@
 }
 
 @section Scripts {
+    <script src="~/js/confirmModal.js"></script>
     <script src="~/js/sessionForm.js" defer></script>
 }
 
@@ -24,10 +27,9 @@
                 <label class="fw-bold">Room</label>
                 <select name="IdRoom" id="roomSelector" class="form-select bg-light border-dark shadow-sm" required>
                     <option value="">Select a room...</option>
-                    @foreach (SessionRoomDTO room in Model.AvailableRooms)
+                    @foreach (RoomResponseDTO room in Model.AvailableRooms)
                     {
-                        <option value="@room.RoomId" data-capacity="@room.Capacity"
-                                selected="@(room.RoomId == Model.session?.IdRoom)">
+                        <option value="@room.IdRoom" selected="@(room.IdRoom == Model.session?.Room?.IdRoom)">
                             @room.RoomLabel (@room.Capacity plaatsen)
                         </option>
                     }
@@ -51,20 +53,15 @@
                            max="@Model.EventEndTime?.ToString("yyyy-MM-ddTHH:mm")" required>
                 </div>
             </div>
-            <div class="mb-3">
-                <label class="fw-bold d-block">Plenary session</label>
-                <div class="form-check form-switch p-0 d-flex align-items-center" style="min-height: 38px;">
-                    <input type="checkbox" id="plenaryToggle" name="Plenary" class="form-check-input ms-0" role="switch"
-                           style="transform: scale(1.5); cursor: pointer;" @(Model.session?.Plenary == true ? "checked" :
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                "") value="true">
+            <div class="row">
+                <div class="mb-3">
+                    <label class="fw-bold d-block">Plenary session</label>
+                    <div class="form-switch ps-2">
+                        <input type="checkbox" id="plenaryToggle" name="Plenary" class="form-check-input ms-0" role="switch"
+                               style="transform: scale(1.5); cursor: pointer; margin-top: 10px;"
+                        @(Model.session?.Plenary == true ? "checked" : "") value="true">
+                    </div>
                 </div>
-            </div>
-
-            <div class="mb-3 w-50">
-                <label class="fw-bold">Capacity</label>
-                <input type="number" id="capacityInput" name="Capacity" min="1"
-                       class="form-control bg-light border-dark shadow-sm" value="@Model.session?.Capacity"
-                       placeholder="Number">
             </div>
         </div>
 
@@ -72,23 +69,20 @@
             <label class="fw-bold">Select Tag</label>
             <select id="tagSelector" class="form-select bg-light border-dark shadow-sm mb-3">
                 <option value="">Select a tag...</option>
-                @foreach (SessionTagDTO tag in Model.AvailableTags)
-                {
-                    <option value="@tag.Title">@tag.Title</option>
+                    @foreach (TagResponseDTO tag in Model.AvailableTags)
+                    {
+                    @if(!string.IsNullOrEmpty(tag.ColorHex)){
+                        <option value="@tag.IdTag" data-color="@tag.ColorHex">@tag.Title</option>
+                    }
                 }
             </select>
             <div id="tagContainer" class="p-3"
                  style="background-color: #8E8E8E; min-height: 250px; border-radius: 12px; border: 2px solid #000;">
                 @if (Model.session?.Tags != null)
                 {
-                    @foreach (SessionTagDTO tag in Model.session.Tags)
+                    @foreach (TagResponseDTO tag in Model.session.Tags)
                     {
-                        <div class="tag-item d-flex justify-content-between align-items-center mb-2 p-2 rounded border border-dark"
-                             style="background-color: #E2F37C; font-weight: 600;">
-                            <span>@tag.Title</span>
-                            <input type="hidden" name="selectedTagTitles" value="@tag.Title" />
-                            <i class="bi bi-x-circle-fill cursor-pointer"></i>
-                        </div>
+                        <input type="hidden" name="selectedTagIds" value="@tag.IdTag" data-Title="@tag.Title" data-color="@tag.ColorHex" />
                     }
                 }
             </div>
@@ -112,7 +106,7 @@
         @if (isEdit)
         {
             <a href="javascript:void(0)"
-                   onclick="if(confirm('Weet je zeker dat je deze sessie wilt verwijderen?')) { document.getElementById('delete-form').submit(); }"
+                   onclick="showModal('deleteSessionModal', function() { document.getElementById('delete-form').submit(); }, '@Model.session?.Title')"
                    class="btn btn-danger px-5" style="border-radius: 20px; background-color: #EF4444; border:none;">
                 Delete
             </a>
@@ -127,3 +121,9 @@
       asp-route-eventId="@Context.GetRouteValue("eventId")" asp-route-sessionId="@Model.session?.SessionId" method="post"
       style="display:none;">
 </form>
+@await Html.PartialAsync("~/Views/Shared/Partials/_ConfirmModal.cshtml", null, new ViewDataDictionary(ViewData)
+{
+    { "ModalId", "deleteSessionModal" },
+    { "Text1",   "Are you sure you want to delete the following session?" },
+    { "Text2",   "This may affect or delete connected data." }
+})

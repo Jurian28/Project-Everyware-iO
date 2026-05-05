@@ -1,6 +1,7 @@
-﻿using DatabaseApi.Models;
+﻿using SharedClassLibrary.DTOs.Tags;
+using DatabaseApi.Models;
 
-namespace DatabaseApi.DTOs.Tags
+namespace DatabaseApi.DTOs
 {
     public class TagMapper
     {

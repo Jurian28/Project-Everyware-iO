@@ -1,6 +1,7 @@
-﻿using DatabaseApi.Models;
+﻿using SharedClassLibrary.DTOs.Rooms;
+using DatabaseApi.Models;
 
-namespace DatabaseApi.DTOs.Rooms
+namespace DatabaseApi.DTOs
 {
     public class RoomMapper
     {
