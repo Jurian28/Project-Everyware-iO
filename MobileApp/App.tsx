@@ -25,6 +25,7 @@ import LoginPage from './src/pages/auth/Login';
 import RegisterPage from './src/pages/auth/Register';
 import AuthService from './src/services/AuthService';
 import EventsOverview from './src/pages/events/overview';
+import { EventPage } from './src/pages/events/event';
 
 function LogoutPage() {
   const navigator = useNavigation<NavigationProp<ParamListBase>>();
@@ -121,6 +122,16 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
       screen: EventsOverview,
       options: {
         title: 'Events Overview',
+      },
+    },
+
+    Event: {
+      screen: EventPage,
+      options: {
+        title: 'Event Details',
+        drawerItemStyle: {
+          display: 'none',
+        },
       },
     }
   },
