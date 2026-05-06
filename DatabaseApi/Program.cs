@@ -32,6 +32,16 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.WithOrigins($"{Environment.GetEnvironmentVariable("APP_URL")}:{Environment.GetEnvironmentVariable("MOBILE_APP_PORT")}") 
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
