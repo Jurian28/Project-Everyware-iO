@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -29,11 +30,14 @@ function LogoutPage() {
   const navigator = useNavigation<NavigationProp<ParamListBase>>();
 
   useEffect(() => {
-    AuthService.logout()
-      .catch(() => undefined)
-      .finally(() => {
-        navigator.navigate('Home');
-      });
+    const timer = setTimeout(() => {
+      AuthService.logout()
+        .catch(() => undefined)
+        .finally(() => {
+          navigator.navigate('Home');
+        });
+    }, 0);
+    return () => clearTimeout(timer);
   }, [navigator]);
 
   return (
@@ -199,6 +203,7 @@ export default function App() {
 
   return (
     <NavigationComponent
+      key={isAuthenticated ? 'auth' : 'unauth'}
       onReady={handleNavigationStateChange}
       onStateChange={handleNavigationStateChange}
     />

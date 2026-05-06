@@ -28,28 +28,6 @@ namespace DatabaseApi.Migrations
                 name: "IX_Session_has_Tag_TagsTitle_TagsIdEvent",
                 table: "Session_has_Tag");
 
-            migrationBuilder.DeleteData(
-                table: "Session_has_Tag",
-                keyColumns: new[] { "SessionsIdSession", "TagsIdEvent", "TagsTitle" },
-                keyColumnTypes: new[] { "int", "int", "nvarchar(450)" },
-                keyValues: new object[] { 1, 1, "Plenaire sessie" });
-
-            migrationBuilder.DeleteData(
-                table: "Session_has_Tag",
-                keyColumns: new[] { "SessionsIdSession", "TagsIdEvent", "TagsTitle" },
-                keyColumnTypes: new[] { "int", "int", "nvarchar(450)" },
-                keyValues: new object[] { 1, 1, "Technology" });
-
-            migrationBuilder.DeleteData(
-                table: "Tags",
-                keyColumns: new[] { "IdEvent", "Title" },
-                keyValues: new object[] { 1, "Plenaire sessie" });
-
-            migrationBuilder.DeleteData(
-                table: "Tags",
-                keyColumns: new[] { "IdEvent", "Title" },
-                keyValues: new object[] { 1, "Technology" });
-
             migrationBuilder.DropColumn(
                 name: "TagsTitle",
                 table: "Session_has_Tag");
@@ -85,23 +63,6 @@ namespace DatabaseApi.Migrations
                 table: "Session_has_Tag",
                 columns: new[] { "SessionsIdSession", "TagsIdTag" });
 
-            migrationBuilder.InsertData(
-                table: "Tags",
-                columns: new[] { "IdTag", "ColorHex", "IdEvent", "Title" },
-                values: new object[,]
-                {
-                    { 1, "#D5B82C", 1, "Plenaire sessie" },
-                    { 2, "#2CCFD5", 1, "Technology" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Session_has_Tag",
-                columns: new[] { "SessionsIdSession", "TagsIdTag" },
-                values: new object[,]
-                {
-                    { 1, 1 },
-                    { 1, 2 }
-                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Session_has_Tag_TagsIdTag",
@@ -136,28 +97,6 @@ namespace DatabaseApi.Migrations
                 name: "IX_Session_has_Tag_TagsIdTag",
                 table: "Session_has_Tag");
 
-            migrationBuilder.DeleteData(
-                table: "Session_has_Tag",
-                keyColumns: new[] { "SessionsIdSession", "TagsIdTag" },
-                keyValues: new object[] { 1, 1 });
-
-            migrationBuilder.DeleteData(
-                table: "Session_has_Tag",
-                keyColumns: new[] { "SessionsIdSession", "TagsIdTag" },
-                keyValues: new object[] { 1, 2 });
-
-            migrationBuilder.DeleteData(
-                table: "Tags",
-                keyColumn: "IdTag",
-                keyColumnType: "int",
-                keyValue: 1);
-
-            migrationBuilder.DeleteData(
-                table: "Tags",
-                keyColumn: "IdTag",
-                keyColumnType: "int",
-                keyValue: 2);
-
             migrationBuilder.DropColumn(
                 name: "IdTag",
                 table: "Tags");
@@ -191,24 +130,6 @@ namespace DatabaseApi.Migrations
                 name: "PK_Session_has_Tag",
                 table: "Session_has_Tag",
                 columns: new[] { "SessionsIdSession", "TagsTitle", "TagsIdEvent" });
-
-            migrationBuilder.InsertData(
-                table: "Tags",
-                columns: new[] { "IdEvent", "Title", "ColorHex" },
-                values: new object[,]
-                {
-                    { 1, "Plenaire sessie", "#D5B82C" },
-                    { 1, "Technology", "#2CCFD5" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Session_has_Tag",
-                columns: new[] { "SessionsIdSession", "TagsIdEvent", "TagsTitle" },
-                values: new object[,]
-                {
-                    { 1, 1, "Plenaire sessie" },
-                    { 1, 1, "Technology" }
-                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Session_has_Tag_TagsTitle_TagsIdEvent",

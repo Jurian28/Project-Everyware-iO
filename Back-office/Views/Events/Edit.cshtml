@@ -2,7 +2,9 @@
 @{
     string? imgSrc = "/events"+Model.LogoPath;
 }
-
+@section Scripts {
+    <script src="~/js/eventValidation.js" defer></script>
+}
 @model EventUpdateDTO;
 
 <div class="container-lg py-5">
@@ -10,7 +12,7 @@
         <div class="card-body p-5">
             <h1 class="fw-bold mb-4">Edit Event</h1>
 
-            <form method="post" asp-action="Update" asp-controller="Events" enctype="multipart/form-data">
+            <form id="eventForm" method="post" asp-action="Update" asp-controller="Events" enctype="multipart/form-data">
                 <input type="hidden" asp-for="IdEvent" />
 
                 <div class="row g-5">
@@ -67,9 +69,11 @@
                                     <em id="uploadText" class="m-0 text-center @(string.IsNullOrEmpty(Model.LogoPath) ? "" : "d-none")">Preview</em>
                                     <img id="logoPreview" src="@imgSrc" alt="Logo preview" class="@(string.IsNullOrEmpty(Model.LogoPath) ? "d-none" : "")" style="max-width: 100%; max-height: 100%; object-fit: cover;">
                                 </span>
+                                <button id="deleteFileBtn" type="button" class="btn btn-danger @(string.IsNullOrEmpty(Model.LogoPath) ? "invisible" : "")">Remove Logo</button>
                             </div>
 
                             <input type="hidden" asp-for="LogoPath" />
+                            <input type="hidden" asp-for="RemoveLogo" value="false" />
 
                             <div class="mb-4">
                                 <div class="mb-3">
@@ -106,6 +110,7 @@
 
 @* Logo preview script *@
 <script>
+    const deleteButton = document.getElementById('deleteFileBtn');
     document.getElementById('logoFile').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -119,6 +124,20 @@
                 uploadText.classList.add('d-none');
             };
             reader.readAsDataURL(file);
+            deleteButton.classList.remove("invisible")
         }
     });
+
+    deleteButton.addEventListener('click', () =>
+    {
+        const logoPreview = document.getElementById("logoPreview");
+        logoPreview.src = "";
+        logoPreview.classList.add("d-none");
+        document.getElementById("uploadText").classList.remove("d-none");
+
+        document.getElementById("logoFile").value = "";
+        document.getElementById("RemoveLogo").value = "true";
+
+        deleteButton.classList.add("invisible");
+    })
 </script>

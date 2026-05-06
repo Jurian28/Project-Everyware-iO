@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   type NavigationProp,
   type ParamListBase,
@@ -57,7 +58,7 @@ export default function RegisterPage() {
         Alert.alert(
           'Registration Failed',
           registerResult.message ??
-            'An error occurred during registration. Please try again.',
+          'An error occurred during registration. Please try again.',
         );
       }
     } finally {

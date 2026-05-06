@@ -1,3 +1,4 @@
+@using SharedClassLibrary.DTOs.Tags
 @model SessionListDto
 @{
     ViewData["Title"] = "Sessions";
@@ -16,7 +17,7 @@
             <i class="bi bi-search" style="position: absolute; right: 15px; top: 10px; color: #666;"></i>
         </div>
         
-        <a asp-controller="Session" asp-action="AddSession" asp-route-eventId="@Model.EventId"
+        <a asp-controller="Session" asp-action="AddSession" asp-route-eventId="@ViewData["EventId"]"
                class="btn btn-light shadow-sm px-4" style="border-radius: 8px; font-weight: 500;">
             New Session <span class="ms-2">+</span>
         </a>
@@ -38,13 +39,13 @@
     
                     <div class="text-dark mb-1">@(session.SpeakerName)</div>
 
-                    <div class="d-flex gap-3" style="font-weight: 600;">
-                        <span>@session.StartTime.ToString("HH:mm") - @session.EndTime.ToString("HH:mm")</span>
-                        <span>@session.RoomName</span>
-                        @if (session.Capacity != null)
-                        {
-                            <span>@session.Capacity spots</span>
-                        }
+                    <div class="d-flex flex-column gap-2" style="font-weight: 600;">
+                        <div>
+                            <span>@session.StartTime.ToString("f") - @session.EndTime.ToString("HH:mm")</span>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <span class="col-6">@session.Room.RoomLabel | @session.Room.Capacity spots</span>
+                        </div>
                     </div>
                 </div>
 
@@ -63,10 +64,10 @@
                         }
                         else
                         {
-                            @foreach (SessionTagDTO tag in session.Tags)
+                            @foreach (TagResponseDTO tag in session.Tags)
                             {
                                 <span class="badge rounded-pill"
-                                      style="background-color: #B2EBF2; color: #006064; border: 1px solid #4DD0E1; padding: 8px 15px;">
+                                      style="background-color: @tag.ColorHex; color: contrast-color(@tag.ColorHex); border: 1px solid black; padding: 8px 15px;">
                                     @tag.Title
                                 </span>
                             }

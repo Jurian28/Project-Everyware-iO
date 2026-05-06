@@ -5,6 +5,7 @@
 }
 
 @section Scripts {
+	<script src="~/js/confirmModal.js"></script>
 	<script src="~/js/tags.js" defer data-event-id="@Model"></script>
 }
 
@@ -48,7 +49,7 @@
 					<button type="button"
 							id="deleteButton"
 							class="btn btn-danger invisible"
-							onclick="deleteTag()">
+							onclick=" showModal('deleteTagModal', deleteTag, document.getElementById('title').value)">
 						Delete
 					</button>
 
@@ -67,6 +68,13 @@
 		</form>
 	</div>
 </div>
+
+@await Html.PartialAsync("~/Views/Shared/Partials/_ConfirmModal.cshtml", null, new ViewDataDictionary(ViewData)
+{
+	{ "ModalId", "deleteTagModal" },
+	{ "Text1",   "Are you sure you want to delete the following tag?" },
+	{ "Text2",   "This may affect tags of connected sessions." }
+})
 
 <!-- TEMPLATE -->
 <template id="tagRowTemplate">

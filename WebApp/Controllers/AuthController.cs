@@ -45,8 +45,6 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
             viewModel.Password
         });
 
-        Console.WriteLine(await response.Content.ReadAsStringAsync());
-
         if (response.IsSuccessStatusCode)
         {
             AuthOutputDto? json = await response.Content.ReadFromJsonAsync<AuthOutputDto>();
