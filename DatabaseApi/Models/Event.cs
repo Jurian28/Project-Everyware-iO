@@ -12,14 +12,17 @@ namespace DatabaseApi.Models
         public DateTime StartDate { get; set; }
         [Required]
         public DateTime EndDate { get; set; }
+        public string? Location { get; set; }
         public string? Description { get; set; }
         public string? MainColorHex { get; set; }
         public string? AccentColorHex { get; set; }
         public string? LogoPath { get; set; }
+        public bool IsPublished { get; set; } = false;
 
         // Navigation properties
         public ICollection<Room> Rooms { get; set; } = new List<Room>();
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();
         public ICollection<User> Users { get; set; } = new List<User>();
+        public ICollection<Speaker> Speakers { get; set; } = new List<Speaker>();
     }
 }

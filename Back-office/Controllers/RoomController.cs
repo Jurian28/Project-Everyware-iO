@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Back_office.DTOs;
-using SharedClassLibrary.ApiResponse;
 
 namespace Back_office.Controllers
 {
@@ -10,7 +9,7 @@ namespace Back_office.Controllers
         private readonly HttpClient client;
 
         /// <summary>
-        /// Controller responsible for handling user authentication actions such as login, registration, and logout.
+        /// Controller responsible for managing Rooms
         /// </summary>
         public RoomController(IHttpClientFactory httpClientFactory)
         {
@@ -64,7 +63,7 @@ namespace Back_office.Controllers
         [HttpDelete("{idRoom}")]
         public async Task<IActionResult> DeleteRoom(int idRoom)
         {
-            HttpResponseMessage response = await client.DeleteAsync("room/"+ idRoom);
+            HttpResponseMessage response = await client.DeleteAsync("room/" + idRoom);
 
             string content = await response.Content.ReadAsStringAsync();
             return StatusCode((int)response.StatusCode, content);

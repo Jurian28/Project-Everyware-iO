@@ -1,0 +1,55 @@
+﻿@using SharedClassLibrary.DTOs.Events
+@{
+    string imgSrc = string.IsNullOrEmpty(Model.LogoPath) ? "" : $"/events{Model.LogoPath}";
+}
+
+@model EventDTO
+
+@* Event Card Component *@
+<div class="card event-card bg-light text-center">
+    <div class="card-body d-flex flex-column container">
+
+        <div class="row">
+            <div class="col-12 p-1">
+                <h5 class ="card-title text-decoration-none text-dark">@Model.Title</h5>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-4">
+                @if (!string.IsNullOrEmpty(Model.LogoPath))
+                {
+                    <div class="card-img-top event-card-logo d-flex align-items-center justify-content-center">
+                        <img src="@imgSrc" alt="@Model.Title Logo" class="card-img-top event-card-logo" />
+                    </div>
+                }
+                else
+                {
+                    <div class="card-img-top event-card-logo d-flex align-items-center justify-content-center">
+                        <em>No Logo</em>
+                    </div>
+                }
+            </div>
+        
+            <div class="col-8 d-flex flex-column py-3">
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <p class="card-text small">@Model.Description</p>
+                }
+
+                <div class="event-card-meta small d-flex justify-content-between align-items-center mt-auto">
+                    <p class="text-secondary mb-0">
+                        @Model.StartDate.ToString("MMM dd") - @Model.EndDate.ToString("MMM dd, yyyy")
+                    </p>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-secondary" onclick="togglePublish(@Model.IdEvent, @((Model.IsPublished).ToString().ToLower()))">@(Model.IsPublished ? "Unpublish" : "Publish")</button>
+                        <a asp-route-eventId="@Model.IdEvent" asp-action="Edit" class="btn btn-primary d-inline-flex gap-2">
+                            <span class="">Edit</span>
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,129 @@
+@using SharedClassLibrary.DTOs.Rooms
+@using SharedClassLibrary.DTOs.Tags
+@model CUSessionDTO
+@{
+    bool isEdit = Model.session?.SessionId > 0;
+    ViewData["Title"] = isEdit ? "Edit Session" : "Create Session";
+}
+
+@section Scripts {
+    <script src="~/js/confirmModal.js"></script>
+    <script src="~/js/sessionForm.js" defer></script>
+}
+
+<form asp-controller="Session" asp-action="HandleSubmit" asp-route-eventId="@Context.GetRouteValue("eventId")"
+      method="post" class="container-fluid p-4" style="background-color: #fff; font-family: sans-serif;">
+    <input type="hidden" name="SessionId" value="@Model.session?.SessionId" />
+    
+    <div class="row">
+        <div class="col-md-4 border-end pe-4">
+            <div class="mb-3">
+                <label class="fw-bold">Session Title</label>
+                <input type="text" name="Title" class="form-control bg-light border-dark shadow-sm"
+                       value="@Model.session?.Title" placeholder="Input text" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold">Room</label>
+                <select name="IdRoom" id="roomSelector" class="form-select bg-light border-dark shadow-sm" required>
+                    <option value="">Select a room...</option>
+                    @foreach (RoomResponseDTO room in Model.AvailableRooms)
+                    {
+                        <option value="@room.IdRoom" selected="@(room.IdRoom == Model.session?.Room?.IdRoom)">
+                            @room.RoomLabel (@room.Capacity plaatsen)
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col">
+                    <label class="fw-bold">Start Time</label>
+                    <input type="datetime-local" name="StartTime" class="form-control bg-light border-dark shadow-sm"
+                           value="@Model.session?.StartTime.ToString("yyyy-MM-ddTHH:mm")"
+                           min="@Model.EventStartTime?.ToString("yyyy-MM-ddTHH:mm")"
+                           max="@Model.EventEndTime?.ToString("yyyy-MM-ddTHH:mm")" required>
+                </div>
+
+                <div class="col">
+                    <label class="fw-bold">End Time</label>
+                    <input type="datetime-local" name="EndTime" class="form-control bg-light border-dark shadow-sm"
+                           value="@Model.session?.EndTime.ToString("yyyy-MM-ddTHH:mm")"
+                           min="@Model.EventStartTime?.ToString("yyyy-MM-ddTHH:mm")"
+                           max="@Model.EventEndTime?.ToString("yyyy-MM-ddTHH:mm")" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="mb-3">
+                    <label class="fw-bold d-block">Plenary session</label>
+                    <div class="form-switch ps-2">
+                        <input type="checkbox" id="plenaryToggle" name="Plenary" class="form-check-input ms-0" role="switch"
+                               style="transform: scale(1.5); cursor: pointer; margin-top: 10px;"
+                        @(Model.session?.Plenary == true ? "checked" : "") value="true">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 border-end px-4">
+            <label class="fw-bold">Select Tag</label>
+            <select id="tagSelector" class="form-select bg-light border-dark shadow-sm mb-3">
+                <option value="">Select a tag...</option>
+                    @foreach (TagResponseDTO tag in Model.AvailableTags)
+                    {
+                    @if(!string.IsNullOrEmpty(tag.ColorHex)){
+                        <option value="@tag.IdTag" data-color="@tag.ColorHex">@tag.Title</option>
+                    }
+                }
+            </select>
+            <div id="tagContainer" class="p-3"
+                 style="background-color: #8E8E8E; min-height: 250px; border-radius: 12px; border: 2px solid #000;">
+                @if (Model.session?.Tags != null)
+                {
+                    @foreach (TagResponseDTO tag in Model.session.Tags)
+                    {
+                        <input type="hidden" name="selectedTagIds" value="@tag.IdTag" data-Title="@tag.Title" data-color="@tag.ColorHex" />
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="col-md-4 ps-4">
+            <label class="fw-bold">Select Speaker</label>
+            <select name="SpeakerId" class="form-select bg-light border-dark shadow-sm">
+                <option value="">Select a speaker...</option>
+                @foreach (SessionSpeakerDTO speaker in Model.AvailableSpeakers)
+                {
+                    <option value="@speaker.SpeakerId" selected="@(speaker.SpeakerId == Model.session?.SpeakerId)">
+                        @speaker.Name
+                    </option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-3 mt-5">
+        @if (isEdit)
+        {
+            <a href="javascript:void(0)"
+                   onclick="showModal('deleteSessionModal', function() { document.getElementById('delete-form').submit(); }, '@Model.session?.Title')"
+                   class="btn btn-danger px-5" style="border-radius: 20px; background-color: #EF4444; border:none;">
+                Delete
+            </a>
+        }
+        <a href="javascript:history.back()" class="btn btn-secondary px-5"
+           style="border-radius: 20px; background-color: #9CA3AF; border:none;">Cancel</a>
+        <button type="submit" class="btn btn-success px-5"
+                style="border-radius: 20px; background-color: #10B981; border:none;">save</button>
+    </div>
+</form>
+<form id="delete-form" asp-controller="Session" asp-action="DeleteSession"
+      asp-route-eventId="@Context.GetRouteValue("eventId")" asp-route-sessionId="@Model.session?.SessionId" method="post"
+      style="display:none;">
+</form>
+@await Html.PartialAsync("~/Views/Shared/Partials/_ConfirmModal.cshtml", null, new ViewDataDictionary(ViewData)
+{
+    { "ModalId", "deleteSessionModal" },
+    { "Text1",   "Are you sure you want to delete the following session?" },
+    { "Text2",   "This may affect or delete connected data." }
+})

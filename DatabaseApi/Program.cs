@@ -1,4 +1,5 @@
 using DatabaseApi.Models;
+using DatabaseApi.Models.Seeders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -29,8 +30,18 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
     .AddJwtBearer("Bearer", JwtOptions.GetJwtOptions);
-
+builder.Services.AddScoped<DatabaseSeeder>();
 builder.Services.AddAuthorization();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.WithOrigins($"{Environment.GetEnvironmentVariable("APP_URL")}:{Environment.GetEnvironmentVariable("MOBILE_APP_PORT")}") 
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -51,7 +62,13 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-//app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseCors("AllowAll");
 
 app.UseStaticFiles();
 
@@ -74,6 +91,18 @@ if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
     catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 1801)
     {
         Console.WriteLine("[DB] Database already exists, skipping creation.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[DB] An error occurred while migrating the database: {ex.Message}");
+        throw ex;
+    }
+    if (Environment.GetEnvironmentVariable("RUN_SEED") == "true")
+    {
+        Console.WriteLine("[DB] Seeding...");
+        DatabaseSeeder seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+        await seeder.SeedAsync();
+        Console.WriteLine("[DB] Done Seeding...");
     }
 }
 

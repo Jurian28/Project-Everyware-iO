@@ -11,10 +11,27 @@ services:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: "${DB_PASSWORD:?}"
     healthcheck:
-      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${DB_PASSWORD}", "-C", "-Q", "SELECT 1"]
+      test: [ "CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${DB_PASSWORD}", "-C", "-Q", "SELECT 1" ]
       interval: 10s
       timeout: 5s
       retries: 10
+
+  mobile-web:
+    build:
+      context: .
+      dockerfile: MobileApp/dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - RUNNING_IN_DOCKER=true
+    env_file:
+      - .env
+    volumes:
+      - ./MobileApp:/app
+      - /app/node_modules
+      - ./SharedClassLibrary:/app/SharedClassLibrary
+    depends_on:
+      - databaseapi
 
   back-office:
     build:
@@ -29,6 +46,7 @@ services:
     env_file:
       - .env
     volumes:
+      - ./Back-office:/app/Back-office
       - backofficekeys:/root/.aspnet/DataProtection-Keys
     develop:
       watch:
@@ -94,10 +112,12 @@ services:
       - RUNNING_IN_DOCKER=true
       - ASPNETCORE_ENVIRONMENT=Development
       - DOTNET_USE_POLLING_FILE_WATCHER=1
+      - RUN_SEED=${RUN_SEED}
     env_file:
       - .env
     volumes:
       - databaseapikeys:/root/.aspnet/DataProtection-Keys
+      - uploads:/app/DatabaseApi/uploads
     develop:
       watch:
         - action: sync
@@ -106,6 +126,7 @@ services:
           ignore:
             - bin/
             - obj/
+            - wwwroot/
         - action: sync
           path: ./SharedClassLibrary
           target: /app/SharedClassLibrary
@@ -123,3 +144,4 @@ volumes:
   backofficekeys:
   webappkeys:
   databaseapikeys:
+  uploads:

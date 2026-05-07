@@ -1,5 +1,6 @@
 using Back_office.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Diagnostics;
 
 namespace Back_office.Controllers
@@ -8,7 +9,6 @@ namespace Back_office.Controllers
     {
         public IActionResult Index()
         {
-            ViewData["EventId"] = 1;
             return View();
         }
 
