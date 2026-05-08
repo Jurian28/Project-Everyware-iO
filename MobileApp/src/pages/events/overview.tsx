@@ -1,64 +1,51 @@
-import { useEffect, useState } from 'react';
-import { Alert, Pressable, Text, View, Image } from 'react-native';
+import { use, useEffect, useState } from 'react';
+import { Alert, Pressable, Text, View, Image, RefreshControl, ScrollView } from 'react-native';
 import { EventService, Event } from '../../services/EventService';
 import { useNavigation } from '@react-navigation/native';
 import AppLayout from '../../layouts/AppLayout';
+import AuthService from '../../services/AuthService';
+import config from '../../config';
 
-const eventsData: Event[] = [
-    {
-        idEvent: '1',
-        title: 'What is Technology? Understanding the Systems That Shape Our Digital World',
-        startDate: new Date(),
-        endDate: new Date(),
-        description: 'Understanding the Systems That Shape Our Digital World, IO brings together curious minds to explore how technology influences the way we live, work, and connect. ',
-        location: 'Location 1',
-        accentColorHex: '#3f3f3f',
-        mainColorHex: '#ffa0a0',
-        logoPath: null,
-        isPublished: true,
-    },
-    {
-        idEvent: '2',
-        title: 'Event 2',
-        startDate: new Date(),
-        endDate: new Date(),
-        description: 'Description for event 2',
-        location: 'Location 2',
-        accentColorHex: '#00FF00',
-        mainColorHex: '#CCFFCC',
-        logoPath: null,
-        isPublished: false,
+const formatDate = (date: Date | string): string => {
+    try {
+        const d = typeof date === 'string' ? new Date(date) : date;
+        return d.toLocaleDateString();
+    } catch {
+        return 'Invalid date';
     }
-];
+};
 
-export default function EventsOverview({ userId }: { userId: string }) {
-    const [events, setEvents] = useState<Event[]>(eventsData);
+export default function EventsOverview() {
+    const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(false);
 
-    // useEffect(() => {
-    //     const loadEvents = async () => {
-    //         setLoading(true);
+    const loadEvents = async () => {
+        setLoading(true);
+        const id = await AuthService.getUserId(); 
+        
+        if (id) {
+          const eventsResult = await EventService.fetchUserEvents(id);
+          if (!eventsResult.success) {
+            Alert.alert('Error', 'Failed to load events. Please try again later.');
+            setLoading(false);
+            return;
+          }
+          setEvents(eventsResult.events || []);
+        }
+        setLoading(false);
+    };
 
-    //         const eventsResult = await EventService.fetchUserEvents(userId);
-    //         if (!eventsResult.success) {
-    //             Alert.alert('Error', 'Failed to load events. Please try again later.');
-    //             setLoading(false);
-    //             return;
-    //         }
-
-    //         setEvents(eventsResult.events || []);
-
-    //         setLoading(false);
-    //     };
-
-    //     loadEvents();
-    // }, [userId]);
-
-    if (loading) return <Text>Loading...</Text>;
+    useEffect(() => {
+        loadEvents();
+    }, []);
 
     return (
         <AppLayout>
-            <View>
+            <ScrollView
+                refreshControl={
+                    <RefreshControl refreshing={loading} onRefresh={loadEvents} />
+                }
+            >
                 {events.length === 0 ? (
                     <Text>No events available.</Text>
                 ) : (
@@ -71,26 +58,47 @@ export default function EventsOverview({ userId }: { userId: string }) {
                         </View>
                     </View>
                 )}
-            </View>
+            </ScrollView>
         </AppLayout>
     )
 }
 
 function EventCard({ event }: { event: Event }) {
-    const navigation = useNavigation();
+    const [file, setFile] = useState<string | null>(null);
+
+    const navigation = useNavigation<any>();
+
+    const imgSrc = event.logoPath ? `${config.apiBaseUrl}/${event.logoPath}` : null;
+
+    useEffect(() => {
+        async function fetchLogo() {
+            if (event.logoPath) {
+                const result = await EventService.getLogo(event.logoPath || '');
+
+                const objectUrl = URL.createObjectURL(result.file || new Blob());
+
+                setFile(objectUrl);
+            }
+        }
+        fetchLogo();
+    }, [event.logoPath]);
 
     return (
-        <Pressable onPress={() => console.log('Event card pressed')} style={{ padding: 12, marginBottom: 12, backgroundColor: event.mainColorHex, borderRadius: 8, width: '90%', maxHeight: 200 }}>
+        <Pressable onPress={() => navigation.navigate('Event', { event })} style={{ padding: 12, marginBottom: 12, backgroundColor: event.mainColorHex, borderRadius: 8, width: '90%', maxHeight: 200 }}>
             <Text numberOfLines={2} style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{event.title}</Text>
             
             <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 24 }}>
-                <Image source={{ uri: 'https://fastly.picsum.photos/id/1/200/200.jpg?hmac=jZB9EZ0Vtzq-BZSmo7JKBBKJLW46nntxq79VMkCiBG8' }} style={{ width: 100, height: 100, marginBottom: 8 }} />
+                {imgSrc ? 
+                    <Image source={{ uri: file || "" }} style={{ width: 100, height: 100, marginBottom: 8 }} /> 
+                : 
+                    <Text style={{ width: 100, height: 100, marginBottom: 8, backgroundColor: '#ccc', textAlign: 'center', lineHeight: 100 }}>No Image</Text>
+                }
                 <View style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16, width: '65%' }}>
                     {event.description && (
                         <Text numberOfLines={3} style={{ marginBottom: 8 }}>{event.description}</Text>
                     )}
                     <Text style={{ fontSize: 12, marginBottom: 12 }}>
-                        {event.startDate.toLocaleDateString()} - {event.endDate.toLocaleDateString()}
+                        {formatDate(event.startDate)} - {formatDate(event.endDate)}
                     </Text>
                 </View>
             </View>

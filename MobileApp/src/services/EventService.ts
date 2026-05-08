@@ -14,21 +14,26 @@ export type Event = {
 }
 
 type EventList = {
-  totalPages: number;
-  events: Event[];
+  success: boolean;
+  data: {
+    totalPages: number;
+    events: Event[];
+  }
 }
 
 type EventsResult = {
   success: boolean;
   events?: Event[];
+  message?: string;
+  file?: Blob;
 };
 
 export class EventService {
-    private static readonly _baseUrl = `${config.apiBaseUrl}/events`;
+    private static readonly _baseUrl = `${config.apiBaseUrl}/event`;
 
     public static async fetchUserEvents(userId: string): Promise<EventsResult> {
       try {
-        const response = await fetch(`${EventService._baseUrl}/${userId}`, {
+        const response = await fetch(`${EventService._baseUrl}/user/${userId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -37,36 +42,45 @@ export class EventService {
 
         if(!response.ok) {
           const message = await response.text();
-          console.error(`Failed to fetch events for user ${userId}:`, response.status, message);
-          return { success: false };
+          console.error(`Failed to fetch events for user ${userId}:`, response.status, message, `${EventService._baseUrl}/user/${userId}`);
+          return { success: false, message: "Failed to fetch events" };
         }
 
-        const json = await response.json();
-        return { success: true, events: json.events };
+        const json: EventList = await response.json();
+
+        if(!json.success) {
+          console.error(`API responded with success=false for user ${userId}:`, json);
+          return { success: false, message: "fetch returned unsuccessful" };
+        }
+        
+        return { success: true, events: json.data.events };
       } catch (error) {
-        console.error(`Failed to fetch events for user ${userId}:`, error);
-        return { success: false };
+        console.error(`Fetching events for user ${userId} ended with error:`, error);
+        return { success: false, message: "Internal Server Error" };
       }
     }
 
-    public static async togglePublish(eventId: string, published: boolean) {
-        const url = `events/${eventId}/` + (published ? "unpublish" : "publish");
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
+    public static async getLogo(logoPath: string): Promise<EventsResult> {
+      try {
+        const response = await fetch(`${EventService._baseUrl}${logoPath}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            
-        } catch (error) {
-            console.error('Error:', error);
-            throw error;
+        if(!response.ok) {
+          const message = await response.text();
+          console.error(`Failed to fetch logo for path ${logoPath}:`, response.status, message, `${EventService._baseUrl}/${logoPath}`);
+          return { success: false, message: "Failed to fetch logo" };
         }
+
+        const file = await response.blob();
+        
+        return { success: true, file };
+      } catch (error) {
+        console.error(`Fetching logo for path ${logoPath} ended with error:`, error);
+        return { success: false, message: "Internal Server Error" };
+      }
     }
 }

@@ -67,8 +67,6 @@ namespace DatabaseApi.Controllers
                     .Where(e => e.Users.Any(u => u.Id == userId))
                     .ToListAsync();
 
-                events.ForEach(e => Console.WriteLine($"Event: {e.Title}, Users: {string.Join(", ", e.Users.Select(u => u.Id))}"));
-
                 if (events.Count == 0)
                 {
                     return NotFound(ApiResponse<EventListDto>.Fail("No events found for this user"));

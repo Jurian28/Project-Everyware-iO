@@ -108,5 +108,8 @@ module.exports = {
         client: {
             webSocketURL: 'ws://localhost:8004/ws',  // ← explicit WebSocket URL
         },
+        hot: true,
+        host: '0.0.0.0',
+        allowedHosts: 'all',
     },
 };
