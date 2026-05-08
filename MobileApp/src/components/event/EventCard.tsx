@@ -6,8 +6,8 @@ import eventStyles from '../../styles/eventStyles';
 
 export default function EventCard({ event }: { event: Event }) {
   const navigation = useNavigation<any>();
-
-  const imgSrc = event.logoPath ? `${config.apiBaseUrl}/event/images/${event.logoPath.split('/').pop()}` : null;
+  
+  const imgSrc = event.logoPath ? `${config.apiBaseUrl}/event${event.logoPath}` : null;
 
   return (
     <Pressable onPress={() => navigation.navigate('Event', { event })} style={[eventStyles.eventCard, { backgroundColor: event.mainColorHex }]}>

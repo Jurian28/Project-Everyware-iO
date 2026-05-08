@@ -60,8 +60,8 @@ const eventStyles = StyleSheet.create({
     marginBottom: 8,
   },
   eventCardNoImage: {
-    width: 100,
-    height: 100,
+    minWidth: 100,
+    minHeight: 100,
     marginBottom: 8,
     backgroundColor: '#ccc',
     textAlign: 'center',

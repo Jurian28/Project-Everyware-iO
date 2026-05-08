@@ -10,7 +10,7 @@ export function EventPage() {
   
   const navigation = useNavigation<any>();
 
-  const imgSrc = event.logoPath ? `${config.apiBaseUrl}/event/images/${event.logoPath.split('/').pop()}` : null;
+  const imgSrc = event.logoPath ? `${config.apiBaseUrl}/event${event.logoPath}` : null;
 
   return (
     <View style={eventStyles.eventPageContainer}>
