@@ -53,7 +53,14 @@ export class EventService {
           return { success: false, message: "fetch returned unsuccessful" };
         }
         
-        return { success: true, events: json.data.events };
+        // Convert date strings to Date objects
+        const events = json.data.events.map(event => ({
+          ...event,
+          startDate: new Date(event.startDate),
+          endDate: new Date(event.endDate),
+        }));
+        
+        return { success: true, events };
       } catch (error) {
         console.error(`Fetching events for user ${userId} ended with error:`, error);
         return { success: false, message: "Internal Server Error" };

@@ -24,8 +24,8 @@ import HomePage from './src/pages/Home';
 import LoginPage from './src/pages/auth/Login';
 import RegisterPage from './src/pages/auth/Register';
 import AuthService from './src/services/AuthService';
-import EventsOverview from './src/pages/events/overview';
-import { EventPage } from './src/pages/events/event';
+import EventsOverview from './src/pages/events/Overview';
+import { EventPage } from './src/pages/events/Event';
 
 function LogoutPage() {
   const navigator = useNavigation<NavigationProp<ParamListBase>>();

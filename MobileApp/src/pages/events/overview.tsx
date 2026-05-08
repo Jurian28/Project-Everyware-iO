@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, Text, View, Image, RefreshControl, ScrollView } from 'react-native';
 import { EventService, Event } from '../../services/EventService';
 import { useNavigation } from '@react-navigation/native';
@@ -97,12 +97,11 @@ function EventCard({ event }: { event: Event }) {
                     {event.description && (
                         <Text numberOfLines={3} style={{ marginBottom: 8 }}>{event.description}</Text>
                     )}
-                    <Text style={{ fontSize: 12, marginBottom: 12 }}>
+                    <Text style={{ fontSize: 12, marginBottom: 12, fontWeight: 'bold' }}>
                         {formatDate(event.startDate)} - {formatDate(event.endDate)}
                     </Text>
                 </View>
             </View>
-            
         </Pressable>
     )
 }
