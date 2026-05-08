@@ -22,19 +22,7 @@ async function submitSpeaker(event) {
         return;
     }
 
-    const formData = new FormData();
-
-    formData.append("idSpeaker", idSpeaker ?? 0);
-    formData.append("firstName", document.getElementById("firstName").value);
-    formData.append("middleName", document.getElementById("middleName").value);
-    formData.append("lastName", document.getElementById("lastName").value);
-    formData.append("description", document.getElementById("description").value);
-    formData.append("idEvent", eventId);
-
-    const fileInput = document.getElementById("imgPath");
-    if (fileInput.files.length > 0) {
-        formData.append("image", fileInput.files[0]);
-    }
+    const formData = new FormData(event.target);
 
     const isEditing = !!idSpeaker;
     const endpoint = isEditing

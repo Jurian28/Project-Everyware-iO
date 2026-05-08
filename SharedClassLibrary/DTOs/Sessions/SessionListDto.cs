@@ -1,5 +1,8 @@
-public class SessionListDto
+namespace SharedClassLibrary.DTOs.Sessions
 {
-    public int EventId { get; set; }
-    public List<SessionDTO> Sessions { get; set; }
+    public class SessionListDto
+    {
+        public int EventId { get; set; }
+        public List<SessionDTO> Sessions { get; set; }
+    }
 }

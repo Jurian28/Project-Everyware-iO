@@ -16,29 +16,30 @@
         <form id="speakerForm" class="d-flex flex-column h-100" onsubmit="submitSpeaker(event)" oninput="showEditButtons()">
             <div class="flex-grow-1">
                 <input type="hidden" id="speakerId" value="" />
+                <input type="hidden" name="IdEvent" value="@Model" />
                 <div class="mb-3">
                     <label class="form-label">Name</label>
                     <div class="row g-2">
                         <div class="col">
-                            <input type="text" class="form-control" id="firstName" placeholder="First name" required />
+                            <input type="text" class="form-control" id="firstName" name="FirstName" placeholder="First name" required />
                         </div>
 
                         <div class="col">
-                            <input type="text" class="form-control" id="middleName" placeholder="Middle name" />
+                            <input type="text" class="form-control" id="middleName" name="MiddleName" placeholder="Middle name" />
                         </div>
 
                         <div class="col">
-                            <input type="text" class="form-control" id="lastName" placeholder="Last name" required />
+                            <input type="text" class="form-control" id="lastName" name="LastName" placeholder="Last name" required />
                         </div>
                     </div>
                 </div>
                 <div class="mb-3">
                     <label for="description" class="form-label">Description</label>
-                    <textarea class="form-control" id="description"></textarea>
+                    <textarea class="form-control" id="description" name="Description"></textarea>
                 </div>
                 <div class="mb-3">
                     <label for="imgPath" class="form-label">Image</label>
-                    <input type="file" class="form-control" id="imgPath" accept="image/png, image/gif, image/jpeg" />
+                    <input type="file" class="form-control" id="imgPath" name="Image" accept="image/png, image/gif, image/jpeg" />
                 </div>
             </div>
             <div>

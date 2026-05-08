@@ -10,17 +10,21 @@ namespace DatabaseApi.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "description",
-                table: "Speakers",
-                newName: "Description");
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH('Speakers', 'description') IS NOT NULL
+                BEGIN
+                    EXEC sp_rename N'[Speakers].[description]', N'Description', 'COLUMN';
+                END
+                """);
 
-            migrationBuilder.AddColumn<int>(
-                name: "IdEvent",
-                table: "Speakers",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH('Speakers', 'IdEvent') IS NULL
+                BEGIN
+                    ALTER TABLE [Speakers] ADD [IdEvent] int NOT NULL DEFAULT 0;
+                END
+                """);
 
             migrationBuilder.UpdateData(
                 table: "Speakers",
@@ -40,14 +44,21 @@ namespace DatabaseApi.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "IdEvent",
-                table: "Speakers");
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH('Speakers', 'IdEvent') IS NOT NULL
+                BEGIN
+                    ALTER TABLE [Speakers] DROP COLUMN [IdEvent];
+                END
+                """);
 
-            migrationBuilder.RenameColumn(
-                name: "Description",
-                table: "Speakers",
-                newName: "description");
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH('Speakers', 'Description') IS NOT NULL
+                BEGIN
+                    EXEC sp_rename N'[Speakers].[Description]', N'description', 'COLUMN';
+                END
+                """);
 
             migrationBuilder.UpdateData(
                 table: "Speakers",

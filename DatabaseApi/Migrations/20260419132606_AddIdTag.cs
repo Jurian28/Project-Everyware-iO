@@ -58,6 +58,23 @@ namespace DatabaseApi.Migrations
                 table: "Tags",
                 column: "IdTag");
 
+            migrationBuilder.Sql(
+                """
+                ;WITH Duplicates AS
+                (
+                    SELECT
+                        [SessionsIdSession],
+                        [TagsIdTag],
+                        ROW_NUMBER() OVER (
+                            PARTITION BY [SessionsIdSession], [TagsIdTag]
+                            ORDER BY (SELECT 1)
+                        ) AS rn
+                    FROM [Session_has_Tag]
+                )
+                DELETE FROM Duplicates
+                WHERE rn > 1;
+                """);
+
             migrationBuilder.AddPrimaryKey(
                 name: "PK_Session_has_Tag",
                 table: "Session_has_Tag",

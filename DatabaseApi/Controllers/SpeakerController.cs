@@ -3,18 +3,17 @@ using DatabaseApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using SharedClassLibrary.ApiResponse;
-namespace DatabaseApi.Controllers
+namespace DatabaseApi.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+/// <summary>
+/// Controller to handle all speaker input and output.
+/// </summary>
+public class SpeakerController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    /// <summary>
-    /// Controller to handle all speaker input and output.
-    /// </summary>
-    public class SpeakerController : ControllerBase
-    {
-        private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _environment;
+    private readonly ApplicationDbContext _context;
+    private readonly IWebHostEnvironment _environment;
 
         public SpeakerController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
@@ -35,7 +34,7 @@ namespace DatabaseApi.Controllers
                 query = query.Where(r => r.IdEvent == eventId.Value);
             }
 
-            var speakers = await query.ToListAsync();
+            List<Speaker> speakers = await query.ToListAsync();
             return Ok(ApiResponse<IEnumerable<SpeakerResponseDTO>>.Ok(speakers.Select(SpeakerMapper.ToResponseDTO)));
         }
 
@@ -43,17 +42,10 @@ namespace DatabaseApi.Controllers
         /// Inserts a new speaker into the database. The speaker data is provided in the request body as a SpeakerInsertDTO.
         /// </summary>
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<SpeakerResponseDTO>>> InsertSpeaker([FromForm] SpeakerInsertDTO speakerDTO, IFormFile? image)
+        public async Task<ActionResult<ApiResponse<SpeakerResponseDTO>>> InsertSpeaker([FromForm] SpeakerInsertDTO speakerDTO)
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState
-                    .Where(e => e.Value.Errors.Count > 0)
-                    .ToDictionary(
-                        e => e.Key,
-                        e => e.Value.Errors.Select(err => err.ErrorMessage).ToArray()
-                    );
-
                 return BadRequest(ApiResponse<object>.Fail("Validation failed"));
             }
 
@@ -61,9 +53,9 @@ namespace DatabaseApi.Controllers
             {
                 string? imagePath = null;
 
-                if (image != null)
+                if (speakerDTO.ImgFile != null)
                 {
-                    imagePath = await SaveImage(image);
+                    imagePath = await SaveImage(speakerDTO.ImgFile);
                 }
 
                 Speaker speaker = SpeakerMapper.ToEntity(speakerDTO);
@@ -71,7 +63,7 @@ namespace DatabaseApi.Controllers
                 _context.Speakers.Add(speaker);
                 await _context.SaveChangesAsync();
 
-                var response = SpeakerMapper.ToResponseDTO(speaker);
+                SpeakerResponseDTO response = SpeakerMapper.ToResponseDTO(speaker);
                 return StatusCode(201, ApiResponse<SpeakerResponseDTO>.Ok(response));
             }
             catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx)
@@ -93,30 +85,23 @@ namespace DatabaseApi.Controllers
         /// Updates an existing speaker in the database. The speaker ID is provided as a route parameter, and the updated speaker data is provided in the request body as a SpeakerUpdateDTO.
         /// </summary>
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateSpeaker(int id, [FromForm] SpeakerUpdateDTO speakerDTO, IFormFile? image)
+        public async Task<ActionResult> UpdateSpeaker(int id, [FromForm] SpeakerUpdateDTO speakerDTO)
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState
-                    .Where(e => e.Value.Errors.Count > 0)
-                    .ToDictionary(
-                        e => e.Key,
-                        e => e.Value.Errors.Select(err => err.ErrorMessage).ToArray()
-                    );
-
                 return BadRequest(ApiResponse<object>.Fail("Validation failed"));
             }
 
 
-            var speaker = await _context.Speakers.FindAsync(id);
+            Speaker? speaker = await _context.Speakers.FindAsync(id);
             if (speaker == null) return NotFound();
 
             try
             {
                 SpeakerMapper.UpdateEntity(speaker, speakerDTO);
-                if (image != null)
+                if (speakerDTO.ImgFile != null)
                 {
-                    speaker.ImgPath = await SaveImage(image);
+                    speaker.ImgPath = await SaveImage(speakerDTO.ImgFile);
                 }
                 await _context.SaveChangesAsync();
                 return Ok(ApiResponse<SpeakerResponseDTO>.Ok(SpeakerMapper.ToResponseDTO(speaker)));
@@ -141,7 +126,7 @@ namespace DatabaseApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSpeaker(int id)
         {
-            var speaker = await _context.Speakers.FindAsync(id);
+            Speaker? speaker = await _context.Speakers.FindAsync(id);
             if (speaker == null) return NotFound(ApiResponse<SpeakerResponseDTO>.Fail("Speaker not found."));
             try
             {
@@ -163,10 +148,12 @@ namespace DatabaseApi.Controllers
                 return StatusCode(500, ApiResponse<SpeakerResponseDTO>.Fail("An unexpected error occurred."));
             }
         }
-        private async Task<string> SaveImage(IFormFile file)
+        private async Task<string?> SaveImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
+            {
                 return null;
+            }
 
             string fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
 
@@ -177,12 +164,9 @@ namespace DatabaseApi.Controllers
 
             string filePath = Path.Combine(folderPath, fileName);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
+            await using FileStream stream = new FileStream(filePath, FileMode.Create);
+            await file.CopyToAsync(stream);
 
             return $"/images/speakers/{fileName}";
         }
-    }
 }
