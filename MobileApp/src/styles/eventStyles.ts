@@ -88,9 +88,11 @@ const eventStyles = StyleSheet.create({
     padding: 12,
   },
   backButton: {
-    padding: 8,
-    marginBottom: 4,
+    // padding: 4,
+    // marginBottom: 4,
     width: 44,
+    fontSize: 48, 
+    fontWeight: 'bold'
   },
   eventContentContainer: {
     display: 'flex',
