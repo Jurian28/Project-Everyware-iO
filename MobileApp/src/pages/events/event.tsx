@@ -3,6 +3,7 @@ import { Event, EventService } from '../../services/EventService';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import config from '../../config';
+import eventStyles from '../../styles/eventStyles';
 
 export function EventPage() {
   const route = useRoute<any>();
@@ -28,44 +29,44 @@ export function EventPage() {
   }, [event.logoPath]);
 
   return (
-    <View style={{ padding: 12 }}>
+    <View style={eventStyles.eventPageContainer}>
       <View>
-        <Pressable onPress={() => navigation.navigate('EventsOverview')} style={{ padding: 8, marginBottom: 4, width: '20%' }}>
+        <Pressable onPress={() => navigation.navigate('EventsOverview')} style={eventStyles.backButton}>
           <svg xmlns="http://www.w3.org/2000/svg" height={28} width={28} viewBox="0 0 640 640">
             <path d="M73.4 297.4C60.9 309.9 60.9 330.2 73.4 342.7L233.4 502.7C245.9 515.2 266.2 515.2 278.7 502.7C291.2 490.2 291.2 469.9 278.7 457.4L173.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L173.3 288L278.7 182.6C291.2 170.1 291.2 149.8 278.7 137.3C266.2 124.8 245.9 124.8 233.4 137.3L73.4 297.3z"/>
           </svg>
         </Pressable>
         {/* Back button */}
       </View>
-      <View style={{ display: 'flex', gap: 8 }}>
-        <Text numberOfLines={2} style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 12 }}>{event.title}</Text>
+      <View style={eventStyles.eventContentContainer}>
+        <Text numberOfLines={2} style={eventStyles.eventPageTitle}>{event.title}</Text>
 
-        <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 4 }}>
+        <View style={eventStyles.eventImageContainer}>
           {imgSrc ? 
-              <Image source={{ uri: file || "" }} style={{ width: 150, height: 150, marginBottom: 8 }} /> 
+              <Image source={{ uri: file || "" }} style={eventStyles.eventPageImage} /> 
           : 
-              <Text style={{ width: 150, height: 150, marginBottom: 8, backgroundColor: '#ccc', textAlign: 'center', lineHeight: 150 }}>No Image</Text>
+              <Text style={eventStyles.eventPageNoImage}>No Image</Text>
           }
         </View>
 
         <View>
-          <Text style={{ fontSize: 14, marginBottom: 8, fontWeight: 'bold', color: '#667' }}>
+          <Text style={eventStyles.eventPageMeta}>
             {event.startDate.toLocaleDateString()} - {event.endDate.toLocaleDateString()}
           </Text>
 
           {event.location && (
-            <Text style={{ fontSize: 14, marginBottom: 8, fontWeight: 'bold', color: '#667' }}>
+            <Text style={eventStyles.eventPageMeta}>
               {event.location}
             </Text>
           )}
         </View>
 
-        <View style={{ height: 1, backgroundColor: event.mainColorHex, marginVertical: 10 }} />
+        <View style={[eventStyles.eventPageDivider, { backgroundColor: event.mainColorHex }]} />
 
         {event.description && (
-          <View style={{ display: 'flex', gap: 4 }} >
-            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Description</Text>
-            <Text style={{ fontSize: 14 }}>{event.description}</Text>
+          <View style={eventStyles.eventPageDescriptionSection}>
+            <Text style={eventStyles.eventPageDescriptionTitle}>Description</Text>
+            <Text style={eventStyles.eventPageDescriptionText}>{event.description}</Text>
           </View>
         )}
       </View>
