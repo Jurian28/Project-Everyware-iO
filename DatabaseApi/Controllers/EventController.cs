@@ -65,6 +65,9 @@ namespace DatabaseApi.Controllers
                 List<Event> events = await _applicationDbContext.Events
                     .Include(e => e.Users)
                     .Where(e => e.Users.Any(u => u.Id == userId))
+                    .Where(e => e.EndDate >= DateTime.UtcNow) 
+                    .Where(e => e.IsPublished)
+                    .OrderBy(e => e.StartDate)
                     .ToListAsync();
 
                 if (events.Count == 0)
