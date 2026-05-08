@@ -42,8 +42,9 @@ export default function EventsOverview() {
 
   return (
     <AppLayout>
-      <ScrollView
+      <ScrollView 
         style={eventStyles.scrollViewContainer}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={loadEvents} />
         }
