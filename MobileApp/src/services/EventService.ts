@@ -53,7 +53,6 @@ export class EventService {
           return { success: false, message: "fetch returned unsuccessful" };
         }
         
-        // Convert date strings to Date objects
         const events = json.data.events.map(event => ({
           ...event,
           startDate: new Date(event.startDate),
@@ -69,6 +68,10 @@ export class EventService {
 
     public static async getLogo(logoPath: string): Promise<EventsResult> {
       try {
+        if(!logoPath || logoPath.trim() === '') {
+          return { success: false, message: "Invalid logo path" };
+        }
+
         const response = await fetch(`${EventService._baseUrl}${logoPath}`, {
           method: 'GET',
           headers: {
