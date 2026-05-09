@@ -31,9 +31,9 @@ type EventsResult = {
 export class EventService {
     private static readonly _baseUrl = `${config.apiBaseUrl}/event`;
 
-    public static async fetchUserEvents(userId: string): Promise<EventsResult> {
+    public static async fetchUserEvents(userId: string, includePastEvents: boolean = false): Promise<EventsResult> {
       try {
-        const response = await fetch(`${EventService._baseUrl}/user/${userId}`, {
+        const response = await fetch(`${EventService._baseUrl}/user/${userId}?includePastEvents=${includePastEvents}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

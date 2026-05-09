@@ -34,6 +34,18 @@ const eventStyles = StyleSheet.create({
     marginBottom: 24,
     marginTop: 24,
   },
+  eventsLoadPastEvents: {
+    padding: 14,
+    borderRadius: 8,
+    marginBottom: 20,
+    width: '90%',
+  },
+  eventsLoadPastEventsText: {
+    color: 'white',
+    fontWeight: 500,
+    fontSize: 16,
+    textAlign: 'center',
+  },
   
   // Event Card Styles
   eventCard: {
@@ -88,8 +100,6 @@ const eventStyles = StyleSheet.create({
     padding: 12,
   },
   backButton: {
-    // padding: 4,
-    // marginBottom: 4,
     width: 44,
     fontSize: 48, 
     fontWeight: 'bold'

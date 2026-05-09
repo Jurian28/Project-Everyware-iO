@@ -51,7 +51,7 @@ namespace DatabaseApi.Controllers
         }
 
         [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetAllFromUser(string userId)
+        public async Task<IActionResult> GetAllFromUser(string userId, [FromQuery] bool includePastEvents = false)
         {
             try
             {
@@ -62,11 +62,15 @@ namespace DatabaseApi.Controllers
                     return NotFound(ApiResponse<EventListDto>.Fail("User not found"));
                 }
 
-                List<Event> events = await _applicationDbContext.Events
+                var query = _applicationDbContext.Events
                     .Include(e => e.Users)
                     .Where(e => e.Users.Any(u => u.Id == userId))
-                    .Where(e => e.EndDate >= DateTime.UtcNow) 
-                    .Where(e => e.IsPublished)
+                    .Where(e => e.IsPublished);
+
+                if (!includePastEvents)
+                    query = query.Where(e => e.EndDate >= DateTime.UtcNow);
+
+                List<Event> events = await query
                     .OrderBy(e => e.StartDate)
                     .ToListAsync();
 
