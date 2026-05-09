@@ -40,7 +40,7 @@ namespace DatabaseApi.Controllers
                     .Take(pageSize)
                     .ToListAsync();
                 int totalCount = await _applicationDbContext.Events.CountAsync();
-                int totalPages = (int) Math.Ceiling(totalCount / (double) pageSize);
+                int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
                 return StatusCode(201, ApiResponse<EventListDto>.Ok(new EventListDto { TotalPages = totalPages, Events = [.. events.Select(EventMapper.ToResponseDTO)] }));
             }
@@ -57,7 +57,7 @@ namespace DatabaseApi.Controllers
             {
                 bool userExists = await _applicationDbContext.Users.AnyAsync(u => u.Id == userId);
 
-                if(!userExists)
+                if (!userExists)
                 {
                     return NotFound(ApiResponse<EventListDto>.Fail("User not found"));
                 }
@@ -71,7 +71,7 @@ namespace DatabaseApi.Controllers
                     query = query.Where(e => e.EndDate >= DateTime.UtcNow);
 
                 List<Event> events = await query
-                    .OrderBy(e => e.StartDate)
+                    .OrderByDescending(e => e.StartDate)
                     .ToListAsync();
 
                 if (events.Count == 0)
@@ -139,7 +139,7 @@ namespace DatabaseApi.Controllers
                 dto.EndDate = dto.EndDate.AddHours(23 - dto.EndDate.Hour);
                 dto.EndDate = dto.EndDate.AddMinutes(59 - dto.EndDate.Minute);
 
-                if(dto.EndDate < dto.StartDate) return BadRequest(ApiResponse<Object>.Fail("Bad Request: startDate cannot be before endDate"));
+                if (dto.EndDate < dto.StartDate) return BadRequest(ApiResponse<Object>.Fail("Bad Request: startDate cannot be before endDate"));
 
                 Event newEvent = new Event
                 {
@@ -203,7 +203,7 @@ namespace DatabaseApi.Controllers
                 string? logoPath = eventItem.LogoPath;
                 if (dto.LogoFile != null || dto.RemoveLogo)
                 {
-                    if(!string.IsNullOrEmpty(logoPath))
+                    if (!string.IsNullOrEmpty(logoPath))
                     {
                         DeleteLogo(logoPath);
                         logoPath = null;
@@ -269,8 +269,8 @@ namespace DatabaseApi.Controllers
             {
                 Event? eventItem = await _applicationDbContext.Events.FindAsync(id);
 
-                if (eventItem == null) 
-                { 
+                if (eventItem == null)
+                {
                     return NotFound(ApiResponse<Object>.Fail("Event not found"));
                 }
 
