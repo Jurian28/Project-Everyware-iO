@@ -26,6 +26,8 @@ import RegisterPage from './src/pages/auth/Register';
 import SessionOverview from './src/pages/sessions/overview';
 import SessionViewPage from './src/pages/sessions/session';
 import AuthService from './src/services/AuthService';
+import EventsOverview from './src/pages/events/Overview';
+import { EventPage } from './src/pages/events/Event';
 
 function LogoutPage() {
 	const navigator = useNavigation<NavigationProp<ParamListBase>>();
@@ -33,18 +35,18 @@ function LogoutPage() {
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			AuthService.logout()
-			.catch(() => undefined)
-			.finally(() => {
-				navigator.navigate('Home');
-			});
+				.catch(() => undefined)
+				.finally(() => {
+					navigator.navigate('Home');
+				});
 		}, 0);
 		return () => clearTimeout(timer);
 	}, [navigator]);
 
 	return (
 		<View style={styles.loaderContainer}>
-		<ActivityIndicator size="large" color="black" />
-		<Text style={styles.loaderText}>Signing out...</Text>
+			<ActivityIndicator size="large" color="black" />
+			<Text style={styles.loaderText}>Signing out...</Text>
 		</View>
 	);
 }
@@ -54,13 +56,13 @@ function AuthenticatedDrawerContent(
 ) {
 	return (
 		<DrawerContentScrollView {...props}>
-		<DrawerItemList {...props} />
-		<View style={styles.drawerSeparator} />
-		<DrawerItem
-		label="Logout"
-		labelStyle={styles.logoutLabel}
-		onPress={() => props.navigation.navigate('Logout')}
-		/>
+			<DrawerItemList {...props} />
+			<View style={styles.drawerSeparator} />
+			<DrawerItem
+				label="Logout"
+				labelStyle={styles.logoutLabel}
+				onPress={() => props.navigation.navigate('Logout')}
+			/>
 		</DrawerContentScrollView>
 	);
 }
@@ -76,21 +78,21 @@ function DrawerToggleButton({
 }: Readonly<DrawerToggleProps>) {
 	return (
 		<Pressable
-		accessibilityLabel="Open navigation menu"
-		accessibilityRole="button"
-		onPress={navigation.toggleDrawer}
-		style={styles.drawerToggleButton}
+			accessibilityLabel="Open navigation menu"
+			accessibilityRole="button"
+			onPress={navigation.toggleDrawer}
+			style={styles.drawerToggleButton}
 		>
-		<Text style={[styles.drawerToggleIcon, tintColor ? { color: tintColor } : null]}>
-		{'\u2630'}
-		</Text>
+			<Text style={[styles.drawerToggleIcon, tintColor ? { color: tintColor } : null]}>
+				{'\u2630'}
+			</Text>
 		</Pressable>
 	);
 }
 
 const authenticatedDrawerNavigation = createDrawerNavigator({
 	drawerContent: props => <AuthenticatedDrawerContent {...props} />,
-		screenOptions: ({ navigation }) => ({
+	screenOptions: ({ navigation }) => ({
 		drawerLabelStyle: {
 			color: 'black',
 		},
@@ -133,9 +135,26 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
 
 				drawerItemStyle: {
 					display: 'none',
-				},     
+				},
 			},
 		},
+
+		EventsOverview: {
+			screen: EventsOverview,
+			options: {
+				title: 'Events Overview',
+			},
+		},
+
+		Event: {
+			screen: EventPage,
+			options: {
+				title: 'Event Details',
+				drawerItemStyle: {
+					display: 'none',
+				},
+			},
+		}
 	},
 });
 
@@ -202,23 +221,23 @@ export default function App() {
 
 	const NavigationComponent = useMemo(
 		() =>
-		isAuthenticated ? AuthenticatedNavigation : UnauthenticatedNavigation,
+			isAuthenticated ? AuthenticatedNavigation : UnauthenticatedNavigation,
 		[isAuthenticated],
 	);
 
 	if (isAuthenticated === null) {
 		return (
 			<View style={styles.loaderContainer}>
-			<ActivityIndicator size="large" color="black" />
+				<ActivityIndicator size="large" color="black" />
 			</View>
 		);
 	}
 
 	return (
 		<NavigationComponent
-		key={isAuthenticated ? 'auth' : 'unauth'}
-		onReady={handleNavigationStateChange}
-		onStateChange={handleNavigationStateChange}
+			key={isAuthenticated ? 'auth' : 'unauth'}
+			onReady={handleNavigationStateChange}
+			onStateChange={handleNavigationStateChange}
 		/>
 	);
 }

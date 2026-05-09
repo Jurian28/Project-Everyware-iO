@@ -106,7 +106,19 @@ module.exports = {
         port: 8004,
         historyApiFallback: true,
         client: {
-            webSocketURL: 'ws://localhost:8004/ws',  // ← explicit WebSocket URL
+            webSocketURL: {
+                protocol: 'ws',
+                hostname: 'localhost',
+                port: 8004,
+                pathname: '/ws',
+            },
         },
+        hot: true,
+        host: '0.0.0.0',
+        allowedHosts: 'all',
+    },
+    watchOptions: {
+        poll: 1000,
+        aggregateTimeout: 300,
     },
 };

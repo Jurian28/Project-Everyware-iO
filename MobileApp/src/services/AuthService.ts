@@ -1,5 +1,6 @@
 import * as Keychain from 'react-native-keychain';
 import config from '../config';
+import { jwtDecode } from 'jwt-decode';
 
 type AuthResult = {
   success: boolean;
@@ -178,6 +179,24 @@ export default class AuthService {
     } catch (error) {
       console.error('Failed to check authentication', error);
       return false;
+    }
+  }
+
+  public static async getUserId(): Promise<string | null> {
+    try {
+      const credentials = await Keychain.getGenericPassword({
+        service: AuthService._accessTokenServiceKey,
+      });
+
+      if (!credentials) {
+        return null;
+      }
+
+      const decoded: any = jwtDecode(credentials.password);
+      return decoded.sub || null;
+    } catch (error) {
+      console.error('Failed to extract userId from token', error);
+      return null;
     }
   }
 }
