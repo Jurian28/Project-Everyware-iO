@@ -80,10 +80,11 @@ public class SpeakerController : Controller
         /// Proxies speaker images from DatabaseApi so the browser only calls Back-office.
         /// </summary>
         [HttpGet("image")]
-        public async Task<IActionResult> GetSpeakerImage(int eventId, [FromQuery] string? imagePath)
+        public async Task<IActionResult> GetSpeakerImage([FromQuery] string? imagePath)
         {
+            const string fallbackImagePath = "/images/speakers/default.jpg";
             string normalizedPath = string.IsNullOrWhiteSpace(imagePath)
-                ? "/images/speakers/default.jpg"
+                ? fallbackImagePath
                 : imagePath.Trim();
 
             if (!normalizedPath.StartsWith('/'))
@@ -97,15 +98,17 @@ public class SpeakerController : Controller
             }
 
             HttpResponseMessage response = await _client.GetAsync(normalizedPath);
+            if (!response.IsSuccessStatusCode &&
+                !string.Equals(normalizedPath, fallbackImagePath, StringComparison.OrdinalIgnoreCase))
+            {
+                response.Dispose();
+                response = await _client.GetAsync(fallbackImagePath);
+            }
+
             if (!response.IsSuccessStatusCode)
             {
-                string fallbackSvg = """
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 16 16" fill="#6c757d">
-                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                        <path fill-rule="evenodd" d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm0-1a7 7 0 0 1-5.468-2.63c.35-.65 1.17-1.37 2.468-1.37h6c1.299 0 2.118.72 2.468 1.37A7 7 0 0 1 8 15z"/>
-                    </svg>
-                    """;
-                return Content(fallbackSvg, "image/svg+xml");
+                response.Dispose();
+                return NotFound();
             }
 
             MediaTypeHeaderValue? contentType = response.Content.Headers.ContentType;

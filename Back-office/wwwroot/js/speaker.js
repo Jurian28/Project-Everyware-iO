@@ -157,6 +157,10 @@ function renderSpeakers(speakers) {
         const img = clone.querySelector("[data-field='imgPath']");
         const requestedImagePath = speaker.imgPath || "/images/speakers/default.jpg";
         img.src = `/${eventId}/speaker/image?imagePath=${encodeURIComponent(requestedImagePath)}`;
+        img.onerror = () => {
+            img.onerror = null;
+            img.src = `/${eventId}/speaker/image?imagePath=${encodeURIComponent("/images/speakers/default.jpg")}`;
+        };
 
         clone.querySelector("[data-field='firstName']").textContent = speaker.firstName;
         clone.querySelector("[data-field='middleName']").textContent = speaker.middleName ?? "";
