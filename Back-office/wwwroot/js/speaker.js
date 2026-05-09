@@ -5,11 +5,25 @@ const searchParams = new URLSearchParams(window.location.search);
 const scriptTag = document.currentScript;
 const eventId = parseInt(scriptTag.dataset.eventId);
 const editButtons = document.getElementsByClassName("js-speaker-edit-button");
+const imageInput = document.getElementById("imgPath");
+const removeImageCheckbox = document.getElementById("removeImage");
 
 let idSpeaker = null;
 $(document).keydown(function (e) {
     if (e.keyCode == 27) {
         clearSpeakerForm();
+    }
+});
+
+imageInput.addEventListener("change", () => {
+    if (imageInput.files && imageInput.files.length > 0) {
+        removeImageCheckbox.checked = false;
+    }
+});
+
+removeImageCheckbox.addEventListener("change", () => {
+    if (removeImageCheckbox.checked) {
+        imageInput.value = "";
     }
 });
 
@@ -82,6 +96,7 @@ function clearSpeakerForm() {
     document.getElementById("lastName").value = "";
     document.getElementById("description").value = "";
     document.getElementById("imgPath").value = "";
+    removeImageCheckbox.checked = false;
 
     hideFormButtons();
 }
@@ -114,6 +129,7 @@ function loadSpeakerForEdit(speaker) {
     document.getElementById("lastName").value = speaker.lastName;
     document.getElementById("description").value = speaker.description ?? "";
     document.getElementById("imgPath").value = "";
+    removeImageCheckbox.checked = false;
 
     deleteButton.classList.remove("invisible");
     showEditButtons();

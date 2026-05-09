@@ -125,7 +125,8 @@ public class SpeakerController : Controller
                 { new StringContent(form.FirstName ?? string.Empty), "firstName" },
                 { new StringContent(form.MiddleName ?? string.Empty), "middleName" },
                 { new StringContent(form.LastName ?? string.Empty), "lastName" },
-                { new StringContent(form.Description ?? string.Empty), "description" }
+                { new StringContent(form.Description ?? string.Empty), "description" },
+                { new StringContent(form.RemoveImage ? "true" : "false"), "removeImage" }
             };
 
             if (includeEvent)
@@ -138,7 +139,7 @@ public class SpeakerController : Controller
                 Stream stream = form.Image.OpenReadStream();
                 StreamContent fileContent = new StreamContent(stream);
                 if (!string.IsNullOrWhiteSpace(form.Image.ContentType) &&
-                    MediaTypeHeaderValue.TryParse(form.Image.ContentType, out MediaTypeHeaderValue mediaType))
+                    MediaTypeHeaderValue.TryParse(form.Image.ContentType, out MediaTypeHeaderValue? mediaType))
                 {
                     fileContent.Headers.ContentType = mediaType;
                 }

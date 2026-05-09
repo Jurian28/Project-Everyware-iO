@@ -99,8 +99,14 @@ public class SpeakerController : ControllerBase
             try
             {
                 SpeakerMapper.UpdateEntity(speaker, speakerDTO);
-                if (speakerDTO.ImgFile != null)
+                if (speakerDTO.RemoveImage)
                 {
+                    DeleteImageIfExists(speaker.ImgPath);
+                    speaker.ImgPath = null;
+                }
+                else if (speakerDTO.ImgFile != null)
+                {
+                    DeleteImageIfExists(speaker.ImgPath);
                     speaker.ImgPath = await SaveImage(speakerDTO.ImgFile);
                 }
                 await _context.SaveChangesAsync();
@@ -168,5 +174,21 @@ public class SpeakerController : ControllerBase
             await file.CopyToAsync(stream);
 
             return $"/images/speakers/{fileName}";
+        }
+
+        private void DeleteImageIfExists(string? imagePath)
+        {
+            if (string.IsNullOrWhiteSpace(imagePath))
+            {
+                return;
+            }
+
+            string normalizedPath = imagePath.Replace('/', Path.DirectorySeparatorChar).TrimStart(Path.DirectorySeparatorChar);
+            string fullPath = Path.Combine(_environment.WebRootPath, normalizedPath);
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+            }
         }
 }

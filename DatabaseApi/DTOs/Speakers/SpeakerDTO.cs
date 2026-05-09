@@ -55,4 +55,5 @@ public class SpeakerUpdateDTO
     public string? Description { get; set; }
 
     public IFormFile? ImgFile { get; set; }
+    public bool RemoveImage { get; set; }
 }

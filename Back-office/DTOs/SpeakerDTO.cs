@@ -12,4 +12,5 @@ public class SpeakerDTO
     public string? ImgPath { get; set; }
     public int IdEvent { get; set; }
     public IFormFile? Image { get; set; }
+    public bool RemoveImage { get; set; }
 }
