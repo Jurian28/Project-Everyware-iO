@@ -1,0 +1,23 @@
+import React from 'react';
+import { View, Text, Button } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+
+export default function SessionOverview() {
+  const navigation = useNavigation<any>();
+
+  return (
+    <View style={{ padding: 20 }}>
+      <Text>Session Overview</Text>
+
+      <Button
+        title="Go to Session View"
+        onPress={() =>
+          navigation.navigate('SessionView', {
+            eventId: 1,
+            sessionId: 1,
+          })
+        }
+      />
+    </View>
+  );
+}
