@@ -32,8 +32,6 @@ type SessionsResult = {
 };
 
 export class SessionService {
-    private static readonly _baseUrl = `${config.apiBaseUrl}`;
-
     public static async fetchEventSessions(eventId: string | number): Promise<SessionsResult> {
         try {
             const response = await fetch(`${config.apiBaseUrl}/${eventId}/sessions`, {
