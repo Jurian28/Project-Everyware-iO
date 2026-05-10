@@ -9,9 +9,24 @@ interface ScheduleTimelineProps {
   startHour?: number;
   endHour?: number;
   eventColor?: string;
+  eventAccentColor?: string;
 }
 
-export default function ScheduleTimeline({ sessions, currentDate, startHour = 8, endHour = 18, eventColor }: ScheduleTimelineProps) {
+const getContrastTextColor = (hexColor: string | undefined) => {
+  if (!hexColor) return '#0F172A';
+  let hex = hexColor.replace('#', '');
+  if (hex.length === 3) {
+    hex = hex.split('').map(char => char + char).join('');
+  }
+  if (hex.length !== 6) return '#0F172A';
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+  return luminance > 160 ? '#0F172A' : '#FFFFFF';
+};
+
+export default function ScheduleTimeline({ sessions, currentDate, startHour = 8, endHour = 18, eventColor, eventAccentColor }: ScheduleTimelineProps) {
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -131,6 +146,8 @@ export default function ScheduleTimeline({ sessions, currentDate, startHour = 8,
 
       <View style={[scheduleStyles.cardsContainer, { position: 'absolute', top: 10, left: TIMELINE_OFFSET_LEFT, right: 0, bottom: 0 }]}>
         {layoutedSessions.map((session) => {
+          const textColor = getContrastTextColor(eventColor);
+          const subtitleColor = textColor === '#FFFFFF' ? '#E2E8F0' : '#475569';
           return (
             <View
               key={session.sessionId}
@@ -141,14 +158,15 @@ export default function ScheduleTimeline({ sessions, currentDate, startHour = 8,
                   height: session.height,
                   left: `${session.left}%`,
                   width: `${session.width}%`,
-                  borderLeftColor: eventColor || '#3B82F6',
+                  backgroundColor: eventColor || '#FFFFFF',
+                  borderLeftColor: eventAccentColor || '#3B82F6',
                 }
               ]}
             >
               <View style={{ flex: 1, overflow: 'hidden' }}>
-                <Text numberOfLines={1} style={scheduleStyles.sessionTitle}>{session.title}</Text>
-                {session.height > 40 && <Text numberOfLines={1} style={scheduleStyles.sessionSubtitle}>{session.speakerName}</Text>}
-                {session.height > 60 && <Text numberOfLines={1} style={scheduleStyles.sessionSubtitle}>{session.room.roomLabel}</Text>}
+                <Text numberOfLines={1} style={[scheduleStyles.sessionTitle, { color: textColor }]}>{session.title}</Text>
+                {session.height > 40 && <Text numberOfLines={1} style={[scheduleStyles.sessionSubtitle, { color: subtitleColor }]}>{session.speakerName}</Text>}
+                {session.height > 60 && <Text numberOfLines={1} style={[scheduleStyles.sessionSubtitle, { color: subtitleColor }]}>{session.room.roomLabel}</Text>}
               </View>
               
               {session.height > 50 && (

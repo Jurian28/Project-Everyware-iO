@@ -47,7 +47,7 @@ export function EventPage() {
 
         <View style={[eventStyles.eventPageDivider, { backgroundColor: event.mainColorHex }]} />
 
-        <Pressable onPress={() => navigation.navigate('EventSchedule', { eventId: event.idEvent, eventTitle: event.title, eventColor: event.mainColorHex })} style={{ backgroundColor: event.mainColorHex || '#3B82F6', padding: 12, borderRadius: 8, alignItems: 'center', marginVertical: 10 }}>
+        <Pressable onPress={() => navigation.navigate('EventSchedule', { eventId: event.idEvent, eventTitle: event.title, eventColor: event.mainColorHex, eventAccentColor: event.accentColorHex })} style={{ backgroundColor: '#2563EB', padding: 12, borderRadius: 8, alignItems: 'center', marginVertical: 10 }}>
           <Text style={{ color: 'white', fontWeight: 'bold' }}>View Schedule</Text>
         </Pressable>
 

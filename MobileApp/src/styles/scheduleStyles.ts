@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
 export const TIMELINE_OFFSET_LEFT = 55; // Space for the hour labels
-export const HOUR_HEIGHT = 80; // Height in pixels for 1 hour
+export const HOUR_HEIGHT = 120; // Height in pixels for 1 hour
 export const MINUTE_HEIGHT = HOUR_HEIGHT / 60; // Height in pixels for 1 minute
 
 const scheduleStyles = StyleSheet.create({

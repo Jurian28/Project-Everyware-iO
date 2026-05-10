@@ -9,7 +9,7 @@ import { SessionService, SessionDTO } from '../../services/SessionService';
 export default function EventSchedule() {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { eventId, eventTitle, eventColor } = route.params as { eventId: number | string; eventTitle?: string; eventColor?: string };
+  const { eventId, eventTitle, eventColor, eventAccentColor } = route.params as { eventId: number | string; eventTitle?: string; eventColor?: string; eventAccentColor?: string };
 
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<SessionDTO[]>([]);
@@ -51,8 +51,20 @@ export default function EventSchedule() {
     if (currentDateIndex < uniqueDays.length - 1) setCurrentDateIndex(currentDateIndex + 1);
   };
 
-  const startHour = 0;
-  const endHour = 23;
+  const { startHour, endHour } = useMemo(() => {
+    if (activeDateSessions.length === 0) return { startHour: 8, endHour: 21 };
+    let minT = 24, maxT = 0;
+    activeDateSessions.forEach(s => {
+      const hStart = new Date(s.startTime).getHours();
+      const hEnd = new Date(s.endTime).getHours() + (new Date(s.endTime).getMinutes() > 0 ? 1 : 0);
+      if (hStart < minT) minT = hStart;
+      if (hEnd > maxT) maxT = hEnd;
+    });
+    return {
+      startHour: Math.max(0, Math.min(8, minT)),
+      endHour: Math.min(23, Math.max(21, maxT))
+    };
+  }, [activeDateSessions]);
 
   return (
     <AppLayout>
@@ -65,15 +77,19 @@ export default function EventSchedule() {
             <Text style={scheduleStyles.headerTitle}>{eventTitle || 'Event Schedule'}</Text>
             {uniqueDays.length > 0 && (
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-                <Pressable onPress={handlePrevDay} disabled={currentDateIndex === 0} style={{ paddingHorizontal: 10 }}>
-                  <Text style={{ color: currentDateIndex === 0 ? '#CBD5E1' : '#3B82F6', fontSize: 16 }}>&larr;</Text>
-                </Pressable>
+                {uniqueDays.length > 1 && (
+                  <Pressable onPress={handlePrevDay} disabled={currentDateIndex === 0} style={{ paddingHorizontal: 10 }}>
+                    <Text style={{ color: currentDateIndex === 0 ? '#CBD5E1' : '#3B82F6', fontSize: 16 }}>&larr;</Text>
+                  </Pressable>
+                )}
                 <Text style={scheduleStyles.monthTitle}>
                   {new Date(activeDateString).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
                 </Text>
-                <Pressable onPress={handleNextDay} disabled={currentDateIndex === uniqueDays.length - 1} style={{ paddingHorizontal: 10 }}>
-                  <Text style={{ color: currentDateIndex === uniqueDays.length - 1 ? '#CBD5E1' : '#3B82F6', fontSize: 16 }}>&rarr;</Text>
-                </Pressable>
+                {uniqueDays.length > 1 && (
+                  <Pressable onPress={handleNextDay} disabled={currentDateIndex === uniqueDays.length - 1} style={{ paddingHorizontal: 10 }}>
+                    <Text style={{ color: currentDateIndex === uniqueDays.length - 1 ? '#CBD5E1' : '#3B82F6', fontSize: 16 }}>&rarr;</Text>
+                  </Pressable>
+                )}
               </View>
             )}
           </View>
@@ -95,6 +111,7 @@ export default function EventSchedule() {
             startHour={startHour}
             endHour={endHour}
             eventColor={eventColor}
+            eventAccentColor={eventAccentColor}
           />
         )}
       </View>
