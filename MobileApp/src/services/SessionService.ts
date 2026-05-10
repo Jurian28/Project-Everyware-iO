@@ -36,7 +36,7 @@ export class SessionService {
 
     public static async fetchEventSessions(eventId: string | number): Promise<SessionsResult> {
         try {
-            const response = await fetch(`${SessionService._baseUrl}/${eventId}/sessions`, {
+            const response = await fetch(`${config.apiBaseUrl}/${eventId}/sessions`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
