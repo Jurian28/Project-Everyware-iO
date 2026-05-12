@@ -1,3 +1,3 @@
 export default {
-  apiBaseUrl: 'http://localhost:8001',
+	apiBaseUrl: process.env.APP_API_BASE_URL || 'http://10.0.2.2:8001',
 };
