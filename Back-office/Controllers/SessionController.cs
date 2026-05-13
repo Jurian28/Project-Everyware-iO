@@ -4,7 +4,7 @@ using SharedClassLibrary.DTOs.Tags;
 
 namespace Back_office.Controllers
 {
-    [Route("{eventId}/sessions")]
+    [Route("{eventId}/[controller]")]
     public class SessionController : Controller
     {
 
