@@ -75,6 +75,29 @@ export function upsert(canvas, { config, labels, data, colors, datasetLabel = ''
     });
 }
 
+/**
+ * updates the data of the first dataset to a given list of labels and data
+ * data and labels should be the same size to prevent errors
+ * @param {Chart} chart
+ * @param {string[]} labels               - labels for the dataset
+ * @param {[]}   data                     - data for the dataset
+ */
+export function changeSingularDataSetData(chart, labels, data) {
+    if (labels && data && labels.length != data.length) throw new Error('data and labels not the same length');
+    if (labels) {
+        chart.data.labels = labels
+    }
+    if (data) {
+        if (data.length != chart.data.labels.length) throw new Error('data and labels not the same length');
+        const dataset = chart.data.datasets.find(() => true);
+        if (dataset) {
+            dataset.data = data;
+        }
+
+    }
+    chart.update();
+}
+
 export function destroyChart(chart) {
     chart?.destroy();
 }
