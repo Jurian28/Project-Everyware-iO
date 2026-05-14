@@ -122,8 +122,3 @@ function updateOrCreateChart() {
     chart = upsert(canvas, { config: chartConfig, labels: ["Filled", "Open"],data: [filledSpots, openSpots] })
     chartContainer.append(canvas)
 }
-
-
-//setTimeout(() => {
-//    
-//}, 10000);
