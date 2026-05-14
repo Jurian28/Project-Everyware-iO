@@ -110,5 +110,29 @@ namespace Back_office.Controllers
 
             return RedirectToAction("Index", new { eventId = eventId });
         }
+
+        /// <summary>
+        /// Get total,open and waitinglistspots for all sessions of event or 1 session if sessionId is given
+        /// </summary>
+        [HttpGet("GetSpotsData/{sessionId?}")]
+        public async Task<List<SessionSpotsDTO>?> GetSpotsData(int eventId, int? sessionId)
+        {
+            HttpResponseMessage response = await client.GetAsync(sessionId == null
+                ? $"{eventId}/Sessions/GetSpotsData"
+                : $"{eventId}/Sessions/GetSpotsData/{sessionId}");
+            List<SessionSpotsDTO>? sessionSpotsDTOs = new();
+            Console.WriteLine("Koekjes");
+            Console.WriteLine(response);
+            if (response.IsSuccessStatusCode)
+            {
+                sessionSpotsDTOs = (await response.Content.ReadFromJsonAsync<ApiResponse<List<SessionSpotsDTO>>>()).Data;
+            }
+            else
+            {
+                TempData["Error"] = "Error while getting Session Data";
+                sessionSpotsDTOs = null;
+            }
+            return sessionSpotsDTOs;
+        }
     }
 }

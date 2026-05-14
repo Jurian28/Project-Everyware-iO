@@ -15,6 +15,7 @@ export function getConfig({ type = 'doughnut', cutout = '70%', legend = 'bottom'
         data: { labels: [], datasets: [] },
         options: {
             responsive,
+            maintainAspectRatio: false,
             cutout: cutout,
             plugins: {
                 legend: legend

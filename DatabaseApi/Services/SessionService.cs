@@ -28,6 +28,7 @@ public class SessionService : ISessionService
         return await query.Select(s => new SessionSpotsDTO
         {
             SessionId = s.IdSession,
+            SessionTitle = s.Title,
             TotalSpots = s.Room.Capacity,
             FilledSpots = s.RegisteredUsers.Count(o => o.InWaitingList == false),
             SpotsInWaitingList = s.RegisteredUsers.Count(o => o.InWaitingList == true),
