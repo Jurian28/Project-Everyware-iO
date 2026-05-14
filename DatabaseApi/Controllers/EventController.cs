@@ -40,9 +40,46 @@ namespace DatabaseApi.Controllers
                     .Take(pageSize)
                     .ToListAsync();
                 int totalCount = await _applicationDbContext.Events.CountAsync();
-                int totalPages = (int) Math.Ceiling(totalCount / (double) pageSize);
+                int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
                 return StatusCode(201, ApiResponse<EventListDto>.Ok(new EventListDto { TotalPages = totalPages, Events = [.. events.Select(EventMapper.ToResponseDTO)] }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<EventListDto>.Fail($"Internal Server Error: {ex.Message}"));
+            }
+        }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetAllFromUser(string userId, [FromQuery] bool includePastEvents = false)
+        {
+            try
+            {
+                bool userExists = await _applicationDbContext.Users.AnyAsync(u => u.Id == userId);
+
+                if (!userExists)
+                {
+                    return NotFound(ApiResponse<EventListDto>.Fail("User not found"));
+                }
+
+                var query = _applicationDbContext.Events
+                    .Include(e => e.Users)
+                    .Where(e => e.Users.Any(u => u.Id == userId))
+                    .Where(e => e.IsPublished);
+
+                if (!includePastEvents)
+                    query = query.Where(e => e.EndDate >= DateTime.UtcNow);
+
+                List<Event> events = await query
+                    .OrderByDescending(e => e.StartDate)
+                    .ToListAsync();
+
+                if (events.Count == 0)
+                {
+                    return NotFound(ApiResponse<EventListDto>.Fail("No events found for this user"));
+                }
+
+                return StatusCode(201, ApiResponse<EventListDto>.Ok(new EventListDto { Events = [.. events.Select(EventMapper.ToResponseDTO)] }));
             }
             catch (Exception ex)
             {
@@ -102,7 +139,7 @@ namespace DatabaseApi.Controllers
                 dto.EndDate = dto.EndDate.AddHours(23 - dto.EndDate.Hour);
                 dto.EndDate = dto.EndDate.AddMinutes(59 - dto.EndDate.Minute);
 
-                if(dto.EndDate < dto.StartDate) return BadRequest(ApiResponse<Object>.Fail("Bad Request: startDate cannot be before endDate"));
+                if (dto.EndDate < dto.StartDate) return BadRequest(ApiResponse<Object>.Fail("Bad Request: startDate cannot be before endDate"));
 
                 Event newEvent = new Event
                 {
@@ -166,7 +203,7 @@ namespace DatabaseApi.Controllers
                 string? logoPath = eventItem.LogoPath;
                 if (dto.LogoFile != null || dto.RemoveLogo)
                 {
-                    if(!string.IsNullOrEmpty(logoPath))
+                    if (!string.IsNullOrEmpty(logoPath))
                     {
                         DeleteLogo(logoPath);
                         logoPath = null;
@@ -232,8 +269,8 @@ namespace DatabaseApi.Controllers
             {
                 Event? eventItem = await _applicationDbContext.Events.FindAsync(id);
 
-                if (eventItem == null) 
-                { 
+                if (eventItem == null)
+                {
                     return NotFound(ApiResponse<Object>.Fail("Event not found"));
                 }
 
