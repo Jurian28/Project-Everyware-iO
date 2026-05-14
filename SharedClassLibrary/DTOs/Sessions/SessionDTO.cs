@@ -8,6 +8,9 @@ public class SessionDTO
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public bool Plenary { get; set; }
+    public int? PlacesLeft { get; set; }
+    public bool IsEnrolled { get; set; } = false;
+
     public int IdRoom { get; set; }
     public RoomResponseDTO? Room { get; set; }
     public List<TagResponseDTO> Tags { get; set; }
