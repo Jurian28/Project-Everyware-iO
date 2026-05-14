@@ -15,7 +15,6 @@ namespace DatabaseApi.Models
         public string LastName { get; set; }
         public string? Description { get; set; }
         public string? ImgPath { get; set; }
-
         // Navigation properties
         public Event Event { get; set; }
         public ICollection<Session> Sessions { get; set; } = new List<Session>();

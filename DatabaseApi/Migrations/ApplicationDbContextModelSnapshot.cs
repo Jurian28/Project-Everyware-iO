@@ -60,7 +60,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasKey("IdEvent");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.EventInvite", b =>
@@ -81,7 +81,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("EventIdEvent");
 
-                    b.ToTable("EventInvites");
+                    b.ToTable("EventInvites", (string)null);
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.RefreshToken", b =>
@@ -105,7 +105,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Room", b =>
@@ -134,7 +134,7 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("IdEvent", "RoomLabel")
                         .IsUnique();
 
-                    b.ToTable("Rooms");
+                    b.ToTable("Rooms", (string)null);
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Session", b =>
@@ -170,7 +170,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("IdRoom");
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Sessions", (string)null);
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Speaker", b =>
@@ -205,7 +205,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("IdEvent");
 
-                    b.ToTable("Speakers");
+                    b.ToTable("Speakers", (string)null);
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Tag", b =>
@@ -232,7 +232,7 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("IdEvent", "Title")
                         .IsUnique();
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.User", b =>
@@ -318,7 +318,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("IdSession");
 
-                    b.ToTable("User_has_Sessions");
+                    b.ToTable("User_has_Sessions", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -466,7 +466,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("SpeakersIdSpeaker");
 
-                    b.ToTable("Session_has_Speaker");
+                    b.ToTable("Session_has_Speaker", (string)null);
                 });
 
             modelBuilder.Entity("Session_has_Tag", b =>
@@ -481,7 +481,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("TagsIdTag");
 
-                    b.ToTable("Session_has_Tag");
+                    b.ToTable("Session_has_Tag", (string)null);
                 });
 
             modelBuilder.Entity("User_has_Event", b =>
@@ -496,7 +496,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("User_has_Event");
+                    b.ToTable("User_has_Event", (string)null);
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.EventInvite", b =>

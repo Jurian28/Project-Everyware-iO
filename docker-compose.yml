@@ -11,10 +11,27 @@ services:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: "${DB_PASSWORD:?}"
     healthcheck:
-      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${DB_PASSWORD}", "-C", "-Q", "SELECT 1"]
+      test: [ "CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${DB_PASSWORD}", "-C", "-Q", "SELECT 1" ]
       interval: 10s
       timeout: 5s
       retries: 10
+
+  mobile-web:
+    build:
+      context: .
+      dockerfile: MobileApp/dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - RUNNING_IN_DOCKER=true
+    env_file:
+      - .env
+    volumes:
+      - ./MobileApp:/app
+      - /app/node_modules
+      - ./SharedClassLibrary:/app/SharedClassLibrary
+    depends_on:
+      - databaseapi
 
   back-office:
     build:
@@ -51,39 +68,39 @@ services:
       - mssql
       - databaseapi
 
-  webapp:
-    build:
-      context: .
-      dockerfile: WebApp/dockerfile
-    ports:
-      - "${WEB_APP_PORT:?}:5000"
-    environment:
-      - RUNNING_IN_DOCKER=true
-      - ASPNETCORE_ENVIRONMENT=Development
-      - DOTNET_USE_POLLING_FILE_WATCHER=1
-    env_file:
-      - .env
-    volumes:
-      - webappkeys:/root/.aspnet/DataProtection-Keys
-    develop:
-      watch:
-        - action: sync
-          path: ./WebApp
-          target: /app/WebApp
-          ignore:
-            - bin/
-            - obj/
-        - action: sync
-          path: ./SharedClassLibrary
-          target: /app/SharedClassLibrary
-          ignore:
-            - bin/
-            - obj/
-        - action: rebuild
-          path: ./WebApp/WebApp.csproj
-    depends_on:
-      - mssql
-      - databaseapi
+  # webapp:
+  #   build:
+  #     context: .
+  #     dockerfile: WebApp/dockerfile
+  #   ports:
+  #     - "${WEB_APP_PORT:?}:5000"
+  #   environment:
+  #     - RUNNING_IN_DOCKER=true
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - DOTNET_USE_POLLING_FILE_WATCHER=1
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - webappkeys:/root/.aspnet/DataProtection-Keys
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./WebApp
+  #         target: /app/WebApp
+  #         ignore:
+  #           - bin/
+  #           - obj/
+  #       - action: sync
+  #         path: ./SharedClassLibrary
+  #         target: /app/SharedClassLibrary
+  #         ignore:
+  #           - bin/
+  #           - obj/
+  #       - action: rebuild
+  #         path: ./WebApp/WebApp.csproj
+  #   depends_on:
+  #     - mssql
+  #     - databaseapi
 
   databaseapi:
     build:

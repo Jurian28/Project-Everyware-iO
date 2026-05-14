@@ -1,0 +1,69 @@
+@model int
+@{
+    ViewData["Title"] = "Speaker";
+}
+@section Scripts {
+    <script src="~/js/speaker.js" defer data-event-id="@Model"></script>
+}
+<div class="d-flex flex-fill m-4 gap-3 mh-100 max-h-100 pb-1 overflow-hidden">
+    <div style="flex: 1" class="bg-dark-subtle rounded-3 px-4 py-1 h-100 max-h-100">
+        <div id="speakerList" class="overflow-auto max-h-100">
+            <div id="loadingMessage" class="text-center my-auto">Loading...</div>
+            <div id="noSpeakersMessage" class="text-center my-auto d-none">No speakers found</div>
+        </div>
+    </div>
+    <div style="flex: 1" class="px-4">
+        <form id="speakerForm" class="d-flex flex-column h-100" onsubmit="submitSpeaker(event)" oninput="showEditButtons()">
+            <div class="flex-grow-1">
+                <input type="hidden" id="speakerId" value="" />
+                <input type="hidden" name="IdEvent" value="@Model" />
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <div class="row g-2">
+                        <div class="col">
+                            <input type="text" class="form-control" id="firstName" name="FirstName" placeholder="First name" required />
+                        </div>
+
+                        <div class="col">
+                            <input type="text" class="form-control" id="middleName" name="MiddleName" placeholder="Middle name" />
+                        </div>
+
+                        <div class="col">
+                            <input type="text" class="form-control" id="lastName" name="LastName" placeholder="Last name" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="Description"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="imgPath" class="form-label">Image</label>
+                    <input type="file" class="form-control" id="imgPath" name="Image" accept="image/png, image/gif, image/jpeg" />
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="removeImage" name="RemoveImage" value="true" />
+                        <label class="form-check-label" for="removeImage">Remove current image</label>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div id="errorMessageBox" class="text-danger text-center"></div>
+                <div id="successMessageBox" class="text-success text-break text-center"></div>
+                <div class="d-flex justify-content-between">
+                    <button id="deleteButton" type="button" class="btn btn-danger py-0 invisible" onclick="deleteSpeaker()">Delete</button>
+                    <button type="button" class="js-speaker-edit-button btn btn-dark py-0 invisible" onclick="clearSpeakerForm()">Cancel</button>
+                    <button type="submit" class="btn btn-success py-0">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<template id="speakerRowTemplate">
+    <div class="p-3 my-1 speaker-row d-flex align-items-center gap-2" style="cursor:pointer">
+        <img data-field="imgPath" class="rounded" style="width:40px; height:40px; object-fit:cover;" />
+        <span class="fw-bold" data-field="firstName"></span>
+        <span class="fw-bold" data-field="middleName"></span>
+        <span class="fw-bold" data-field="lastName"></span>
+    </div>
+</template>

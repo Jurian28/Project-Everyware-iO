@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using SharedClassLibrary.DTOs.Tags;
+using SharedClassLibrary.DTOs.Sessions;
 
 namespace Back_office.Controllers
 {
