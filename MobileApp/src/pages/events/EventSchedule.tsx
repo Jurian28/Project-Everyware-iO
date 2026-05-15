@@ -5,6 +5,7 @@ import AppLayout from '../../layouts/AppLayout';
 import scheduleStyles from '../../styles/scheduleStyles';
 import ScheduleTimeline from '../../components/event/ScheduleTimeline';
 import { SessionService, SessionDTO } from '../../services/SessionService';
+import Colors from '../../pages/enums/colors';
 
 export default function EventSchedule() {
   const route = useRoute<any>();
@@ -79,7 +80,7 @@ export default function EventSchedule() {
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
                 {uniqueDays.length > 1 && (
                   <Pressable onPress={handlePrevDay} disabled={currentDateIndex === 0} style={{ paddingHorizontal: 10 }}>
-                    <Text style={{ color: currentDateIndex === 0 ? '#CBD5E1' : '#3B82F6', fontSize: 16 }}>&larr;</Text>
+                    <Text style={{ color: currentDateIndex === 0 ? '#CBD5E1' : Colors.DEFAULT_BUTTON_COLOR, fontSize: 16 }}>&larr;</Text>
                   </Pressable>
                 )}
                 <Text style={scheduleStyles.monthTitle}>
@@ -87,7 +88,7 @@ export default function EventSchedule() {
                 </Text>
                 {uniqueDays.length > 1 && (
                   <Pressable onPress={handleNextDay} disabled={currentDateIndex === uniqueDays.length - 1} style={{ paddingHorizontal: 10 }}>
-                    <Text style={{ color: currentDateIndex === uniqueDays.length - 1 ? '#CBD5E1' : '#3B82F6', fontSize: 16 }}>&rarr;</Text>
+                    <Text style={{ color: currentDateIndex === uniqueDays.length - 1 ? '#CBD5E1' : Colors.DEFAULT_BUTTON_COLOR, fontSize: 16 }}>&rarr;</Text>
                   </Pressable>
                 )}
               </View>
@@ -98,7 +99,7 @@ export default function EventSchedule() {
 
         {loading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#3B82F6" />
+            <ActivityIndicator size="large" color={Colors.DEFAULT_BUTTON_COLOR} />
           </View>
         ) : sessions.length === 0 ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

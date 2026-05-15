@@ -3,6 +3,7 @@ import { Event } from '../../services/EventService';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import config from '../../config';
 import eventStyles from '../../styles/eventStyles';
+import Colors from '../../pages/enums/colors';
 
 export function EventPage() {
   const route = useRoute<any>();
@@ -14,9 +15,13 @@ export function EventPage() {
 
   return (
     <View style={eventStyles.eventPageContainer}>
-      <View>
+      <View style={eventStyles.eventPageHeader}>
         <Pressable onPress={() => navigation.navigate('EventsOverview')} style={eventStyles.backButton}>
           <Text style={eventStyles.backButton}>&larr;</Text>
+        </Pressable>
+
+        <Pressable style={eventStyles.qrCodeButton} onPress={() => navigation.navigate('EventQRCode', { event })}>
+          <Text style={eventStyles.qrCodeButtonText}>Presencion QR Code</Text>
         </Pressable>
       </View>
       <View style={eventStyles.eventContentContainer}>
@@ -47,7 +52,7 @@ export function EventPage() {
 
         <View style={[eventStyles.eventPageDivider, { backgroundColor: event.mainColorHex }]} />
 
-        <Pressable onPress={() => navigation.navigate('EventSchedule', { eventId: event.idEvent, eventTitle: event.title, eventColor: event.mainColorHex, eventAccentColor: event.accentColorHex })} style={{ backgroundColor: '#2563EB', padding: 12, borderRadius: 8, alignItems: 'center', marginVertical: 10 }}>
+        <Pressable onPress={() => navigation.navigate('EventSchedule', { eventId: event.idEvent, eventTitle: event.title, eventColor: event.mainColorHex, eventAccentColor: event.accentColorHex })} style={{ backgroundColor: Colors.DEFAULT_BUTTON_COLOR, padding: 12, borderRadius: 8, alignItems: 'center', marginVertical: 10 }}>
           <Text style={{ color: 'white', fontWeight: 'bold' }}>View Schedule</Text>
         </Pressable>
 

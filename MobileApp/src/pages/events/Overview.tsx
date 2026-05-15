@@ -5,6 +5,7 @@ import AppLayout from '../../layouts/AppLayout';
 import AuthService from '../../services/AuthService';
 import eventStyles from '../../styles/eventStyles';
 import EventCard from '../../components/event/EventCard';
+import Colors from '../../pages/enums/colors';
 
 export default function EventsOverview() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -65,7 +66,7 @@ export default function EventsOverview() {
 
             <Pressable 
               onPress={onPress}
-              style={[eventStyles.eventsLoadPastEvents, { backgroundColor: includePastEvents ? 'rgb(170, 170, 170)' : 'rgb(50, 150, 250)' }]}  
+              style={[eventStyles.eventsLoadPastEvents, { backgroundColor: includePastEvents ? 'rgb(170, 170, 170)' : Colors.DEFAULT_BUTTON_COLOR }]}  
             >
               <Text style={eventStyles.eventsLoadPastEventsText}>
                 {includePastEvents ? 'Hide Past Events' : 'Load Past Events'}

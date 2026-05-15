@@ -27,6 +27,7 @@ import AuthService from './src/services/AuthService';
 import EventsOverview from './src/pages/events/Overview';
 import { EventPage } from './src/pages/events/Event';
 import EventSchedule from './src/pages/events/EventSchedule';
+import QRCodePage from './src/pages/events/QRCodePage';
 
 function LogoutPage() {
   const navigator = useNavigation<NavigationProp<ParamListBase>>();
@@ -144,7 +145,17 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
           display: 'none',
         },
       },
-    }
+    },
+
+    EventQRCode: {
+      screen: QRCodePage,
+      options: {
+        title: 'Attendance QR Code',
+        drawerItemStyle: {
+          display: 'none',
+        },
+      },
+    },
   },
 });
 

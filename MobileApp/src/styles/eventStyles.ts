@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import Colors from '../pages/enums/colors';
 
 const eventStyles = StyleSheet.create({
   // Overview Page Styles
@@ -104,9 +105,26 @@ const eventStyles = StyleSheet.create({
     fontSize: 48, 
     fontWeight: 'bold'
   },
+  qrCodeButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.DEFAULT_BUTTON_COLOR,
+  },
+  qrCodeButtonText: {
+    fontWeight: 'bold',
+    color: 'white'
+  },
   eventContentContainer: {
     display: 'flex',
     gap: 8,
+  },
+  eventPageHeader: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
   },
   eventPageTitle: {
     fontSize: 24,
@@ -153,6 +171,66 @@ const eventStyles = StyleSheet.create({
   eventPageDescriptionText: {
     fontSize: 14,
   },
+
+  // QR Code Page
+  qrCodeContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 12,
+    padding: 12,
+  },
+  qrCodeTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  qrCodePageWrapper: {
+    alignItems: 'center',
+    gap: 24,
+  },
+  qrCodeCard: {
+    padding: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+    gap: 16,
+    width: '100%',
+  },
+  qrCodeBox: {
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  qrCodeImage: {
+    width: 280,
+    height: 280,
+  },
+  qrCodeLoadingText: {
+    color: '#999',
+  },
+  qrCodeInfoSection: {
+    gap: 8,
+    alignItems: 'center',
+  },
+  qrCodeEventTitle: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  qrCodeEventDate: {
+    color: 'white',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  qrCodeInstructions: {
+    color: '#666',
+    textAlign: 'center',
+    fontSize: 13,
+    marginHorizontal: 16,
+  }
 });
 
 export default eventStyles;
