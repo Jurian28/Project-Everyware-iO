@@ -59,8 +59,9 @@ export default function QRCodePage() {
   useEffect(() => {
     async function GenerateQRCode() {
       try {
+        const eventUrl = `${config.apiBaseUrl}/event/${event.idEvent}`;
         const qr = await QRCode.toDataURL(
-          `Event: ${event.idEvent}`, 
+          eventUrl, 
           { 
             width: 300, 
             margin: 2 
