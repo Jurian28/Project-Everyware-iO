@@ -20,6 +20,11 @@ let percentages = [];
 
 let sessions;
 
+const noElementsElement = document.getElementById("noCards")
+const loadingElement = document.getElementById("cardsLoading");
+if (loadingElement) {
+    loadingElement.classList.remove("d-none");
+}
 updatePage();
 setInterval(updatePage, 5000)
 
@@ -40,7 +45,10 @@ async function updatePage() {
 }
 
 function updateOrCreatePageElements() {
-    if (!sessions) return;
+    if (!sessions || sessions.length == 0 || (cardsContainer.childElementCount != sessions.length)) {
+        createPageElements();
+        return;
+    }
     let create = false;
     for (const session of sessions) {
         if (create) break;
@@ -58,11 +66,18 @@ function updateOrCreatePageElements() {
         return;
     }
     setAverageAttendance()
+    cardsContainer.classList.remove("d-none")
     updateOrCreateChart()
 }
 function createPageElements() {
-    if (!sessions) return;
-    
+    if (loadingElement) {
+        loadingElement.classList.add("d-none")
+    }
+    if (!sessions || sessions.length == 0) {
+        noElementsElement.classList.remove("d-none")
+        return;
+    }
+    cardsContainer.innerHTML = '';
     sessions.forEach((session) => {
         let sessionCard = dashboardCardTemplate.content.cloneNode(true);
         sessionCard.firstElementChild.id = `${SESSION_CARD_PREFIX}${session.sessionId}`
@@ -71,6 +86,7 @@ function createPageElements() {
         cardsContainer.append(sessionCard)
     });
     setAverageAttendance()
+    cardsContainer.classList.remove("d-none")
     updateOrCreateChart()
 }
 
@@ -104,6 +120,7 @@ function calculateAttendancepercentage(session) {
 function setAverageAttendance() {
     const attendanceSpan = document.getElementById("avgAttendance");
     if (attendanceSpan && percentages && percentages.length > 0) {
+        attendanceSpan.parentElement.classList.remove("invisible");
         let percentageSum = 0;
         percentages.forEach((percentage) => {
             percentageSum += percentage;

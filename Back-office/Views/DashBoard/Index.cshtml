@@ -10,14 +10,23 @@
     </div>
     <div style="width: 2px;" class="bg-black h-95 mt-auto"></div>
     <div class="w-50 ps-3 h-100 pe-5 d-flex flex-column">
-        <div class="fs-4 text-center pt-3 pb-5">
+        <div class="fs-4 text-center pt-3 pb-5 invisible">
             Average Attendance: <span id="avgAttendance"></span>
         </div>
-        <div id="dashboardCardContainer" class="w-100 flex-grow-1 bg-grey p-4 rounded-3 gap-2 d-flex flex-column overflow-y-auto">
+        <div id="dashboardCardContainer" class="w-100 flex-grow-1 bg-grey p-4 rounded-3 gap-2 d-flex flex-column overflow-y-auto d-none">
             
         </div>
+        <div id="noCards" class="w-100 flex-grow-1 bg-grey p-4 rounded-3 gap-2 d-flex flex-column d-none">
+            <div class="dashboard-card rounded-2 d-flex fs-5 justify-content-center">
+                <p>No Data</p>
+            </div>
+        </div>
+        <div id="cardsLoading" class="w-100 flex-grow-1 bg-grey p-4 rounded-3 gap-2 d-flex flex-column d-none">
+            <div class="dashboard-card rounded-2 d-flex fs-5 justify-content-center">
+                <p>Loading...</p>
+            </div>
+        </div>
     </div>
-    
 </div>
 <Template id="dashboardCardTemplate">
     <div class="dashboard-card rounded-2 d-flex flex-row fs-5 justify-content-between">
