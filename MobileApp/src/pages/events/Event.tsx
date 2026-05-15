@@ -3,7 +3,7 @@ import { Event } from '../../services/EventService';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import config from '../../config';
 import eventStyles from '../../styles/eventStyles';
-import Colors from '../../pages/enums/colors';
+import Colors from '../../enums/colors';
 
 export function EventPage() {
   const route = useRoute<any>();

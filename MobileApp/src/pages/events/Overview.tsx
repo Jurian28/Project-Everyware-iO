@@ -5,7 +5,7 @@ import AppLayout from '../../layouts/AppLayout';
 import AuthService from '../../services/AuthService';
 import eventStyles from '../../styles/eventStyles';
 import EventCard from '../../components/event/EventCard';
-import Colors from '../../pages/enums/colors';
+import Colors from '../../enums/colors';
 
 export default function EventsOverview() {
   const [events, setEvents] = useState<Event[]>([]);

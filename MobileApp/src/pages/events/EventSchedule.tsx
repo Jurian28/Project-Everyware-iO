@@ -5,7 +5,7 @@ import AppLayout from '../../layouts/AppLayout';
 import scheduleStyles from '../../styles/scheduleStyles';
 import ScheduleTimeline from '../../components/event/ScheduleTimeline';
 import { SessionService, SessionDTO } from '../../services/SessionService';
-import Colors from '../../pages/enums/colors';
+import Colors from '../../enums/colors';
 
 export default function EventSchedule() {
   const route = useRoute<any>();

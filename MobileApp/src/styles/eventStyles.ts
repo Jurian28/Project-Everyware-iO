@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import Colors from '../pages/enums/colors';
+import Colors from '../enums/colors';
 
 const eventStyles = StyleSheet.create({
   // Overview Page Styles
@@ -85,7 +85,7 @@ const eventStyles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
     gap: 16,
-    width: '65%',
+    width: '60%',
   },
   eventCardDescription: {
     marginBottom: 8,
@@ -215,13 +215,11 @@ const eventStyles = StyleSheet.create({
     alignItems: 'center',
   },
   qrCodeEventTitle: {
-    color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   qrCodeEventDate: {
-    color: 'white',
     fontSize: 14,
     textAlign: 'center',
   },
