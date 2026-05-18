@@ -66,7 +66,6 @@ export function upsert(canvas, { config, labels, data, colors, datasetLabel = ''
     if (colors && colors.length > 0) {
         dataset[0].backgroundColor = colors;
     }
-    console.log(dataset)
     return new Chart(canvas, {
         ...config,
         data: {
