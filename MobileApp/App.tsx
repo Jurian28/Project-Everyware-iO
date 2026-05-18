@@ -23,11 +23,11 @@ import {
 import HomePage from './src/pages/Home';
 import LoginPage from './src/pages/auth/Login';
 import RegisterPage from './src/pages/auth/Register';
-import SessionOverview from './src/pages/sessions/overview';
-import SessionViewPage from './src/pages/sessions/session';
 import AuthService from './src/services/AuthService';
 import EventsOverview from './src/pages/events/Overview';
 import { EventPage } from './src/pages/events/Event';
+
+import SessionStack from './src/navigation/SessionStack'
 
 function LogoutPage() {
 	const navigator = useNavigation<NavigationProp<ParamListBase>>();
@@ -120,22 +120,10 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
 			},
 		},
 
-		SessionOverview: {
-			screen: SessionOverview,
+		Sessions: {
+			screen: SessionStack,
 			options: {
-				title: 'View Sessions',
-			},
-		},
-
-
-		SessionView: {
-			screen: SessionViewPage,
-			options: {
-				title: 'View Session',
-
-				drawerItemStyle: {
-					display: 'none',
-				},
+				title: 'Sessions',
 			},
 		},
 
