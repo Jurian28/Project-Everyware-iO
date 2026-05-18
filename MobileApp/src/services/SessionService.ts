@@ -3,6 +3,38 @@ import config from '../config';
 
 const baseUrl = config.apiBaseUrl;
 
+export type TagResponseDTO = {
+	idTag: number;
+	idEvent: number;
+	title: string;
+	colorHex: string;
+};
+
+export type RoomResponseDTO = {
+	idRoom: number;
+	roomLabel: string;
+	capacity: number;
+};
+
+export type SessionDTO = {
+	sessionId: number;
+	title: string;
+	startTime: string;
+	endTime: string;
+	plenary: boolean;
+	room: RoomResponseDTO;
+	tags: TagResponseDTO[];
+	speakerId?: number;
+	speakerName: string;
+};
+
+type SessionsResult = {
+	success: boolean;
+	sessions?: SessionDTO[];
+	message?: string;
+};
+
+
 async function authHeaders() {
 	const token = await Keychain.getGenericPassword({
 		service: 'auth_access_token',
@@ -14,7 +46,7 @@ async function authHeaders() {
 			? {
 				Authorization: `Bearer ${token.password}`,
 			}
-				: {}),
+			: {}),
 	};
 }
 
@@ -26,8 +58,42 @@ async function safeJson(res: Response) {
 	}
 }
 
-export default {
-	async getSession(sessionId: number) {
+
+
+
+export class SessionService {
+	public static async fetchEventSessions(eventId: string | number): Promise<SessionsResult> {
+		try {
+			const response = await fetch(`${baseUrl}/${eventId}/sessions`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+
+			if (!response.ok) {
+				const message = await response.text();
+				console.error(`Failed to fetch sessions for event ${eventId}:`, response.status, message);
+				return { success: false, message: "Failed to fetch sessions" };
+			}
+
+			const json = await response.json();
+
+			if (!json.success) {
+				console.error(`API responded with success=false for event ${eventId}:`, json);
+				return { success: false, message: "fetch returned unsuccessful" };
+			}
+
+			return { success: true, sessions: json.data };
+		} catch (error) {
+			console.error(`Fetching sessions for event ${eventId} ended with error:`, error);
+			return { success: false, message: "Internal Server Error" };
+		}
+	}
+
+
+
+	public static async getSession(sessionId: number) {
 		const res = await fetch(
 			`${baseUrl}/sessions/${sessionId}`,
 			{
@@ -44,9 +110,9 @@ export default {
 
 		const json = await res.json();
 		return json.data;
-	},
+	}
 
-	async enroll(sessionId: number) {
+	public static async enroll(sessionId: number) {
 		const res = await fetch(
 			`${baseUrl}/sessions/${sessionId}/enroll`,
 			{
@@ -86,9 +152,9 @@ export default {
 		}
 
 		return { success: true };
-	},
+	}
 
-	async withdraw(sessionId: number) {
+	public static async withdraw(sessionId: number) {
 		const res = await fetch(
 			`${baseUrl}/sessions/${sessionId}/enroll`,
 			{
@@ -109,5 +175,5 @@ export default {
 		}
 
 		return { success: true };
-	},
-};
+	}
+}
