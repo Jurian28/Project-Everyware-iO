@@ -3,7 +3,6 @@ import {
 	View,
 	Text,
 	ActivityIndicator,
-	StyleSheet,
 	ScrollView,
 	TouchableOpacity,
 } from 'react-native';
@@ -11,6 +10,8 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 
 import SessionService from '../../services/SessionService';
 import EnrollConflictModal from '../../components/sessions/enrollConflictModal';
+
+import sessionStyles from '../../styles/sessionStyles';
 
 type Tag = {
 	idTag: number;
@@ -55,8 +56,8 @@ const formatTimeRange = (start: string, end: string) => {
 
 function TagItem({ tag }: { tag: Tag }) {
 	return (
-		<View style={[styles.tag, { borderColor: tag.colorHex }]}>
-		<Text style={[styles.tagText, { color: tag.colorHex }]}>
+		<View style={[sessionStyles.tag, { borderColor: tag.colorHex }]}>
+		<Text style={[sessionStyles.tagText, { color: tag.colorHex }]}>
 		{tag.title}
 		</Text>
 		</View>
@@ -73,19 +74,19 @@ function Section({
 	return (
 		<>
 		<Separator />
-		<Text style={styles.sectionTitle}>{title}</Text>
+		<Text style={sessionStyles.sectionTitle}>{title}</Text>
 		{children}
 		</>
 	);
 }
 
 function Separator() {
-	return <View style={styles.separator} />;
+	return <View style={sessionStyles.separator} />;
 }
 
 function Loading() {
 	return (
-		<View style={styles.center}>
+		<View style={sessionStyles.center}>
 		<ActivityIndicator size="large" />
 		<Text style={{ marginTop: 10 }}>
 		Loading session...
@@ -96,7 +97,7 @@ function Loading() {
 
 function ErrorState({ message }: { message: string }) {
 	return (
-		<View style={styles.center}>
+		<View style={sessionStyles.center}>
 		<Text style={{ color: 'red' }}>
 		{message}
 		</Text>
@@ -118,8 +119,8 @@ function PlacesLeft({
 	loading?: boolean;
 }) {
 	return (
-		<View style={styles.enrollRow}>
-		<Text style={styles.spotsInlineText}>
+		<View style={sessionStyles.enrollRow}>
+		<Text style={sessionStyles.spotsInlineText}>
 		{placesLeft} spaces left
 		</Text>
 
@@ -127,14 +128,14 @@ function PlacesLeft({
 		disabled={loading}
 		onPress={isEnrolled ? onWithdraw : onEnroll}
 		style={[
-			styles.actionButton,
+			sessionStyles.actionButton,
 			isEnrolled
-				? styles.withdrawButton
-				: styles.enrollButton,
-				loading && styles.disabledButton,
+				? sessionStyles.withdrawButton
+				: sessionStyles.enrollButton,
+				loading && sessionStyles.disabledButton,
 		]}
 		>
-		<Text style={styles.actionText}>
+		<Text style={sessionStyles.actionText}>
 		{loading
 			? 'Loading...'
 			: isEnrolled
@@ -277,22 +278,22 @@ export default function SessionViewPage() {
 
 		return (
 			<ScrollView
-			contentContainerStyle={styles.container}
+			contentContainerStyle={sessionStyles.container}
 			>
 			<TouchableOpacity
 			onPress={() => navigation.goBack()}
-			style={styles.backButton}
+			style={sessionStyles.backButton}
 			>
-			<Text style={styles.backText}>
+			<Text style={sessionStyles.backText}>
 			← Back
 			</Text>
 			</TouchableOpacity>
 
-			<Text style={styles.title}>
+			<Text style={sessionStyles.title}>
 			{session.title}
 			</Text>
 
-			<Text style={styles.time}>
+			<Text style={sessionStyles.time}>
 			{formatTimeRange(
 				session.startTime,
 				session.endTime
@@ -300,13 +301,13 @@ export default function SessionViewPage() {
 			</Text>
 
 			{session.room?.roomLabel && (
-				<Text style={styles.location}>
+				<Text style={sessionStyles.location}>
 				{session.room.roomLabel}
 				</Text>
 			)}
 
 			{!!session.tags?.length && (
-				<View style={styles.tagRow}>
+				<View style={sessionStyles.tagRow}>
 				{session.tags.map((tag) => (
 					<TagItem
 					key={tag.idTag}
@@ -327,14 +328,14 @@ export default function SessionViewPage() {
 			/>
 
 			<Section title="Speakers">
-			<Text style={styles.speakerName}>
+			<Text style={sessionStyles.speakerName}>
 			{session.speakerName ??
 				'TBA'}
 			</Text>
 			</Section>
 
 			<Section title="About">
-			<Text style={styles.aboutText}>
+			<Text style={sessionStyles.aboutText}>
 			{session.description ??
 				'No description available yet.'}
 			</Text>
@@ -351,124 +352,3 @@ export default function SessionViewPage() {
 			</ScrollView>
 		);
 }
-
-const styles = StyleSheet.create({
-	container: {
-		padding: 20,
-		paddingBottom: 40,
-	},
-
-	center: {
-		flex: 1,
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-
-	backButton: {
-		marginBottom: 10,
-	},
-
-	backText: {
-		fontSize: 16,
-		color: '#007AFF',
-	},
-
-	title: {
-		fontSize: 26,
-		fontWeight: '700',
-		marginBottom: 6,
-	},
-
-	time: {
-		fontSize: 15,
-		color: '#444',
-		marginBottom: 4,
-	},
-
-	location: {
-		fontSize: 14,
-		color: '#666',
-		marginBottom: 10,
-	},
-
-	tagRow: {
-		flexDirection: 'row',
-		flexWrap: 'wrap',
-	},
-
-	tag: {
-		paddingHorizontal: 10,
-		paddingVertical: 4,
-		borderRadius: 20,
-		borderWidth: 1,
-		marginRight: 8,
-	},
-
-	tagText: {
-		fontSize: 12,
-		fontWeight: '600',
-	},
-
-	separator: {
-		height: 1,
-		backgroundColor: '#e6e6e6',
-		marginVertical: 16,
-	},
-
-	sectionTitle: {
-		fontSize: 16,
-		fontWeight: '700',
-		marginBottom: 10,
-	},
-
-	speakerName: {
-		fontSize: 16,
-		fontWeight: '600',
-		color: '#222',
-	},
-
-	aboutText: {
-		fontSize: 14,
-		color: '#333',
-		lineHeight: 20,
-	},
-
-	enrollRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		paddingVertical: 8,
-	},
-
-	actionButton: {
-		paddingVertical: 8,
-		paddingHorizontal: 16,
-		borderRadius: 10,
-	},
-
-	enrollButton: {
-		backgroundColor: '#3b82f6',
-	},
-
-	withdrawButton: {
-		backgroundColor: '#ef4444',
-	},
-
-	disabledButton: {
-		backgroundColor: '#374151',
-	},
-
-	actionText: {
-		color: 'white',
-		fontWeight: '700',
-		fontSize: 13,
-	},
-
-	spotsInlineText: {
-		fontSize: 12,
-		color: '#666',
-		textTransform: 'uppercase',
-		letterSpacing: 0.5,
-		fontWeight: 'bold',
-	},
-});

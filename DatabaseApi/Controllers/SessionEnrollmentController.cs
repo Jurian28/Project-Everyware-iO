@@ -48,7 +48,7 @@ public class SessionEnrollmentController : ControllerBase
     [HttpGet("{sessionId}")]
     public async Task<ActionResult<ApiResponse<SessionDTO>>> GetSessionData(int sessionId)
     {
-        var userId = GetUserId();
+        string userId = GetUserId();
 
         SessionDTO? session = await _context.Sessions
             .Include(s => s.Room)
@@ -109,21 +109,20 @@ public class SessionEnrollmentController : ControllerBase
     [HttpPost("{sessionId}/enroll")]
     public async Task<IActionResult> Enroll(int sessionId)
     {
-        var userId = GetUserId();
+        string userId = GetUserId();
+        User? user = await _context.Users.FindAsync(userId);
 
-        var session = await _context.Sessions
+        if (user == null)
+            return Unauthorized();
+
+        Session? session = await _context.Sessions
             .Include(s => s.RegisteredUsers)
             .FirstOrDefaultAsync(s => s.IdSession == sessionId);
 
         if (session == null)
             return NotFound("Session not found");
 
-        var user = await _context.Users.FindAsync(userId);
-
-        if (user == null)
-            return Unauthorized();
-
-        var conflictingSession = await _context.Sessions
+        Session? conflictingSession = await _context.Sessions
             .Where(s => s.RegisteredUsers.Any(u => u.User.Id == userId))
             .Where(s =>
                 s.StartTime < session.EndTime &&
@@ -169,9 +168,9 @@ public class SessionEnrollmentController : ControllerBase
     [HttpDelete("{sessionId}/enroll")]
     public async Task<IActionResult> Withdraw(int sessionId)
     {
-        var userId = GetUserId();
+        string userId = GetUserId();
 
-        var userInSession = await _context.User_has_Sessions
+        User_has_Session? userInSession = await _context.User_has_Sessions
             .FirstOrDefaultAsync(x =>
                 x.IdSession == sessionId &&
                 x.IdUser == userId);

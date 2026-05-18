@@ -4,8 +4,9 @@ import {
 	View,
 	Text,
 	Pressable,
-    StyleSheet,
 } from 'react-native';
+
+import sessionStyles from '../../styles/sessionStyles';
 
 
 type ConflictSession = {
@@ -15,7 +16,7 @@ type ConflictSession = {
 	endTime: string;
 };
 
-type Props = {
+type EnrollConflictModalProps = {
 	visible: boolean;
 	conflictSession: ConflictSession | null;
 	onCancel: () => void;
@@ -27,7 +28,7 @@ export default function EnrollConflictModal({
 	conflictSession,
 	onCancel,
 	onConfirm,
-}: Props) {
+}: EnrollConflictModalProps) {
 
 	const formatTimeRange = (
 		start: string,
@@ -77,17 +78,17 @@ export default function EnrollConflictModal({
 		Session Conflict
 		</Text>
 
-		<Text style={styles.text}>
+		<Text>
 		You are already enrolled in:
 			</Text>
 
 		{conflictSession && (
-			<View style={styles.sessionCard}>
-			<Text style={styles.sessionTitle}>
+			<View style={sessionStyles.sessionCard}>
+			<Text style={sessionStyles.sessionTitle}>
 			{conflictSession.title}
 			</Text>
 
-			<Text style={styles.sessionMeta}>
+			<Text style={sessionStyles.sessionMeta}>
 			{formatTimeRange(
 				conflictSession.startTime,
 				conflictSession.endTime
@@ -127,24 +128,3 @@ export default function EnrollConflictModal({
 
 
 
-const styles = StyleSheet.create({
-	sessionCard: {
-		backgroundColor: '#f3f4f6',
-		padding: 12,
-		borderRadius: 10,
-		marginTop: 10,
-		marginBottom: 16,
-	},
-
-	sessionTitle: {
-		fontSize: 15,
-		fontWeight: '700',
-		marginBottom: 4,
-		color: '#111827',
-	},
-
-	sessionMeta: {
-		fontSize: 13,
-		color: '#4b5563',
-	},
-})

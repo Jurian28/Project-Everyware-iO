@@ -18,16 +18,6 @@ export default function SessionOverview() {
 		}
 		/>
 
-
-
-		<Button
-		title="Go to Session View 2"
-		onPress={() =>
-			navigation.navigate('SessionView', {
-				sessionId: 2,
-			})
-		}
-		/>
 		</View>
 	);
 }
