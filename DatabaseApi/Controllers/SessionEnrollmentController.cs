@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedClassLibrary.DTOs.Rooms;
 using SharedClassLibrary.DTOs.Tags;
+using SharedClassLibrary.DTOs.Sessions;
 using System.Security.Claims;
 
 namespace DatabaseApi.Controllers;

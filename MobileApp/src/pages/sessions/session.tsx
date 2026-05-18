@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 
-import SessionService from '../../services/SessionService';
+import { SessionService, SessionDTO } from '../../services/SessionService';
 import EnrollConflictModal from '../../components/sessions/enrollConflictModal';
 
 import sessionStyles from '../../styles/sessionStyles';
