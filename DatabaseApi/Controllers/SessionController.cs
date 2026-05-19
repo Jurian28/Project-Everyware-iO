@@ -6,6 +6,7 @@ using SharedClassLibrary.DTOs.Rooms;
 using SharedClassLibrary.DTOs.Tags;
 using SharedClassLibrary.DTOs.Sessions;
 using DatabaseApi.Services;
+using DatabaseApi.DTOs;
 
 namespace DatabaseApi.Controllers
 {
@@ -237,40 +238,35 @@ namespace DatabaseApi.Controllers
             User? user = _context.Users
                 .Include(user => user.Events)
                 .FirstOrDefault(user => user.UserName == User.Identity!.Name);
-            if (user == null) return BadRequest("User not found");
+            if (user == null) return BadRequest(ApiResponse<object>.Fail("User not found"));
 
             Session? session = await _sessionRegistrationService.GetSession(sessionId);
-            if (session == null) return NotFound("The session you tried to register for does not exist.");
+            if (session == null) return NotFound(ApiResponse<object>.Fail("The session you tried to register for does not exist."));
 
             User_has_Session? existingRegistration = await _sessionRegistrationService.GetExistingRegistration(user, session);
-            if (existingRegistration != null) return BadRequest("You have already registered for this session.");
+            if (existingRegistration != null) return BadRequest(ApiResponse<object>.Fail("You have already registered for this session."));
 
             List<User_has_Session> conflictingSessions = await _sessionRegistrationService.GetConflictingSessions(user, session);
             if (conflictingSessions.Count > 0 && !overrideSessions)
             {
-                return BadRequest(new
+                return BadRequest(ApiResponse<object>.Fail("You are already registered for an event on during that time.", new ConflictingSessionRegistrationDto
                 {
-                    Success = false,
-                    Data = new
+                    Session = new ConflictingSessionDto
                     {
-                        Session = new
-                        {
-                            Id = session.IdSession,
-                            session.Title,
-                            session.StartTime,
-                            session.EndTime
-                        },
-                        ConflictingSessions = conflictingSessions.Select(conflictingSession => new
-                        {
-                            Id = conflictingSession.IdSession,
-                            conflictingSession.Session.Title,
-                            conflictingSession.Session.StartTime,
-                            conflictingSession.Session.EndTime,
-                            InQueue = conflictingSession.InWaitingList
-                        })
+                        Id = session.IdSession,
+                        Title = session.Title,
+                        StartTime = session.StartTime,
+                        EndTime = session.EndTime
                     },
-                    Error = "You are already registered for an event on during that time."
-                });
+                    ConflictingSessions = conflictingSessions.Select(conflictingSession => new ConflictingSessionDto
+                    {
+                        Id = conflictingSession.IdSession,
+                        Title = conflictingSession.Session.Title,
+                        StartTime = conflictingSession.Session.StartTime,
+                        EndTime = conflictingSession.Session.EndTime,
+                        InQueue = conflictingSession.InWaitingList
+                    })
+                }));
             }
 
             try
@@ -280,19 +276,15 @@ namespace DatabaseApi.Controllers
             catch (Exception exception)
             {
                 _logger.LogError("Failed to save new registration: {exception}", exception);
-                return StatusCode(500);
+                return StatusCode(500, ApiResponse<object>.Fail("Something went wrong while trying to register for the session. Try again later."));
             }
 
             bool sessionFull = _sessionRegistrationService.IsSessionFull(session);
-            return StatusCode(201, new
-            {
-                Success = true,
-                Data = (object?)null,
-                Error = (object?)null,
-                Message = sessionFull
+            return StatusCode(201, ApiResponse<object>.Ok(
+                sessionFull
                     ? "This session is full. Your registration is placed in the queue."
                     : "You have registered yourself for this session."
-            });
+            ));
         }
 
         [HttpPost("{sessionId}/cancel-registration")]
@@ -303,20 +295,20 @@ namespace DatabaseApi.Controllers
             User? user = _context.Users
                 .Include(user => user.Events)
                 .FirstOrDefault(user => user.UserName == User.Identity!.Name);
-            if (session == null || user == null) return BadRequest("User or session not found");
+            if (session == null || user == null) return BadRequest(ApiResponse<object>.Fail("User or session not found"));
 
             User_has_Session? registration = await _sessionRegistrationService.GetExistingRegistration(user, session);
-            if (registration == null) return BadRequest("You do not have a registration for that session");
+            if (registration == null) return BadRequest(ApiResponse<object>.Fail("You do not have a registration for that session"));
 
             try
             {
                 await _sessionRegistrationService.RemoveRegistration(registration, true);
-                return Ok();
+                return Ok(ApiResponse<object>.Ok("Your registration has been successfully cancelled."));
             }
             catch (Exception exception)
             {
                 _logger.LogError("Failed to remove registration: {exception}", exception);
-                return StatusCode(500);
+                return StatusCode(500, ApiResponse<object>.Fail("Something went wrong while trying to cancel the registration. Try again later."));
             }
         }
     }
