@@ -1,12 +1,12 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import SessionOverview from '../pages/sessions/overview';
+import EventSchedule from '../pages/events/EventSchedule';
 import SessionViewPage from '../pages/sessions/session';
 
 const Stack = createNativeStackNavigator();
 
-export default function SessionStack() {
+export default function EventScheduleStack() {
 	return (
 		<Stack.Navigator
 		screenOptions={{
@@ -14,8 +14,8 @@ export default function SessionStack() {
 		}}
 		>
 		<Stack.Screen
-		name="SessionOverview"
-		component={SessionOverview}
+		name="EventSchedule"
+		component={EventSchedule}
 		/>
 		<Stack.Screen
 		name="SessionView"

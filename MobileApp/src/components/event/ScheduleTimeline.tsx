@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import scheduleStyles, { MINUTE_HEIGHT, TIMELINE_OFFSET_LEFT } from '../../styles/scheduleStyles';
 import { SessionDTO } from '../../services/SessionService';
+import { useNavigation } from '@react-navigation/native';
 
 interface ScheduleTimelineProps {
   sessions: SessionDTO[];
@@ -133,6 +134,9 @@ export default function ScheduleTimeline({ sessions, currentDate, startHour = 8,
   const currentTop = currentTopMinutes * MINUTE_HEIGHT;
   const showCurrentTime = isToday(now, currentDate) && now.getHours() >= startHour && now.getHours() <= endHour;
 
+  const navigation = useNavigation<any>();
+
+
   return (
     <ScrollView style={scheduleStyles.scrollView} contentContainerStyle={{ paddingVertical: 10 }}>
       {renderHours()}
@@ -164,7 +168,11 @@ export default function ScheduleTimeline({ sessions, currentDate, startHour = 8,
               ]}
             >
               <View style={{ flex: 1, overflow: 'hidden' }}>
-                <Text numberOfLines={1} style={[scheduleStyles.sessionTitle, { color: textColor }]}>{session.title}</Text>
+                <Text numberOfLines={1} style={[scheduleStyles.sessionTitle, { color: textColor }]} onPress={() =>
+					navigation.navigate('SessionView', {
+						sessionId: 1,
+					})}
+				>{session.title}</Text>
                 {session.height > 40 && <Text numberOfLines={1} style={[scheduleStyles.sessionSubtitle, { color: subtitleColor }]}>{session.speakerName}</Text>}
                 {session.height > 60 && <Text numberOfLines={1} style={[scheduleStyles.sessionSubtitle, { color: subtitleColor }]}>{session.room.roomLabel}</Text>}
               </View>

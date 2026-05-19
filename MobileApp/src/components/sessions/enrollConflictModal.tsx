@@ -125,6 +125,3 @@ export default function EnrollConflictModal({
 		</Modal>
 	);
 }
-
-
-
