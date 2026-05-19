@@ -42,7 +42,7 @@ namespace Back_office.Controllers
         public async Task<IActionResult> AddSession(int eventId, string? error = null)
         {
             ViewData["EventId"] = eventId;
-            if(error != null)
+            if (error != null)
             {
                 TempData["ToastMessage"] = error;
                 TempData["ToastType"] = "error";
@@ -90,8 +90,8 @@ namespace Back_office.Controllers
             {
                 ViewData["EventId"] = eventId;
                 string error = $"Kon de sessie niet opslaan: {response.ReasonPhrase}";
-                
-                return RedirectToAction("AddSession",new { eventId, error });
+
+                return RedirectToAction("AddSession", new { eventId, error });
             }
 
             return RedirectToAction("Index", new { eventId = eventId });
@@ -121,8 +121,6 @@ namespace Back_office.Controllers
                 ? $"{eventId}/Sessions/GetSpotsData"
                 : $"{eventId}/Sessions/GetSpotsData/{sessionId}");
             List<SessionSpotsDTO>? sessionSpotsDTOs = new();
-            Console.WriteLine("Koekjes");
-            Console.WriteLine(response);
             if (response.IsSuccessStatusCode)
             {
                 sessionSpotsDTOs = (await response.Content.ReadFromJsonAsync<ApiResponse<List<SessionSpotsDTO>>>()).Data;

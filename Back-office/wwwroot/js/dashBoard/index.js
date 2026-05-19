@@ -51,7 +51,6 @@ function updateOrCreatePageElements() {
     }
     let create = false;
     for (const session of sessions) {
-        if (create) break;
         const sessionCard = document.getElementById(`${SESSION_CARD_PREFIX}${session.sessionId}`)
         if (!sessionCard) {
             create = true;
@@ -136,6 +135,6 @@ function updateOrCreateChart() {
         return;
     }
 
-    chart = upsert(canvas, { config: chartConfig, labels: ["Filled", "Open"],data: [filledSpots, openSpots] })
+    chart = upsert(canvas, { config: chartConfig, labels: ["Filled", "Open"], data: [filledSpots, openSpots] })
     chartContainer.append(canvas)
 }

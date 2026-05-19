@@ -16,9 +16,9 @@ public class SessionService : ISessionService
     public async Task<List<SessionSpotsDTO>> ReturnSessionSpotsData(int eventId, int? sessionId)
     {
         var query = _context.Sessions
-        .Include(s => s.Room)
-        .Where(s => s.IdEvent == eventId)
-        .AsQueryable();
+            .Include(s => s.Room)
+            .Where(s => s.IdEvent == eventId)
+            .AsQueryable();
 
         if (sessionId != null)
         {
