@@ -1,3 +1,18 @@
+:root {
+    --red: #e74c3c;
+    --blue: #3498db;
+    --green: #2ecc71;
+    --yellow: #f1c40f;
+    --orange: #e67e22;
+    --purple: #9b59b6;
+    --pink: #e91e8c;
+    --white: #ffffff;
+    --black: #000000;
+    --grey: #95a5a6;
+    --dark-grey: #586162;
+    --offwhite: #e6e6e6;
+}
+
 html {
   font-size: 14px;
 }
@@ -54,6 +69,10 @@ body {
 .height-main {
     max-height: calc(100vh - 90px);
     min-height: calc(100vh - 90px);
+}
+
+.h-95{
+    height: 95%;
 }
 
 
@@ -161,4 +180,21 @@ body {
     left: auto;
     right: 16px;
     bottom: 16px;
+}
+
+.bg-grey{
+    background-color: var(--grey)
+}
+
+.dashboard-card{
+    background-color:var(--offwhite);
+    padding: 1rem;
+}
+
+.dashboard-card a{
+    background-color: var(--grey);
+    color: white;
+    border-radius: 8px;
+    padding: 0.1rem 1rem;
+    text-decoration:none;
 }

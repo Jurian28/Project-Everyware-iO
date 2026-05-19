@@ -1,4 +1,6 @@
 using DatabaseApi.Models;
+using DatabaseApi.Services;
+using DatabaseApi.Services.Interfaces;
 using DatabaseApi.Models.Seeders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -53,6 +55,8 @@ if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+    
+builder.Services.AddScoped<ISessionService, SessionService>();
 
 var app = builder.Build();
 

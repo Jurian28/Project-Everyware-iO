@@ -42,7 +42,7 @@ namespace Back_office.Controllers
         public async Task<IActionResult> AddSession(int eventId, string? error = null)
         {
             ViewData["EventId"] = eventId;
-            if(error != null)
+            if (error != null)
             {
                 TempData["ToastMessage"] = error;
                 TempData["ToastType"] = "error";
@@ -90,8 +90,8 @@ namespace Back_office.Controllers
             {
                 ViewData["EventId"] = eventId;
                 string error = $"Kon de sessie niet opslaan: {response.ReasonPhrase}";
-                
-                return RedirectToAction("AddSession",new { eventId, error });
+
+                return RedirectToAction("AddSession", new { eventId, error });
             }
 
             return RedirectToAction("Index", new { eventId = eventId });
@@ -109,6 +109,28 @@ namespace Back_office.Controllers
             }
 
             return RedirectToAction("Index", new { eventId = eventId });
+        }
+
+        /// <summary>
+        /// Get total,open and waitinglistspots for all sessions of event or 1 session if sessionId is given
+        /// </summary>
+        [HttpGet("GetSpotsData/{sessionId?}")]
+        public async Task<List<SessionSpotsDTO>?> GetSpotsData(int eventId, int? sessionId)
+        {
+            HttpResponseMessage response = await client.GetAsync(sessionId == null
+                ? $"{eventId}/Sessions/GetSpotsData"
+                : $"{eventId}/Sessions/GetSpotsData/{sessionId}");
+            List<SessionSpotsDTO>? sessionSpotsDTOs = new();
+            if (response.IsSuccessStatusCode)
+            {
+                sessionSpotsDTOs = (await response.Content.ReadFromJsonAsync<ApiResponse<List<SessionSpotsDTO>>>()).Data;
+            }
+            else
+            {
+                TempData["Error"] = "Error while getting Session Data";
+                sessionSpotsDTOs = null;
+            }
+            return sessionSpotsDTOs;
         }
     }
 }
