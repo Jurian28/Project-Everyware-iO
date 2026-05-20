@@ -2,13 +2,13 @@ import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
 const styles = {
-  container: {
-    flex: 1,
-  }
+	container: {
+		flex: 1,
+	}
 };
 
 export default function AppLayout({
-  children,
+	children,
 }: Readonly<{ children: ReactNode }>) {
-  return <View style={styles.container}>{children}</View>;
+	return <View style={styles.container}>{children}</View>;
 }
