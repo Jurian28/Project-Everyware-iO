@@ -8,4 +8,5 @@ public class SessionSpotsDTO
     public int TotalSpots { get; set; }
     public int SpotsInWaitingList { get; set; }
     public bool IsPlenarySession { get; set; }
+    public List<AttendeeDTO> Attendees { get; set; }
 }

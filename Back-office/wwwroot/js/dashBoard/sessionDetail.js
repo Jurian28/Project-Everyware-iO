@@ -21,77 +21,69 @@ let chart;
 
 let session;
 
+// TODO refactor name
 initPage();
+// setInterval(initPage, 5000);
 
 async function initPage() {
-    const data = await fetchSessionDetails();
+    await fetchSessionDetails();
 
-    if (!data || data.totalSpots === 0) {
+    if (!session || session.totalSpots === 0) {
         showNoData();
         return;
     }
 
-    updateStats(data);
-    updateChart(data);
-    renderAttendeeList(data.attendees);
+    updateStats();
+    updateChart();
+    renderAttendeeList();
 }
 
-// --- 3. Data ophalen (met Dummy Data voor nu) ---
 async function fetchSessionDetails() {
     const response = await fetch(`/${eventId}/session/GetSpotsData/${sessionId}`);
     const data = await response.json();
     if (data && data.length > 0) {
         session = data[0];
     }
-    return ({
-        totalSpots: session.totalSpots,
-        present: 0, //TODO te implementeren
-        absent: 0, //TODO te implementeren
-        openSpots: session.totalSpots - session.filledSpots,
-        waitlistCount: session.spotsInWaitingList,
-        attendees: null //TODO add
-    });
 }
 
-// --- 4. Weergave updaten ---
-function updateStats(data) {
-    statTotalSpots.innerText = data.totalSpots;
-    statPresent.innerText = data.present;
-    statAbsent.innerText = data.absent;
-    statOpenSpots.innerText = data.openSpots;
-    statWaitlist.innerText = data.waitlistCount;
+function updateStats() {
+    statTotalSpots.innerText = session.totalSpots;
+    statPresent.innerText = 0; // TODO update when new db field added
+    statAbsent.innerText = 0; // TODO update when new db field added
+    statOpenSpots.innerText = session.totalSpots - session.filledSpots;
+    statWaitlist.innerText = session.spotsInWaitingList;
 }
 
-function updateChart(data) {
+function updateChart() {
     noChartElement.classList.add("d-none");
     canvas.style.display = "block";
 
-    // Teken de grafiek met 2 waardes (zoals we hadden afgesproken)
+    // TODO update when new db field added
     chart = upsert(canvas, {
         config: chartConfig,
         labels: ["Filled Spots", "Open Spots"],
-        data: [data.filledSpots, data.openSpots]
+        data: [session.filledSpots, session.openSpots]
     });
 }
 
-function renderAttendeeList(attendees) {
+function renderAttendeeList() {
     if (loadingElement) loadingElement.remove();
-    listContainer.innerHTML = ''; // Maak container leeg
+    listContainer.innerHTML = '';
 
-    attendees.forEach(attendee => {
+    session.attendees.forEach(attendee => {
         let card = attendeeTemplate.content.cloneNode(true);
 
-        card.querySelector(".js-attendeeName").innerText = attendee.name;
+        card.querySelector(".js-attendeeName").innerText = attendee.userName;
         const statusBadge = card.querySelector(".js-attendeeStatus");
-        statusBadge.innerText = attendee.status;
+        statusBadge.innerText = "To be determined";
 
-        // Kleur de badge op basis van status (Bootstrap classes)
-        if (attendee.status === "Waitlist") {
-            statusBadge.classList.replace("bg-secondary", "bg-warning");
-            statusBadge.classList.add("text-dark");
-        } else {
-            statusBadge.classList.replace("bg-secondary", "bg-success");
-        }
+        // TODO refactor
+        // if (attendee.status === "Waitlist") {
+        //     statusBadge.classList.replace("bg-secondary", "bg-warning");
+        //     statusBadge.classList.add("text-dark");
+        // } else {
+        //     statusBadge.classList.replace("bg-secondary", "bg-success");
+        // }
 
         listContainer.append(card);
     });
