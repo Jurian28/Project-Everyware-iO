@@ -1,10 +1,11 @@
-using System.Text.Json;
 using DatabaseApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedClassLibrary.DTOs.Rooms;
-using SharedClassLibrary.DTOs.Tags;
 using SharedClassLibrary.DTOs.Sessions;
+using SharedClassLibrary.DTOs.Tags;
+using System.Security.Claims;
 
 namespace DatabaseApi.Controllers
 {
@@ -22,12 +23,22 @@ namespace DatabaseApi.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<ApiResponse<IEnumerable<SessionDTO>>>> GetAllSessions(int eventId)
         {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+
             List<SessionDTO> sessions = await _context.Sessions
                 .Include(s => s.Room)
                 .Include(s => s.Speakers)
                 .Include(s => s.Tags)
+                .Include(s => s.RegisteredUsers)
                 .Where(s => s.IdEvent == eventId)
                 .Select(s => new SessionDTO
                 {
@@ -36,6 +47,8 @@ namespace DatabaseApi.Controllers
                     StartTime = s.StartTime,
                     EndTime = s.EndTime,
                     Plenary = s.Plenary,
+                    IsEnrolled = s.RegisteredUsers.Any(u => u.IdUser == userId),
+
                     Room = s.Room != null
                         ? new RoomResponseDTO
                         {
@@ -60,6 +73,7 @@ namespace DatabaseApi.Controllers
 
             return Ok(ApiResponse<IEnumerable<SessionDTO>>.Ok(sessions));
         }
+
 
         [HttpGet("getAdd")]
         public async Task<ActionResult<ApiResponse<CUSessionDTO>>> GetAddSessionData(int eventId)

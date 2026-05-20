@@ -22,6 +22,7 @@ export type SessionDTO = {
 	startTime: string;
 	endTime: string;
 	plenary: boolean;
+	isEnrolled: boolean;
 	room: RoomResponseDTO;
 	tags: TagResponseDTO[];
 	speakerId?: number;
@@ -66,9 +67,7 @@ export class SessionService {
 		try {
 			const response = await fetch(`${baseUrl}/${eventId}/sessions`, {
 				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				headers: await authHeaders(),
 			});
 
 			if (!response.ok) {
