@@ -39,6 +39,14 @@ async function fetchSessionDetails() {
     // const response = await fetch(`/Dashboard/GetSessionDetails?sessionId=${sessionId}`);
     // return await response.json();
 
+    const response = await fetch(`/${eventId}/session/GetSpotsData/${sessionId}`);
+    const data = await response.json();
+    if (data) {
+        sessions = data;
+    }
+
+    // TODO gebruik SessionSpotsDTO, en zet de data goed
+
     // DUMMY DATA (Simuleert een korte laadtijd van de server)
     return new Promise(resolve => setTimeout(() => {
         resolve({

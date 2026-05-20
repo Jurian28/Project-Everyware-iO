@@ -109,12 +109,7 @@ function setSessionCardData(sessionCard, session) {
         percentageElement.innerText = `${percentage}%`
     }
     if (detailsElement) {
-        if (!detailsElement.hasAttribute("data-base-url")) {
-            detailsElement.setAttribute("data-base-url", detailsElement.getAttribute("href"));
-        }
-
-        const baseUrl = detailsElement.getAttribute("data-base-url");
-        detailsElement.setAttribute("href", `${baseUrl}/${session.sessionId}`);
+        detailsElement.setAttribute("href", `/${eventId}/DashBoard/${session.sessionId}`);
     }
 }
 
