@@ -74,6 +74,10 @@ public class SessionEnrollmentController : ControllerBase
                 PlacesLeft = s.Room.Capacity - s.RegisteredUsers.Count(registeredUser => !registeredUser.InWaitingList),
                 IsEnrolled = s.RegisteredUsers
                     .Any(u => u.IdUser == userId),
+                InQueue = s.RegisteredUsers
+                    .Where(u => u.IdUser == userId)
+                    .Select(u => u.InWaitingList)
+                    .FirstOrDefault(),
 
                 Room = s.Room != null
                     ? new RoomResponseDTO

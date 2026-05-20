@@ -42,6 +42,7 @@ type Session = {
     description?: string;
     placesLeft: number;
     isEnrolled?: boolean;
+    inQueue?: boolean;
 };
 
 const formatTimeRange = (start: string, end: string) => {
@@ -104,12 +105,14 @@ function ErrorState({ message }: { message: string }) {
 function PlacesLeft({
     placesLeft,
     isEnrolled,
+    inQueue,
     onEnroll,
     onWithdraw,
     loading,
 }: {
     placesLeft: number;
     isEnrolled: boolean;
+    inQueue: boolean;
     onEnroll?: () => void;
     onWithdraw?: () => void;
     loading?: boolean;
@@ -118,6 +121,7 @@ function PlacesLeft({
         <View style={sessionStyles.enrollRow}>
             <Text style={sessionStyles.spotsInlineText}>
                 {placesLeft} spaces left
+                {inQueue && ' - You are in the waiting list'}
             </Text>
 
             <TouchableOpacity
@@ -274,6 +278,7 @@ export default function SessionViewPage() {
             <PlacesLeft
                 placesLeft={session.placesLeft}
                 isEnrolled={session.isEnrolled ?? false}
+                inQueue={session.inQueue ?? false}
                 onEnroll={handleEnroll}
                 onWithdraw={handleWithdraw}
                 loading={actionLoading}
