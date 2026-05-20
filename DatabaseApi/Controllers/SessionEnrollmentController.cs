@@ -135,16 +135,16 @@ public class SessionEnrollmentController : ControllerBase
         List<User_has_Session> conflictingSessions = await _sessionRegistrationService.GetConflictingSessions(user, session);
         if (conflictingSessions.Count > 0 && !overrideSessions)
         {
-            return BadRequest(ApiResponse<object>.Fail("You are already registered for an event on during that time.", new ConflictingSessionRegistrationDto
+            return BadRequest(ApiResponse<object>.Fail("You are already registered for an event on during that time.", new ConflictingSessionRegistrationDTO
             {
-                Session = new ConflictingSessionDto
+                Session = new ConflictingSessionDTO
                 {
                     Id = session.IdSession,
                     Title = session.Title,
                     StartTime = session.StartTime,
                     EndTime = session.EndTime
                 },
-                ConflictingSessions = conflictingSessions.Select(conflictingSession => new ConflictingSessionDto
+                ConflictingSessions = conflictingSessions.Select(conflictingSession => new ConflictingSessionDTO
                 {
                     Id = conflictingSession.IdSession,
                     Title = conflictingSession.Session.Title,
