@@ -14,9 +14,12 @@ const listContainer = document.getElementById("attendeeListContainer");
 const loadingElement = document.getElementById("loadingAttendees");
 const attendeeTemplate = document.getElementById("attendeeCardTemplate");
 
+const eventId = parseInt(document.querySelector('meta[name="event-id"]').content);
 const sessionId = parseInt(document.querySelector('meta[name="session-id"]').content);
 const chartConfig = getConfig({ cutout: "60%" });
 let chart;
+
+let session;
 
 initPage();
 
@@ -35,42 +38,27 @@ async function initPage() {
 
 // --- 3. Data ophalen (met Dummy Data voor nu) ---
 async function fetchSessionDetails() {
-    // TODO: Zodra je backend klaar is, uncomment de fetch-code:
-    // const response = await fetch(`/Dashboard/GetSessionDetails?sessionId=${sessionId}`);
-    // return await response.json();
-
     const response = await fetch(`/${eventId}/session/GetSpotsData/${sessionId}`);
     const data = await response.json();
-    if (data) {
-        sessions = data;
+    if (data && data.length > 0) {
+        session = data[0];
     }
-
-    // TODO gebruik SessionSpotsDTO, en zet de data goed
-
-    // DUMMY DATA (Simuleert een korte laadtijd van de server)
-    return new Promise(resolve => setTimeout(() => {
-        resolve({
-            present: 3,
-            absent: 2,
-            openSpots: 5,
-            totalSpots: 50,
-            waitlistCount: 2,
-            filledSpots: 45, // TotalSpots - OpenSpots
-            attendees: [
-                { name: "Jan Jansen", status: "Registered" },
-                { name: "Piet Pietersen", status: "Registered" },
-                { name: "Klaas Visser", status: "Waitlist" }
-            ]
-        });
-    }, 500));
+    return ({
+        totalSpots: session.totalSpots,
+        present: 0, //TODO te implementeren
+        absent: 0, //TODO te implementeren
+        openSpots: session.totalSpots - session.filledSpots,
+        waitlistCount: session.spotsInWaitingList,
+        attendees: null //TODO add
+    });
 }
 
 // --- 4. Weergave updaten ---
 function updateStats(data) {
+    statTotalSpots.innerText = data.totalSpots;
     statPresent.innerText = data.present;
     statAbsent.innerText = data.absent;
     statOpenSpots.innerText = data.openSpots;
-    statTotalSpots.innerText = data.totalSpots;
     statWaitlist.innerText = data.waitlistCount;
 }
 
