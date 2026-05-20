@@ -1,10 +1,12 @@
-﻿using DatabaseApi.Models;
+﻿using DatabaseApi.DTOs;
+using DatabaseApi.Models;
+using DatabaseApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedClassLibrary.DTOs.Rooms;
-using SharedClassLibrary.DTOs.Tags;
 using SharedClassLibrary.DTOs.Sessions;
+using SharedClassLibrary.DTOs.Tags;
 using System.Security.Claims;
 
 namespace DatabaseApi.Controllers;
@@ -19,14 +21,19 @@ namespace DatabaseApi.Controllers;
 public class SessionEnrollmentController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<SessionEnrollmentController> _logger;
+    private readonly SessionRegistrationService _sessionRegistrationService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SessionEnrollmentController"/> class.
     /// </summary>
     /// <param name="context">The database context used to access application data.</param>
-    public SessionEnrollmentController(ApplicationDbContext context)
+    /// <param name="logger">The logger used for logging information and errors.</param1>
+    public SessionEnrollmentController(ApplicationDbContext context, ILogger<SessionEnrollmentController> logger)
     {
         _context = context;
+        _logger = logger;
+        _sessionRegistrationService = new(context);
     }
 
     /// <summary>
@@ -108,54 +115,58 @@ public class SessionEnrollmentController : ControllerBase
     /// Returns Conflict if the user is already enrolled in an overlapping session.
     /// </returns>
     [HttpPost("{sessionId}/enroll")]
-    public async Task<IActionResult> Enroll(int sessionId)
+    public async Task<IActionResult> Enroll(int sessionId, bool overrideSessions = false)
     {
-        string userId = GetUserId();
-        User? user = await _context.Users.FindAsync(userId);
+        User? user = _context.Users
+                .Include(user => user.Events)
+                .FirstOrDefault(user => user.UserName == User.Identity!.Name);
+        if (user == null) return BadRequest(ApiResponse<object>.Fail("User not found"));
 
-        if (user == null)
-            return Unauthorized();
+        Session? session = await _sessionRegistrationService.GetSession(sessionId);
+        if (session == null) return NotFound(ApiResponse<object>.Fail("The session you tried to register for does not exist."));
 
-        Session? session = await _context.Sessions
-            .Include(s => s.RegisteredUsers)
-            .FirstOrDefaultAsync(s => s.IdSession == sessionId);
+        User_has_Session? existingRegistration = await _sessionRegistrationService.GetExistingRegistration(user, session);
+        if (existingRegistration != null) return BadRequest(ApiResponse<object>.Fail("You have already registered for this session."));
 
-        if (session == null)
-            return NotFound("Session not found");
-
-        Session? conflictingSession = await _context.Sessions
-            .Where(s => s.RegisteredUsers.Any(u => u.User.Id == userId))
-            .Where(s =>
-                s.StartTime < session.EndTime &&
-                session.StartTime < s.EndTime)
-            .FirstOrDefaultAsync();
-
-        if (conflictingSession != null)
+        List<User_has_Session> conflictingSessions = await _sessionRegistrationService.GetConflictingSessions(user, session);
+        if (conflictingSessions.Count > 0 && !overrideSessions)
         {
-            return Conflict(new
+            return BadRequest(ApiResponse<object>.Fail("You are already registered for an event on during that time.", new ConflictingSessionRegistrationDto
             {
-                message = "You already have a session at this time",
-                conflictSession = new
+                Session = new ConflictingSessionDto
                 {
-                    conflictingSession.IdSession,
-                    conflictingSession.Title,
-                    conflictingSession.StartTime,
-                    conflictingSession.EndTime
-                }
-            });
+                    Id = session.IdSession,
+                    Title = session.Title,
+                    StartTime = session.StartTime,
+                    EndTime = session.EndTime
+                },
+                ConflictingSessions = conflictingSessions.Select(conflictingSession => new ConflictingSessionDto
+                {
+                    Id = conflictingSession.IdSession,
+                    Title = conflictingSession.Session.Title,
+                    StartTime = conflictingSession.Session.StartTime,
+                    EndTime = conflictingSession.Session.EndTime,
+                    InQueue = conflictingSession.InWaitingList
+                })
+            }));
         }
 
-        session.RegisteredUsers.Add(new User_has_Session
+        try
         {
-            IdUser = userId,
-            IdSession = session.IdSession,
-            InWaitingList = false,
-            JoinedDate = DateTime.UtcNow
-        });
+            await _sessionRegistrationService.RegisterForSession(user, session, overrideSessions);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError("Failed to save new registration: {exception}", exception);
+            return StatusCode(500, ApiResponse<object>.Fail("Something went wrong while trying to register for the session. Try again later."));
+        }
 
-        await _context.SaveChangesAsync();
-
-        return Ok();
+        bool sessionFull = _sessionRegistrationService.IsSessionFull(session);
+        return StatusCode(201, ApiResponse<object>.Ok(
+            sessionFull
+                ? "This session is full. Your registration is placed in the queue."
+                : "You have registered yourself for this session."
+        ));
     }
 
     /// <summary>
@@ -169,19 +180,24 @@ public class SessionEnrollmentController : ControllerBase
     [HttpDelete("{sessionId}/enroll")]
     public async Task<IActionResult> Withdraw(int sessionId)
     {
-        string userId = GetUserId();
+        Session? session = await _sessionRegistrationService.GetSession(sessionId);
+        User? user = _context.Users
+            .Include(user => user.Events)
+            .FirstOrDefault(user => user.UserName == User.Identity!.Name);
+        if (session == null || user == null) return BadRequest(ApiResponse<object>.Fail("User or session not found"));
 
-        User_has_Session? userInSession = await _context.User_has_Sessions
-            .FirstOrDefaultAsync(x =>
-                x.IdSession == sessionId &&
-                x.IdUser == userId);
+        User_has_Session? registration = await _sessionRegistrationService.GetExistingRegistration(user, session);
+        if (registration == null) return BadRequest(ApiResponse<object>.Fail("You do not have a registration for that session"));
 
-        if (userInSession == null)
-            return NotFound();
-
-        _context.User_has_Sessions.Remove(userInSession);
-        await _context.SaveChangesAsync();
-
-        return Ok();
+        try
+        {
+            await _sessionRegistrationService.RemoveRegistration(registration, true);
+            return Ok(ApiResponse<object>.Ok("Your registration has been successfully cancelled."));
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError("Failed to remove registration: {exception}", exception);
+            return StatusCode(500, ApiResponse<object>.Fail("Something went wrong while trying to cancel the registration. Try again later."));
+        }
     }
 }
