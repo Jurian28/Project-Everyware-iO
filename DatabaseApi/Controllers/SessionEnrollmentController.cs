@@ -71,7 +71,7 @@ public class SessionEnrollmentController : ControllerBase
                 StartTime = s.StartTime,
                 EndTime = s.EndTime,
                 Plenary = s.Plenary,
-                PlacesLeft = s.Room.Capacity - s.RegisteredUsers.Count(),
+                PlacesLeft = s.Room.Capacity - s.RegisteredUsers.Count(registeredUser => !registeredUser.InWaitingList),
                 IsEnrolled = s.RegisteredUsers
                     .Any(u => u.IdUser == userId),
 
