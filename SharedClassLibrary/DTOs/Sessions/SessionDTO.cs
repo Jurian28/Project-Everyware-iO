@@ -15,5 +15,7 @@ namespace SharedClassLibrary.DTOs.Sessions
         public List<TagResponseDTO> Tags { get; set; }
         public int? SpeakerId { get; set; }
         public string? SpeakerName { get; set; }
+        public int PlacesLeft { get; set; }
+        public bool IsEnrolled { get; set; }
     }
 }
