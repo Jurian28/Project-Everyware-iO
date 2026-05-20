@@ -1,10 +1,11 @@
 ﻿import { getConfig, upsert, changeSingularDataSetData } from '../chartHelper.js'
 
-const SESSION_CARD_PREFIX = "sessionCard"
+const SESSION_CARD_PREFIX = "sessionCard";
 
 const chartContainer = document.getElementById("chartContainer");
-const canvas = document.createElement("canvas")
-const chartConfig = getConfig({ cutout: "60%" })
+const canvas = document.createElement("canvas");
+const chartConfig = getConfig({ cutout: "60%" });
+const noChartElement = document.getElementById("noChart");
 
 let filledSpots = 0;
 let openSpots = 0;
@@ -26,14 +27,14 @@ if (loadingElement) {
     loadingElement.classList.remove("d-none");
 }
 updatePage();
-setInterval(updatePage, 5000)
+// setInterval(updatePage, 5000);
 
 async function fetchSessions() {
     const response = await fetch(`/${eventId}/session/GetSpotsData`);
     const data = await response.json();
     if (data) {
         sessions = data;
-        sessions = sessions.filter(s => !s.isPlenarySession)
+        sessions = sessions.filter(s => !s.isPlenarySession);
     }
 }
 async function updatePage() {
@@ -56,37 +57,38 @@ function updateOrCreatePageElements() {
             create = true;
             break;
         }
-        setSessionCardData(sessionCard, session)
+        setSessionCardData(sessionCard, session);
 
-        cardsContainer.append(sessionCard)
+        cardsContainer.append(sessionCard);
     }
     if (create) {
-        createPageElements()
+        createPageElements();
         return;
     }
-    setAverageAttendance()
-    cardsContainer.classList.remove("d-none")
-    updateOrCreateChart()
+    setAverageAttendance();
+    cardsContainer.classList.remove("d-none");
+    updateOrCreateChart();
 }
 function createPageElements() {
     if (loadingElement) {
-        loadingElement.classList.add("d-none")
+        loadingElement.classList.add("d-none");
     }
     if (!sessions || sessions.length == 0) {
-        noElementsElement.classList.remove("d-none")
+        noElementsElement.classList.remove("d-none");
+        noChartElement.classList.remove("d-none");
         return;
     }
     cardsContainer.innerHTML = '';
     sessions.forEach((session) => {
         let sessionCard = dashboardCardTemplate.content.cloneNode(true);
-        sessionCard.firstElementChild.id = `${SESSION_CARD_PREFIX}${session.sessionId}`
-        setSessionCardData(sessionCard, session)
+        sessionCard.firstElementChild.id = `${SESSION_CARD_PREFIX}${session.sessionId}`;
+        setSessionCardData(sessionCard, session);
 
-        cardsContainer.append(sessionCard)
+        cardsContainer.append(sessionCard);
     });
-    setAverageAttendance()
-    cardsContainer.classList.remove("d-none")
-    updateOrCreateChart()
+    setAverageAttendance();
+    cardsContainer.classList.remove("d-none");
+    updateOrCreateChart();
 }
 
 function setSessionCardData(sessionCard, session) {
@@ -107,7 +109,12 @@ function setSessionCardData(sessionCard, session) {
         percentageElement.innerText = `${percentage}%`
     }
     if (detailsElement) {
-        //TODO knop url goed maken is voor douwe (hoi)
+        if (!detailsElement.hasAttribute("data-base-url")) {
+            detailsElement.setAttribute("data-base-url", detailsElement.getAttribute("href"));
+        }
+
+        const baseUrl = detailsElement.getAttribute("data-base-url");
+        detailsElement.setAttribute("href", `${baseUrl}/${session.sessionId}`);
     }
 }
 
@@ -131,10 +138,10 @@ function setAverageAttendance() {
 
 function updateOrCreateChart() {
     if (chart) {
-        changeSingularDataSetData(chart, null, [filledSpots, openSpots])
+        changeSingularDataSetData(chart, null, [filledSpots, openSpots]);
         return;
     }
 
-    chart = upsert(canvas, { config: chartConfig, labels: ["Filled", "Open"], data: [filledSpots, openSpots] })
-    chartContainer.append(canvas)
+    chart = upsert(canvas, { config: chartConfig, labels: ["Filled", "Open"], data: [filledSpots, openSpots] });
+    chartContainer.append(canvas);
 }

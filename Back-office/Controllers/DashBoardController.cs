@@ -10,5 +10,14 @@ namespace Back_office.Controllers
             ViewData["EventId"] = eventId;
             return View();
         }
+
+        [HttpGet("{sessionId}")]
+        public IActionResult GetSessionDetail(int eventId, int sessionId)
+        {
+            ViewData["EventId"] = eventId;
+            ViewData["session-id"] = sessionId;
+            Console.WriteLine("session details");
+            return View("SessionDetails");
+        }
     }
 }

@@ -2,19 +2,22 @@
 <script src="~/lib/chartjs/chart.umd.js"></script>
 <script src="~/js/dashBoard/index.js" defer type="module"></script>
 
-<div class="h-100 d-flex flex-row">
+<div class="h-100 d-flex flex-row p-4 gap-4">
     <div class="w-50 d-flex justify-content-center align-items-center h-100">
-        <div id="chartContainer" class="w-75 px-5 py-4 h-100">
-
+        <div id="chartContainer" class="w-75 px-5 py-4 h-100 position-relative">
+            <div id="noChart"
+                 class="w-100 h-100 d-flex justify-content-center align-items-center fs-5 text-muted d-none">
+                Geen grafiek data beschikbaar
+            </div>
         </div>
     </div>
     <div style="width: 2px;" class="bg-black h-95 mt-auto"></div>
     <div class="w-50 ps-3 h-100 pe-5 d-flex flex-column">
-        <div class="fs-4 text-center pt-3 pb-5 invisible">
+        <div class="fs-4 text-center pt-3 pb-5">
             Average Attendance: <span id="avgAttendance"></span>
         </div>
-        <div id="dashboardCardContainer" class="w-100 flex-grow-1 bg-grey p-4 rounded-3 gap-2 d-flex flex-column overflow-y-auto d-none">
-            
+        <div id="dashboardCardContainer"
+             class="w-100 flex-grow-1 bg-grey p-4 rounded-3 gap-2 d-flex flex-column overflow-y-auto d-none">
         </div>
         <div id="noCards" class="w-100 flex-grow-1 bg-grey p-4 rounded-3 gap-2 d-flex flex-column d-none">
             <div class="dashboard-card rounded-2 d-flex fs-5 justify-content-center">
@@ -33,7 +36,8 @@
         <div class="js-sessionTitle"></div>
         <div class="d-flex flex-row gap-4">
             <div class="js-attendancePercentage"></div>
-            <a class="js-detailsElement">Details</a>
+            <a class="js-detailsElement" asp-controller="DashBoard" asp-action="GetSessionDetail"
+               asp-route-eventId="@ViewData["EventId"]">Details</a>
         </div>
     </div>
 </Template>
