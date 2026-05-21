@@ -111,12 +111,23 @@ public class SessionEnrollmentController : ControllerBase
     }
 
     /// <summary>
-    /// Enrolls the authenticated user into a specific session if no scheduling conflicts exist.
+    /// Enrolls the currently authenticated user in the specified session.
+    /// The endpoint validates:
+    /// - that the session exists and is open for enrollment,
+    /// - that the caller is authenticated and authorized,
+    /// - that the user is not already enrolled,
+    /// - and that enrolling does not create scheduling conflicts or exceed capacity.
+    /// On success the endpoint returns a successful status with enrollment details.
     /// </summary>
-    /// <param name="sessionId">The identifier of the session to enroll in.</param>
+    /// <param name="sessionId">Identifier of the session to enroll in.</param>
     /// <returns>
-    /// An HTTP response indicating the result of the enrollment operation.
-    /// Returns Conflict if the user is already enrolled in an overlapping session.
+    /// 200 OK — enrollment succeeded; response body contains enrollment details.
+    /// 400 Bad Request — invalid input (for example malformed sessionId).
+    /// 400 Conflict — user is already enrolled in this or an overlapping session, or capacity/conflict prevents enrollment.
+    /// 401 Unauthorized — caller is not authenticated.
+    /// 403 Forbidden — caller is not permitted to enroll the specified user.
+    /// 404 Not Found — session with the given id does not exist.
+    /// 500 Internal Server Error — an unexpected error occurred.
     /// </returns>
     [HttpPost("{sessionId}/enroll")]
     public async Task<IActionResult> Enroll(int sessionId, bool overrideSessions = false)
@@ -176,11 +187,20 @@ public class SessionEnrollmentController : ControllerBase
     /// <summary>
     /// Withdraws the authenticated user from a specific session enrollment.
     /// </summary>
+    /// <remarks>
+    /// Requires an authenticated user. This endpoint removes the current user's enrollment for the session
+    /// identified by <paramref name="sessionId"/>. If the user is not enrolled in the specified session,
+    /// the endpoint returns NotFound. On success the endpoint returns Ok.
+    /// </remarks>
     /// <param name="sessionId">The identifier of the session to withdraw from.</param>
     /// <returns>
-    /// An HTTP response indicating the result of the withdrawal operation.
-    /// Returns NotFound if the user is not enrolled in the session.
+    /// 200 Ok when the withdrawal succeeds.
+    /// 404 NotFound if the user is not enrolled or the session cannot be found.
+    /// 401 Unauthorized if the request is unauthenticated.
     /// </returns>
+    /// <response code="200">Enrollment removed successfully.</response>
+    /// <response code="404">User not enrolled or session not found.</response>
+    /// <response code="401">Authentication required.</response>
     [HttpDelete("{sessionId}/enroll")]
     public async Task<IActionResult> Withdraw(int sessionId)
     {
