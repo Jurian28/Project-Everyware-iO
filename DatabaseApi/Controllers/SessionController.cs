@@ -1,14 +1,11 @@
-using DatabaseApi.DTOs;
 using DatabaseApi.Models;
 using DatabaseApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
-using SharedClassLibrary.DTOs.Events;
 using SharedClassLibrary.DTOs.Rooms;
 using SharedClassLibrary.DTOs.Sessions;
+using DatabaseApi.Services;
 using SharedClassLibrary.DTOs.Tags;
-using System.Text.Json;
 
 namespace DatabaseApi.Controllers
 {
@@ -17,13 +14,18 @@ namespace DatabaseApi.Controllers
     public class SessionController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<SessionController> _logger;
+        private readonly SessionRegistrationService _sessionRegistrationService;
+        
         private readonly ISessionService _sessionService;
         private readonly string noRoomErrorMessage = "Geen gekoppelde kamer";
         private readonly string noSpeakerErrorMessage = "Geen gekoppelde spreker";
 
-        public SessionController(ApplicationDbContext context, ISessionService sessionService)
+        public SessionController(ApplicationDbContext context, ILogger<SessionController> logger, ISessionService sessionService)
         {
             _context = context;
+            _logger = logger;
+            _sessionRegistrationService = new(_context);
             _sessionService = sessionService;
         }
 

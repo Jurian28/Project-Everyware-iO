@@ -1,354 +1,307 @@
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
-	View,
-	Text,
-	ActivityIndicator,
-	ScrollView,
-	TouchableOpacity,
+    ActivityIndicator,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
 
-import { SessionService, SessionDTO } from '../../services/SessionService';
 import EnrollConflictModal from '../../components/sessions/enrollConflictModal';
+import { SessionService } from '../../services/SessionService';
 
 import sessionStyles from '../../styles/sessionStyles';
 
 type Tag = {
-	idTag: number;
-	title: string;
-	colorHex: string;
+    idTag: number;
+    title: string;
+    colorHex: string;
 };
 
 type Room = {
-	roomLabel: string;
-	capacity: number;
+    roomLabel: string;
+    capacity: number;
 };
 
 type ConflictSession = {
-	idSession: number;
-	title: string;
-	startTime: string;
-	endTime: string;
+    idSession: number;
+    title: string;
+    startTime: string;
+    endTime: string;
 };
 
 type Session = {
-	sessionId: number;
-	title: string;
-	startTime: string;
-	endTime: string;
-	room?: Room;
-	tags?: Tag[];
-	speakerName?: string;
-	description?: string;
-	placesLeft: number;
-	isEnrolled?: boolean;
+    sessionId: number;
+    title: string;
+    startTime: string;
+    endTime: string;
+    room?: Room;
+    tags?: Tag[];
+    speakerName?: string;
+    description?: string;
+    placesLeft: number;
+    isEnrolled?: boolean;
+    inQueue?: boolean;
 };
 
 const formatTimeRange = (start: string, end: string) => {
-	const fmt = (d: Date) =>
-	d.toLocaleTimeString([], {
-		hour: '2-digit',
-		minute: '2-digit',
-	});
+    const fmt = (d: Date) =>
+        d.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
 
-	return `${fmt(new Date(start))} - ${fmt(new Date(end))}`;
+    return `${fmt(new Date(start))} - ${fmt(new Date(end))}`;
 };
 
 function TagItem({ tag }: { tag: Tag }) {
-	return (
-		<View style={[sessionStyles.tag, { borderColor: tag.colorHex }]}>
-		<Text style={[sessionStyles.tagText, { color: tag.colorHex }]}>
-		{tag.title}
-		</Text>
-		</View>
-	);
+    return (
+        <View style={[sessionStyles.tag, { borderColor: tag.colorHex }]}>
+            <Text style={[sessionStyles.tagText, { color: tag.colorHex }]}>
+                {tag.title}
+            </Text>
+        </View>
+    );
 }
 
 function Section({
-	title,
-	children,
+    title,
+    children,
 }: {
-	title: string;
-	children: React.ReactNode;
+    title: string;
+    children: React.ReactNode;
 }) {
-	return (
-		<>
-		<Separator />
-		<Text style={sessionStyles.sectionTitle}>{title}</Text>
-		{children}
-		</>
-	);
+    return (
+        <>
+            <Separator />
+            <Text style={sessionStyles.sectionTitle}>{title}</Text>
+            {children}
+        </>
+    );
 }
 
 function Separator() {
-	return <View style={sessionStyles.separator} />;
+    return <View style={sessionStyles.separator} />;
 }
 
 function Loading() {
-	return (
-		<View style={sessionStyles.center}>
-		<ActivityIndicator size="large" />
-		<Text style={{ marginTop: 10 }}>
-		Loading session...
-			</Text>
-		</View>
-	);
+    return (
+        <View style={sessionStyles.center}>
+            <ActivityIndicator size="large" />
+            <Text style={{ marginTop: 10 }}>Loading session...</Text>
+        </View>
+    );
 }
 
 function ErrorState({ message }: { message: string }) {
-	return (
-		<View style={sessionStyles.center}>
-		<Text style={{ color: 'red' }}>
-		{message}
-		</Text>
-		</View>
-	);
+    return (
+        <View style={sessionStyles.center}>
+            <Text style={{ color: 'red' }}>{message}</Text>
+        </View>
+    );
 }
 
 function PlacesLeft({
-	placesLeft,
-	isEnrolled,
-	onEnroll,
-	onWithdraw,
-	loading,
+    placesLeft,
+    isEnrolled,
+    inQueue,
+    onEnroll,
+    onWithdraw,
+    loading,
 }: {
-	placesLeft: number;
-	isEnrolled: boolean;
-	onEnroll?: () => void;
-	onWithdraw?: () => void;
-	loading?: boolean;
+    placesLeft: number;
+    isEnrolled: boolean;
+    inQueue: boolean;
+    onEnroll?: () => void;
+    onWithdraw?: () => void;
+    loading?: boolean;
 }) {
-	return (
-		<View style={sessionStyles.enrollRow}>
-		<Text style={sessionStyles.spotsInlineText}>
-		{placesLeft} spaces left
-		</Text>
+    return (
+        <View style={sessionStyles.enrollRow}>
+            <Text style={sessionStyles.spotsInlineText}>
+                {placesLeft} spaces left
+                {inQueue && ' - You are in the waiting list'}
+            </Text>
 
-		<TouchableOpacity
-		disabled={loading}
-		onPress={isEnrolled ? onWithdraw : onEnroll}
-		style={[
-			sessionStyles.actionButton,
-			isEnrolled
-				? sessionStyles.withdrawButton
-				: sessionStyles.enrollButton,
-				loading && sessionStyles.disabledButton,
-		]}
-		>
-		<Text style={sessionStyles.actionText}>
-		{loading
-			? 'Loading...'
-			: isEnrolled
-				? 'Withdraw from session'
-				: 'Enroll for session'}
-				</Text>
-				</TouchableOpacity>
-				</View>
-	);
+            <TouchableOpacity
+                disabled={loading}
+                onPress={isEnrolled ? onWithdraw : onEnroll}
+                style={[
+                    sessionStyles.actionButton,
+                    isEnrolled
+                        ? sessionStyles.withdrawButton
+                        : sessionStyles.enrollButton,
+                    loading && sessionStyles.disabledButton,
+                ]}
+            >
+                <Text style={sessionStyles.actionText}>
+                    {loading
+                        ? 'Loading...'
+                        : isEnrolled
+                        ? 'Withdraw from session'
+                        : 'Enroll for session'}
+                </Text>
+            </TouchableOpacity>
+        </View>
+    );
 }
 
 export default function SessionViewPage() {
-	const route = useRoute<any>();
-	const navigation = useNavigation<any>();
+    const route = useRoute<any>();
+    const navigation = useNavigation<any>();
 
-	const { sessionId } = route.params;
+    const { sessionId } = route.params;
 
-	const [session, setSession] =
-		useState<Session | null>(null);
+    const [session, setSession] = useState<Session | null>(null);
 
-	const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
-	const [error, setError] =
-		useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-	const [actionLoading, setActionLoading] =
-		useState(false);
+    const [actionLoading, setActionLoading] = useState(false);
 
-	const [conflictVisible, setConflictVisible] =
-		useState(false);
+    const [conflictVisible, setConflictVisible] = useState(false);
 
-	const [conflictSession, setConflictSession] =
-		useState<ConflictSession | null>(null);
+    const [conflictSession, setConflictSession] =
+        useState<ConflictSession | null>(null);
 
-	const loadSession = async () => {
-		try {
-			setLoading(true);
-			setError(null);
+    const loadSession = async () => {
+        try {
+            setLoading(true);
+            setError(null);
 
-			const data =
-				await SessionService.getSession(
-					sessionId
-			);
+            const data = await SessionService.getSession(sessionId);
 
-			setSession(data);
-		} catch (e: any) {
-			setError(
-				e?.message ?? 'Something went wrong'
-			);
-		} finally {
-			setLoading(false);
-		}
-	};
+            setSession(data);
+        } catch (e: any) {
+            setError(e?.message ?? 'Something went wrong');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-	useEffect(() => {
-		loadSession();
-	}, [sessionId]);
+    useEffect(() => {
+        loadSession();
+    }, [sessionId]);
 
-	const handleEnroll = async () => {
-		if (!session) return;
+    const handleEnroll = async () => {
+        if (!session) return;
 
-		try {
-			setActionLoading(true);
+        try {
+            setActionLoading(true);
 
-			const res =
-				await SessionService.enroll(
-					session.sessionId
-			);
+            const res = await SessionService.enroll(session.sessionId);
 
-			if (res?.type === 'conflict') {
-				setConflictSession(res.conflictSession);
-				setConflictVisible(true);
-				return;
-			}
+            if (res?.isConflict === true) {
+                setConflictSession(res.conflictingSessions[0]);
+                setConflictVisible(true);
+                return;
+            }
 
-			await loadSession();
-		} catch (e: any) {
-			alert(e.message ?? 'Enroll failed');
-		} finally {
-			setActionLoading(false);
-		}
-	};
+            await loadSession();
+        } catch (e: any) {
+            alert(e.message ?? 'Enroll failed');
+        } finally {
+            setActionLoading(false);
+        }
+    };
 
-	const handleWithdraw = async () => {
-		if (!session) return;
+    const handleWithdraw = async () => {
+        if (!session) return;
 
-		try {
-			setActionLoading(true);
+        try {
+            setActionLoading(true);
 
-			await SessionService.withdraw(
-				session.sessionId
-			);
+            await SessionService.withdraw(session.sessionId);
 
-			await loadSession();
-		} catch (e: any) {
-			alert(e.message ?? 'Withdraw failed');
-		} finally {
-			setActionLoading(false);
-		}
-	};
+            await loadSession();
+        } catch (e: any) {
+            alert(e.message ?? 'Withdraw failed');
+        } finally {
+            setActionLoading(false);
+        }
+    };
 
-	const confirmOverride = async () => {
-		if (!session || !conflictSession)
-			return;
+    const confirmOverride = async () => {
+        if (!session || !conflictSession) return;
 
-		try {
-			setActionLoading(true);
+        try {
+            setActionLoading(true);
 
-			// withdraw old conflicting session
-			await SessionService.withdraw(
-				conflictSession.idSession
-			);
+            await SessionService.enroll(session.sessionId, true);
 
-			// enroll current session
-			await SessionService.enroll(
-				session.sessionId
-			);
+            await loadSession();
+        } catch (e: any) {
+            alert(e.message ?? 'Failed to switch sessions');
+        } finally {
+            setActionLoading(false);
+            setConflictVisible(false);
+        }
+    };
 
-			await loadSession();
-		} catch (e: any) {
-			alert(
-				e.message ??
-					'Failed to switch sessions'
-			);
-		} finally {
-			setActionLoading(false);
-			setConflictVisible(false);
-		}
-	};
+    if (loading) return <Loading />;
 
-	if (loading) return <Loading />;
+    if (error) return <ErrorState message={error} />;
 
-	if (error)
-		return <ErrorState message={error} />;
+    if (!session) return <ErrorState message="Session not found" />;
 
-	if (!session)
-		return (
-			<ErrorState message="Session not found" />
-		);
+    return (
+        <ScrollView contentContainerStyle={sessionStyles.container}>
+            <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={sessionStyles.backButton}
+            >
+                <Text style={sessionStyles.backText}>← Back</Text>
+            </TouchableOpacity>
 
-		return (
-			<ScrollView
-			contentContainerStyle={sessionStyles.container}
-			>
-			<TouchableOpacity
-			onPress={() => navigation.goBack()}
-			style={sessionStyles.backButton}
-			>
-			<Text style={sessionStyles.backText}>
-			← Back
-			</Text>
-			</TouchableOpacity>
+            <Text style={sessionStyles.title}>{session.title}</Text>
 
-			<Text style={sessionStyles.title}>
-			{session.title}
-			</Text>
+            <Text style={sessionStyles.time}>
+                {formatTimeRange(session.startTime, session.endTime)}
+            </Text>
 
-			<Text style={sessionStyles.time}>
-			{formatTimeRange(
-				session.startTime,
-				session.endTime
-			)}
-			</Text>
+            {session.room?.roomLabel && (
+                <Text style={sessionStyles.location}>
+                    {session.room.roomLabel}
+                </Text>
+            )}
 
-			{session.room?.roomLabel && (
-				<Text style={sessionStyles.location}>
-				{session.room.roomLabel}
-				</Text>
-			)}
+            {!!session.tags?.length && (
+                <View style={sessionStyles.tagRow}>
+                    {session.tags.map(tag => (
+                        <TagItem key={tag.idTag} tag={tag} />
+                    ))}
+                </View>
+            )}
 
-			{!!session.tags?.length && (
-				<View style={sessionStyles.tagRow}>
-				{session.tags.map((tag) => (
-					<TagItem
-					key={tag.idTag}
-					tag={tag}
-					/>
-				))}
-				</View>
-			)}
+            <PlacesLeft
+                placesLeft={session.placesLeft}
+                isEnrolled={session.isEnrolled ?? false}
+                inQueue={session.inQueue ?? false}
+                onEnroll={handleEnroll}
+                onWithdraw={handleWithdraw}
+                loading={actionLoading}
+            />
 
-			<PlacesLeft
-			placesLeft={session.placesLeft}
-			isEnrolled={
-				session.isEnrolled ?? false
-			}
-			onEnroll={handleEnroll}
-			onWithdraw={handleWithdraw}
-			loading={actionLoading}
-			/>
+            <Section title="Speakers">
+                <Text style={sessionStyles.speakerName}>
+                    {session.speakerName ?? 'TBA'}
+                </Text>
+            </Section>
 
-			<Section title="Speakers">
-			<Text style={sessionStyles.speakerName}>
-			{session.speakerName ??
-				'TBA'}
-			</Text>
-			</Section>
+            <Section title="About">
+                <Text style={sessionStyles.aboutText}>
+                    {session.description ?? 'No description available yet.'}
+                </Text>
+            </Section>
 
-			<Section title="About">
-			<Text style={sessionStyles.aboutText}>
-			{session.description ??
-				'No description available yet.'}
-			</Text>
-			</Section>
-
-			<EnrollConflictModal
-			visible={conflictVisible}
-			conflictSession={conflictSession}
-			onCancel={() =>
-				setConflictVisible(false)
-			}
-			onConfirm={confirmOverride}
-			/>
-			</ScrollView>
-		);
+            <EnrollConflictModal
+                visible={conflictVisible}
+                conflictSession={conflictSession}
+                onCancel={() => setConflictVisible(false)}
+                onConfirm={confirmOverride}
+            />
+        </ScrollView>
+    );
 }
