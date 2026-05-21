@@ -17,5 +17,6 @@ namespace SharedClassLibrary.DTOs.Sessions
         public string? SpeakerName { get; set; }
         public int PlacesLeft { get; set; }
         public bool IsEnrolled { get; set; }
+        public bool InQueue { get; set; }
     }
 }
