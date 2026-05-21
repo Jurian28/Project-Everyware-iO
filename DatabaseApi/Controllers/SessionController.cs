@@ -1,10 +1,12 @@
-using System.Text.Json;
 using DatabaseApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedClassLibrary.DTOs.Rooms;
 using SharedClassLibrary.DTOs.Tags;
 using SharedClassLibrary.DTOs.Sessions;
+using DatabaseApi.Services;
+using DatabaseApi.DTOs;
 
 namespace DatabaseApi.Controllers
 {
@@ -13,12 +15,17 @@ namespace DatabaseApi.Controllers
     public class SessionController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<SessionController> _logger;
+        private readonly SessionRegistrationService _sessionRegistrationService;
+        
         private readonly string noRoomErrorMessage = "Geen gekoppelde kamer";
         private readonly string noSpeakerErrorMessage = "Geen gekoppelde spreker";
 
-        public SessionController(ApplicationDbContext context)
+        public SessionController(ApplicationDbContext context, ILogger<SessionController> logger)
         {
             _context = context;
+            _logger = logger;
+            _sessionRegistrationService = new(_context);
         }
 
         [HttpGet]
