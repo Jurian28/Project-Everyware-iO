@@ -1,6 +1,5 @@
 import { getConfig, upsert } from '../chartHelper.js';
 
-// --- 1. Haal elementen uit de HTML ---
 const canvas = document.getElementById("sessionChart");
 const noChartElement = document.getElementById("noChart");
 
@@ -14,6 +13,9 @@ const listContainer = document.getElementById("attendeeListContainer");
 const loadingElement = document.getElementById("loadingAttendees");
 const attendeeTemplate = document.getElementById("attendeeCardTemplate");
 
+const filterSelect = document.getElementById("filterSelect");
+const sortSelect = document.getElementById("sortSelect");
+
 const eventId = parseInt(document.querySelector('meta[name="event-id"]').content);
 const sessionId = parseInt(document.querySelector('meta[name="session-id"]').content);
 const chartConfig = getConfig({ cutout: "60%" });
@@ -21,11 +23,10 @@ let chart;
 
 let session;
 
-// TODO refactor name
-initPage();
+updatePage();
 // setInterval(initPage, 5000);
 
-async function initPage() {
+async function updatePage() {
     await fetchSessionDetails();
 
     if (!session || session.totalSpots === 0) {
@@ -36,6 +37,8 @@ async function initPage() {
     updateStats();
     updateChart();
     renderAttendeeList();
+    filterSelect.addEventListener("change", renderAttendeeList);
+    sortSelect.addEventListener("change", renderAttendeeList);
 }
 
 async function fetchSessionDetails() {
@@ -61,8 +64,8 @@ function updateChart() {
     // TODO update when new db field added
     chart = upsert(canvas, {
         config: chartConfig,
-        labels: ["Filled Spots", "Open Spots"],
-        data: [session.filledSpots, session.openSpots]
+        labels: ["Filled Spots", "Open Spots", "In Waitlist"],
+        data: [session.filledSpots, session.totalSpots - session.filledSpots, session.spotsInWaitingList]
     });
 }
 
@@ -70,21 +73,45 @@ function renderAttendeeList() {
     if (loadingElement) loadingElement.remove();
     listContainer.innerHTML = '';
 
-    session.attendees.forEach(attendee => {
-        let card = attendeeTemplate.content.cloneNode(true);
+    const filterValue = filterSelect.value;
+    const sortValue = sortSelect.value;
 
+    let attendees = [...session.attendees];
+
+    if (filterValue === "signedup") {
+        attendees = attendees.filter(a => !a.inWaitingList);
+    } else if (filterValue === "waitlist") {
+        attendees = attendees.filter(a => a.inWaitingList);
+    }
+
+    attendees.sort((a, b) => {
+        switch (sortValue) {
+            case "name-asc": return a.userName.localeCompare(b.userName);
+            case "name-desc": return b.userName.localeCompare(a.userName);
+            case "date-desc": return new Date(b.joinedDate) - new Date(a.joinedDate);
+            case "date-asc": return new Date(a.joinedDate) - new Date(b.joinedDate);
+            default: return 0;
+        }
+    });
+
+    if (attendees.length === 0) {
+        listContainer.innerHTML = '<div class="text-center text-muted mt-3">No attendees match this filter.</div>';
+        return;
+    }
+
+    attendees.forEach(attendee => {
+        let card = attendeeTemplate.content.cloneNode(true);
         card.querySelector(".js-attendeeName").innerText = attendee.userName;
         const statusBadge = card.querySelector(".js-attendeeStatus");
-        statusBadge.innerText = "To be determined";
 
-        // TODO refactor
-        // if (attendee.status === "Waitlist") {
-        //     statusBadge.classList.replace("bg-secondary", "bg-warning");
-        //     statusBadge.classList.add("text-dark");
-        // } else {
-        //     statusBadge.classList.replace("bg-secondary", "bg-success");
-        // }
-
+        if (attendee.inWaitingList === true) {
+            statusBadge.classList.replace("bg-secondary", "bg-warning");
+            statusBadge.classList.add("text-dark");
+            statusBadge.innerText = "In waiting list";
+        } else {
+            statusBadge.classList.replace("bg-secondary", "bg-success");
+            statusBadge.innerText = "Signed up";
+        }
         listContainer.append(card);
     });
 }

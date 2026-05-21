@@ -18,8 +18,8 @@
 
         <div class="d-flex flex-column justify-content-center fs-4 gap-4 px-3">
             <div>Total Spots: <span id="stat-totalSpots" class="fw-bold">-</span></div>
-            <div>Aanwezig: <span id="stat-presentCount" class="fw-bold">-</span></div>
-            <div>Afwezig: <span id="stat-absentCount" class="fw-bold">-</span></div>
+            <div>Present: <span id="stat-presentCount" class="fw-bold">-</span></div>
+            <div>Absent: <span id="stat-absentCount" class="fw-bold">-</span></div>
             <div>Open Spots: <span id="stat-openSpots" class="fw-bold">-</span></div>
             <div>In waitlist: <span id="stat-waitlist" class="fw-bold">-</span></div>
         </div>
@@ -29,11 +29,16 @@
 
     <div class="w-50 d-flex flex-column h-100">
         <div class="d-flex justify-content-between mb-3 gap-2">
-            <select class="form-select form-select-sm">
-                <option>Filter: All</option>
+            <select id="filterSelect" class="form-select form-select-sm">
+                <option value="all">Filter: All</option>
+                <option value="signedup">Signed Up</option>
+                <option value="waitlist">In Waiting List</option>
             </select>
-            <select class="form-select form-select-sm">
-                <option>Sort: Name</option>
+            <select id="sortSelect" class="form-select form-select-sm">
+                <option value="name-asc">Sort: Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+                <option value="date-desc">Joined: Newest</option>
+                <option value="date-asc">Joined: Oldest</option>
             </select>
         </div>
 

@@ -2,7 +2,7 @@
 <script src="~/lib/chartjs/chart.umd.js"></script>
 <script src="~/js/dashBoard/index.js" defer type="module"></script>
 
-<div class="h-100 d-flex flex-row p-4 gap-4">
+<div class="h-100 d-flex flex-row">
     <div class="w-50 d-flex justify-content-center align-items-center h-100">
         <div id="chartContainer" class="w-75 px-5 py-4 h-100 position-relative">
             <div id="noChart"
@@ -13,7 +13,7 @@
     </div>
     <div style="width: 2px;" class="bg-black h-95 mt-auto"></div>
     <div class="w-50 ps-3 h-100 pe-5 d-flex flex-column">
-        <div class="fs-4 text-center pt-3 pb-5">
+        <div class="fs-4 text-center pt-3 pb-5 invisible">
             Average Attendance: <span id="avgAttendance"></span>
         </div>
         <div id="dashboardCardContainer"
