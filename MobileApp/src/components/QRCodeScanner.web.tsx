@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
-import { qrCodeStyles } from '../styles/attendanceStyle';
+import { webStyles } from '../styles/qrScannerStyle';
 
 type QRScannerProps = {
   onScan: (data: string) => void;
@@ -115,15 +115,15 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
 
   if (error) {
     return (
-      <View style={qrCodeStyles.centered}>
-        <Text style={qrCodeStyles.errorIcon}>⚠️</Text>
-        <Text style={qrCodeStyles.errorText}>{error}</Text>
-        <TouchableOpacity style={qrCodeStyles.button} onPress={handleReset}>
-          <Text style={qrCodeStyles.buttonText}>Try Again</Text>
+      <View style={webStyles.centered}>
+        <Text style={webStyles.errorIcon}>⚠️</Text>
+        <Text style={webStyles.errorText}>{error}</Text>
+        <TouchableOpacity style={webStyles.button} onPress={handleReset}>
+          <Text style={webStyles.buttonText}>Try Again</Text>
         </TouchableOpacity>
         {onClose && (
-          <TouchableOpacity style={qrCodeStyles.closeButton} onPress={onClose}>
-            <Text style={qrCodeStyles.closeText}>Close</Text>
+          <TouchableOpacity style={webStyles.closeButton} onPress={onClose}>
+            <Text style={webStyles.closeText}>Close</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -132,7 +132,7 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
 
   return (
     <View>
-      <View style={qrCodeStyles.container}>
+      <View style={webStyles.container}>
         {/* This needs to be a div */}
         <div
           id={SCANNER_ID}
@@ -149,25 +149,36 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
         />
       </View>
 
-      <View pointerEvents="box-none">
-        <View style={qrCodeStyles.bottomOverlay}>
-          {starting && <Text style={qrCodeStyles.hint}>Starting camera…</Text>}
-          {!starting && !scanned && (
-            <Text style={qrCodeStyles.hint}>Align QR code within the frame</Text>
-          )}
-          {scanned && <Text style={qrCodeStyles.hint}>QR code scanned!</Text>}
-          {scanned && (
-            <TouchableOpacity style={qrCodeStyles.button} onPress={handleReset}>
-              <Text style={qrCodeStyles.buttonText}>Scan Again</Text>
-            </TouchableOpacity>
-          )}
-          {onClose && (
-            <TouchableOpacity style={qrCodeStyles.closeButton} onPress={onClose}>
-              <Text style={qrCodeStyles.closeText}>Close</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+      <Overlay
+        scanned={scanned}
+        starting={starting}
+        handleReset={handleReset}
+        onClose={onClose}
+      />
     </View>
   );
+}
+
+function Overlay({ scanned, starting, handleReset, onClose }: { scanned: boolean; starting: boolean; handleReset: () => void; onClose?: () => void }) {
+  return (
+    <View pointerEvents="box-none">
+      <View style={webStyles.bottomOverlay}>
+        {starting && <Text style={webStyles.hint}>Starting camera…</Text>}
+        {!starting && !scanned && (
+          <Text style={webStyles.hint}>Align QR code within the frame</Text>
+        )}
+        {scanned && <Text style={webStyles.hint}>QR code scanned!</Text>}
+        {scanned && (
+          <TouchableOpacity style={webStyles.button} onPress={handleReset}>
+            <Text style={webStyles.buttonText}>Scan Again</Text>
+          </TouchableOpacity>
+        )}
+        {onClose && (
+          <TouchableOpacity style={webStyles.closeButton} onPress={onClose}>
+            <Text style={webStyles.closeText}>Close</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  )
 }

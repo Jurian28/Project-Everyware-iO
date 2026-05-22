@@ -28,7 +28,7 @@ import EventsOverview from './src/pages/events/Overview';
 import { EventPage } from './src/pages/events/Event';
 import EventSchedule from './src/pages/events/EventSchedule';
 import QRCodePage from './src/pages/events/QRCodePage'; 
-import EventsAttendance from './src/pages/attendance/events';
+import EventsAttendance from './src/pages/attendance/Events';
 
 function LogoutPage() {
   const navigator = useNavigation<NavigationProp<ParamListBase>>();
