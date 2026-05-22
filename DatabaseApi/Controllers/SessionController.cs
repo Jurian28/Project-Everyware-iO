@@ -23,8 +23,49 @@ namespace DatabaseApi.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<ApiResponse<IEnumerable<SessionDTO>>>> GetAllSessions(int eventId)
+        {
+            List<SessionDTO> sessions = await _context.Sessions
+                .Include(s => s.Room)
+                .Include(s => s.Speakers)
+                .Include(s => s.Tags)
+                .Where(s => s.IdEvent == eventId)
+                .Select(s => new SessionDTO
+                {
+                    SessionId = s.IdSession,
+                    Title = s.Title,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime,
+                    Plenary = s.Plenary,
+
+                    Room = s.Room != null
+                        ? new RoomResponseDTO
+                        {
+                            IdRoom = s.Room.IdRoom,
+                            RoomLabel = s.Room.RoomLabel,
+                            Capacity = s.Room.Capacity
+                        }
+                        : new RoomResponseDTO { RoomLabel = noRoomErrorMessage },
+                    Tags = s.Tags.Select(t => new TagResponseDTO
+                    {
+                        IdTag = t.IdTag,
+                        IdEvent = t.IdEvent,
+                        Title = t.Title,
+                        ColorHex = t.ColorHex,
+                    }).ToList(),
+                    SpeakerId = s.Speakers.Select(s => s.IdSpeaker).FirstOrDefault(),
+                    SpeakerName = s.Speakers
+                        .Select(s => $"{s.FirstName} {s.MiddleName} {s.LastName}".Replace("  ", " ").Trim())
+                        .FirstOrDefault() ?? noSpeakerErrorMessage
+                })
+                .ToListAsync();
+
+            return Ok(ApiResponse<IEnumerable<SessionDTO>>.Ok(sessions));
+        }
+
+        [HttpGet("withUserData")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<IEnumerable<SessionDTO>>>> GetAllSessionsWithUserData(int eventId)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -32,7 +73,6 @@ namespace DatabaseApi.Controllers
             {
                 return Unauthorized();
             }
-
 
             List<SessionDTO> sessions = await _context.Sessions
                 .Include(s => s.Room)
@@ -73,7 +113,6 @@ namespace DatabaseApi.Controllers
 
             return Ok(ApiResponse<IEnumerable<SessionDTO>>.Ok(sessions));
         }
-
 
         [HttpGet("getAdd")]
         public async Task<ActionResult<ApiResponse<CUSessionDTO>>> GetAddSessionData(int eventId)

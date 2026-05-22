@@ -65,7 +65,7 @@ async function safeJson(res: Response) {
 export class SessionService {
 	public static async fetchEventSessions(eventId: string | number): Promise<SessionsResult> {
 		try {
-			const response = await fetch(`${baseUrl}/${eventId}/sessions`, {
+			const response = await fetch(`${baseUrl}/${eventId}/sessions/withUserData`, {
 				method: 'GET',
 				headers: await authHeaders(),
 			});
@@ -89,8 +89,6 @@ export class SessionService {
 			return { success: false, message: "Internal Server Error" };
 		}
 	}
-
-
 
 	public static async getSession(sessionId: number) {
 		const res = await fetch(
