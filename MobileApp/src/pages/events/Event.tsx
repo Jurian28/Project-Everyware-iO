@@ -5,6 +5,20 @@ import config from '../../config';
 import eventStyles from '../../styles/eventStyles';
 import Colors from '../../enums/colors';
 
+function Header({ event, navigation }: { event: Event; navigation: any }) {
+  return (
+    <View style={eventStyles.eventPageHeader}>
+      <Pressable onPress={() => navigation.navigate('EventsOverview')} style={eventStyles.backButton}>
+        <Text style={eventStyles.backButton}>&larr;</Text>
+      </Pressable>
+
+      <Pressable style={eventStyles.qrCodeButton} onPress={() => navigation.navigate('SessionQRCode', { event })}>
+        <Text style={eventStyles.qrCodeButtonText}>Presencion QR Code</Text>
+      </Pressable>
+    </View>
+  )
+}
+
 export function EventPage() {
   const route = useRoute<any>();
   const { event } = route.params as { event: Event };
@@ -15,15 +29,8 @@ export function EventPage() {
 
   return (
     <View style={eventStyles.eventPageContainer}>
-      <View style={eventStyles.eventPageHeader}>
-        <Pressable onPress={() => navigation.navigate('EventsOverview')} style={eventStyles.backButton}>
-          <Text style={eventStyles.backButton}>&larr;</Text>
-        </Pressable>
-
-        <Pressable style={eventStyles.qrCodeButton} onPress={() => navigation.navigate('EventQRCode', { event })}>
-          <Text style={eventStyles.qrCodeButtonText}>Presencion QR Code</Text>
-        </Pressable>
-      </View>
+      <Header event={event} navigation={navigation} />
+      
       <View style={eventStyles.eventContentContainer}>
         <Text numberOfLines={2} style={eventStyles.eventPageTitle}>{event.title}</Text>
 

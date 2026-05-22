@@ -27,8 +27,8 @@ import AuthService from './src/services/AuthService';
 import EventsOverview from './src/pages/events/Overview';
 import { EventPage } from './src/pages/events/Event';
 import EventSchedule from './src/pages/events/EventSchedule';
-import QRCodePage from './src/pages/events/QRCodePage'; 
-import EventsAttendance from './src/pages/attendance/Events';
+import QRCodePage from './src/pages/sessions/QRCodePage'; 
+import SessionAttendance from './src/pages/attendance/Session';
 
 function LogoutPage() {
   const navigator = useNavigation<NavigationProp<ParamListBase>>();
@@ -148,7 +148,7 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
       },
     },
 
-    EventQRCode: {
+    SessionQRCode: {
       screen: QRCodePage,
       options: {
         title: 'Attendance QR Code',
@@ -158,10 +158,10 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
       },
     },
 
-    AttendanceEvents: {
-      screen: EventsAttendance,
+    AttendanceSession: {
+      screen: SessionAttendance,
       options: {
-        title: 'Attendance Checker Events',
+        title: 'Session Attendance Checker',
         // drawerItemStyle: {
         //   display: 'none',
         // },

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { View, Text, Platform, ScrollView, ActivityIndicator } from 'react-native';
-import { webStyles } from '../../styles/attendanceStyle';
+import attendanceStyle from '../../styles/attendanceStyle';
 import WebQRScanner from '../../components/QRCodeScanner.web';
 import NativeQRScanner from '../../components/QRCodeScanner.native';
 import colors from '../../enums/colors';
 
-export default function EventsAttendance() {
+export default function SessionAttendance() {
   const [qrResult, setQrResult] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -16,6 +16,7 @@ export default function EventsAttendance() {
     // TODO: if result is not from our system, show error message
 
     setLoading(true);
+
     try {
       // TODO: Send API request
     } catch (err) {
@@ -23,7 +24,7 @@ export default function EventsAttendance() {
     } finally {
       setTimeout(() => {
         setLoading(false);
-      }, 5000);
+      }, 1000); // Simulate processing time
       // setLoading(false);
     }
 
@@ -34,15 +35,15 @@ export default function EventsAttendance() {
 
   if(loading) {
     return (
-      <View style={webStyles.centered}>
+      <View style={attendanceStyle.centered}>
         <ActivityIndicator size="large" color={colors.DEFAULT_BUTTON_COLOR} />
-        <Text style={webStyles.hint}>Processing attendance...</Text>
+        <Text style={attendanceStyle.hint}>Processing attendance...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={webStyles.container}> 
+    <ScrollView style={attendanceStyle.container}> 
       {Platform.OS === 'web' ? (
         <WebQRScanner onScan={handleScan} />
       ) : (

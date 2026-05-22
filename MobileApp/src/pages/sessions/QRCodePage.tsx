@@ -59,7 +59,7 @@ export default function QRCodePage() {
   useEffect(() => {
     async function GenerateQRCode() {
       try {
-        const eventUrl = `${config.apiBaseUrl}/event/${event.idEvent}`;
+        const eventUrl = `${config.apiBaseUrl}/event/${event.idEvent}`; // TODO: Change. Use UserId.
         const qr = await QRCode.toDataURL(
           eventUrl, 
           { 

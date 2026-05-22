@@ -7,14 +7,11 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.m?js$/,
+                test: /\.(js|jsx|ts|tsx)$/,
+                exclude: /node_modules\/(?!react-native-reanimated|react-native-gesture-handler|react-native-drawer-layout)/,
                 resolve: {
                     fullySpecified: false,
                 },
-            },
-            {
-                test: /\.(js|jsx|ts|tsx)$/,
-                exclude: /node_modules\/(?!react-native-reanimated|react-native-gesture-handler|react-native-drawer-layout|react-native-vision-camera)/,
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -51,6 +48,9 @@ module.exports = {
             'react-native-keychain': path.resolve(__dirname, 'src/web-stubs/keychain.js'),
             'react-native-worklets': false,
             'react-native-vision-camera-worklets': false,
+            'react-native-vision-camera': false,
+            'react-native-vision-camera-barcode-scanner': false,
+            'react-native-nitro-modules': false,
             '@react-native-masked-view/masked-view': false,
             '@react-navigation/elements/lib/module/MaskedViewNative': path.resolve(
                 __dirname,
