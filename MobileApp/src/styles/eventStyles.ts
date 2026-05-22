@@ -171,6 +171,17 @@ const eventStyles = StyleSheet.create({
   eventPageDescriptionText: {
     fontSize: 14,
   },
+  eventPageScheduleButton: {
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: Colors.DEFAULT_BUTTON_COLOR,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  eventPageScheduleButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
 
   // QR Code Page
   qrCodeContainer: {
