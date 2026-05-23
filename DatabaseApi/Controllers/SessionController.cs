@@ -6,6 +6,8 @@ using SharedClassLibrary.DTOs.Rooms;
 using SharedClassLibrary.DTOs.Sessions;
 using SharedClassLibrary.DTOs.Tags;
 using System.Security.Claims;
+using DatabaseApi.Services;
+using DatabaseApi.DTOs;
 
 namespace DatabaseApi.Controllers
 {
@@ -14,12 +16,17 @@ namespace DatabaseApi.Controllers
     public class SessionController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<SessionController> _logger;
+        private readonly SessionRegistrationService _sessionRegistrationService;
+        
         private readonly string noRoomErrorMessage = "Geen gekoppelde kamer";
         private readonly string noSpeakerErrorMessage = "Geen gekoppelde spreker";
 
-        public SessionController(ApplicationDbContext context)
+        public SessionController(ApplicationDbContext context, ILogger<SessionController> logger)
         {
             _context = context;
+            _logger = logger;
+            _sessionRegistrationService = new(_context);
         }
 
         [HttpGet]

@@ -4,16 +4,16 @@ import config from '../config';
 const baseUrl = config.apiBaseUrl;
 
 export type TagResponseDTO = {
-	idTag: number;
-	idEvent: number;
-	title: string;
-	colorHex: string;
+    idTag: number;
+    idEvent: number;
+    title: string;
+    colorHex: string;
 };
 
 export type RoomResponseDTO = {
-	idRoom: number;
-	roomLabel: string;
-	capacity: number;
+    idRoom: number;
+    roomLabel: string;
+    capacity: number;
 };
 
 export type SessionDTO = {
@@ -30,37 +30,33 @@ export type SessionDTO = {
 };
 
 type SessionsResult = {
-	success: boolean;
-	sessions?: SessionDTO[];
-	message?: string;
+    success: boolean;
+    sessions?: SessionDTO[];
+    message?: string;
 };
 
-
 async function authHeaders() {
-	const token = await Keychain.getGenericPassword({
-		service: 'auth_access_token',
-	});
+    const token = await Keychain.getGenericPassword({
+        service: 'auth_access_token',
+    });
 
-	return {
-		'Content-Type': 'application/json',
-		...(token
-			? {
-				Authorization: `Bearer ${token.password}`,
-			}
-			: {}),
-	};
+    return {
+        'Content-Type': 'application/json',
+        ...(token
+            ? {
+                  Authorization: `Bearer ${token.password}`,
+              }
+            : {}),
+    };
 }
 
 async function safeJson(res: Response) {
-	try {
-		return await res.json();
-	} catch {
-		return null;
-	}
+    try {
+        return await res.json();
+    } catch {
+        return null;
+    }
 }
-
-
-
 
 export class SessionService {
 	public static async fetchEventSessions(eventId: string | number): Promise<SessionsResult> {
@@ -70,107 +66,103 @@ export class SessionService {
 				headers: await authHeaders(),
 			});
 
-			if (!response.ok) {
-				const message = await response.text();
-				console.error(`Failed to fetch sessions for event ${eventId}:`, response.status, message);
-				return { success: false, message: "Failed to fetch sessions" };
-			}
+            if (!response.ok) {
+                const message = await response.text();
+                console.error(
+                    `Failed to fetch sessions for event ${eventId}:`,
+                    response.status,
+                    message,
+                );
+                return { success: false, message: 'Failed to fetch sessions' };
+            }
 
-			const json = await response.json();
+            const json = await response.json();
 
-			if (!json.success) {
-				console.error(`API responded with success=false for event ${eventId}:`, json);
-				return { success: false, message: "fetch returned unsuccessful" };
-			}
+            if (!json.success) {
+                console.error(
+                    `API responded with success=false for event ${eventId}:`,
+                    json,
+                );
+                return {
+                    success: false,
+                    message: 'fetch returned unsuccessful',
+                };
+            }
 
-			return { success: true, sessions: json.data };
-		} catch (error) {
-			console.error(`Fetching sessions for event ${eventId} ended with error:`, error);
-			return { success: false, message: "Internal Server Error" };
-		}
-	}
+            return { success: true, sessions: json.data };
+        } catch (error) {
+            console.error(
+                `Fetching sessions for event ${eventId} ended with error:`,
+                error,
+            );
+            return { success: false, message: 'Internal Server Error' };
+        }
+    }
 
-	public static async getSession(sessionId: number) {
-		const res = await fetch(
-			`${baseUrl}/sessions/${sessionId}`,
-			{
-				headers: await authHeaders(),
-			}
-		);
+    public static async getSession(sessionId: number) {
+        const res = await fetch(`${baseUrl}/sessions/${sessionId}`, {
+            headers: await authHeaders(),
+        });
 
-		if (!res.ok) {
-			return {
-				success: false,
-				message: 'Session not found',
-			};
-		}
+        if (!res.ok) {
+            return {
+                success: false,
+                message: 'Session not found',
+            };
+        }
 
-		const json = await res.json();
-		return json.data;
-	}
+        const json = await res.json();
+        return json.data;
+    }
 
-	public static async enroll(sessionId: number) {
-		const res = await fetch(
-			`${baseUrl}/sessions/${sessionId}/enroll`,
-			{
-				method: 'POST',
-				headers: await authHeaders(),
-			}
-		);
+    public static async enroll(
+        sessionId: number,
+        overrideConflict: boolean = false,
+    ) {
+        const res = await fetch(
+            `${baseUrl}/sessions/${sessionId}/enroll?overrideSessions=${overrideConflict}`,
+            {
+                method: 'POST',
+                headers: await authHeaders(),
+            },
+        );
 
-		const data = await safeJson(res);
+        const data = await safeJson(res);
 
-		if (res.status === 409) {
-			return {
-				success: false,
-				type: 'conflict',
-				conflictSession: data?.conflictSession,
-				message: data?.message,
-			};
-		}
+        if (data == null) {
+            return {
+                success: false,
+                message: 'Enroll failed',
+            };
+        }
 
-		if (res.status === 400) {
-			return {
-				success: false,
-				type: 'already-enrolled',
-				message:
-					data?.message ??
-					'Already enrolled',
-			};
-		}
+        const isConflict = data.data.conflictingSessions != null;
 
-		if (!res.ok) {
-			return {
-				success: false,
-				message:
-					data?.message ??
-					'Enroll failed',
-			};
-		}
+        return {
+            success: data.success ?? false,
+            message:
+                data.message ??
+                (isConflict ? 'Enrollment conflict' : 'Enroll failed'),
+            isConflict: isConflict,
+            conflictingSessions: data.data.conflictingSessions,
+        };
+    }
 
-		return { success: true };
-	}
+    public static async withdraw(sessionId: number) {
+        const res = await fetch(`${baseUrl}/sessions/${sessionId}/enroll`, {
+            method: 'DELETE',
+            headers: await authHeaders(),
+        });
 
-	public static async withdraw(sessionId: number) {
-		const res = await fetch(
-			`${baseUrl}/sessions/${sessionId}/enroll`,
-			{
-				method: 'DELETE',
-				headers: await authHeaders(),
-			}
-		);
+        const data = await safeJson(res);
 
-		const data = await safeJson(res);
+        if (!res.ok) {
+            return {
+                success: false,
+                message: data?.message ?? 'Withdraw failed',
+            };
+        }
 
-		if (!res.ok) {
-			return {
-				success: false,
-				message:
-					data?.message ??
-					'Withdraw failed',
-			};
-		}
-
-		return { success: true };
-	}
+        return { success: true };
+    }
 }
