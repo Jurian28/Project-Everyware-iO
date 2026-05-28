@@ -1,5 +1,6 @@
 ﻿using Back_office.Models.Dtos;
 using Back_office.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Back_office.Controllers;
@@ -8,20 +9,48 @@ namespace Back_office.Controllers;
 /// Controller responsible for handling user authentication actions such as login, registration, and logout.
 /// </summary>
 /// <param name="httpClientFactory">The factory used to create instances of <see cref="HttpClient"/>.</param>
+[Route("[controller]")]
 public class AuthController(IHttpClientFactory httpClientFactory) : Controller
 {
-    private static readonly string AUTH_API_BASE_URL = "http://databaseapi:5000";
-
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("DatabaseApi");
 
     /// <summary>
     /// Displays the login view.
     /// </summary>
     /// <returns>The login view.</returns>
-    [HttpGet]
+    [HttpGet("Login")]
     public IActionResult Login()
     {
-        return View();
+        _httpClient.PostAsJsonAsync("api/auth/requestPermission", new { Garbage = 0 });
+        return View("Login");
+    }
+
+    /// <summary>
+    /// Displays the view to request Organiser permissions.
+    /// </summary>
+    [HttpGet("No-Permission")]
+    [Authorize]
+    public async Task<IActionResult> NoPermission()
+    {
+        bool openRequest = false;
+        HttpResponseMessage response = await _httpClient.GetAsync("api/auth/has-requested-organiser-access");
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
+            openRequest = result?.Data ?? false;
+        }
+        return View("NoPermission", openRequest);
+    }
+
+    /// <summary>
+    /// Handles requesting of Organiser permissions
+    /// </summary>
+    [HttpPost("Request-Permission")]
+    [Authorize]
+    public async Task<HttpResponseMessage> requestPermission()
+    {
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/auth/request-organiser-access", new { Garbage = 0 });
+        return response;
     }
 
     /// <summary>
@@ -30,7 +59,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// <param name="viewModel">The view model containing the user's login credentials.</param>
     /// <returns>A redirect to the home page on success, or the login view with validation errors on failure.</returns>
     [ValidateAntiForgeryToken]
-    [HttpPost]
+    [HttpPost("Login")]
     public async Task<IActionResult> Login(LoginViewModel viewModel)
     {
         if (!ModelState.IsValid)
@@ -38,7 +67,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
             return View(viewModel);
         }
 
-        string loginUrl = $"{AUTH_API_BASE_URL}/api/auth/login";
+        string loginUrl = $"api/auth/login";
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync(loginUrl, new
         {
             viewModel.Email,
@@ -54,7 +83,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
                 SetTokenCookies(json);
             }
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Events");
         }
         else
         {
@@ -68,7 +97,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// Displays the registration view.
     /// </summary>
     /// <returns>The registration view.</returns>
-    [HttpGet]
+    [HttpGet("register")]
     public IActionResult Register()
     {
         return View();
@@ -80,7 +109,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// <param name="viewModel">The view model containing the user's registration details.</param>
     /// <returns>A redirect to the home page on success, or the registration view with validation errors on failure.</returns>
     [ValidateAntiForgeryToken]
-    [HttpPost]
+    [HttpPost("Register")]
     public async Task<IActionResult> Register(RegisterViewModel viewModel)
     {
         if (!ModelState.IsValid)
@@ -95,7 +124,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
             return View(viewModel);
         }
 
-        string registerUrl = $"{AUTH_API_BASE_URL}/api/auth/register";
+        string registerUrl = $"api/auth/register";
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync(registerUrl, new
         {
             viewModel.Email,
@@ -125,17 +154,17 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// Logs the user out by clearing the authentication cookies and notifying the authentication API.
     /// </summary>
     /// <returns>A redirect to the home page.</returns>
-    [HttpPost]
+    [HttpPost("Logout")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         Response.Cookies.Delete("AccessToken");
         Response.Cookies.Delete("RefreshToken");
 
-        string logoutUrl = $"{AUTH_API_BASE_URL}/api/auth/logout";
+        string logoutUrl = $"api/auth/logout";
         await _httpClient.PostAsync(logoutUrl, null);
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Login");
     }
 
     /// <summary>

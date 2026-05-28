@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using SharedClassLibrary.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +20,34 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddJwtBearer("Bearer", JwtOptions.GetJwtOptions);
+.AddJwtBearer("Bearer", options =>
+{
+    JwtOptions.GetJwtOptions(options);
+    var existingEvents = options.Events;
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = async ctx =>
+        {
+            if (existingEvents?.OnMessageReceived != null)
+                await existingEvents.OnMessageReceived(ctx);
+
+            if (string.IsNullOrEmpty(ctx.Token))
+                ctx.Token = ctx.Request.Cookies["AccessToken"];
+        },
+        OnChallenge = ctx =>
+        {
+            ctx.HandleResponse();
+            ctx.Response.Redirect("/Auth/Login");
+            return Task.CompletedTask;
+        },
+        OnForbidden = ctx =>
+        {
+            ctx.Response.Redirect("/Auth/No-Permission");
+            return Task.CompletedTask;
+        }
+    };
+});
 
 builder.Services.AddAuthorization();
 

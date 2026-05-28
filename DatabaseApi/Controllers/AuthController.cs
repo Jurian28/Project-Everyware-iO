@@ -1,15 +1,19 @@
 ﻿using DatabaseApi.Models;
 using DatabaseApi.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SharedClassLibrary.DTOs.Auth;
 using SharedClassLibrary.Jwt;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using User = DatabaseApi.Models.User;
 
 namespace DatabaseApi.Controllers;
 
@@ -26,6 +30,32 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
 
     private readonly UserManager<User> _userManager = userManager;
     private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
+
+    [HttpGet("organisers")]
+    //[Authorize(Roles = "Admin")]
+    public async Task<ApiResponse<Object>> GetOrganisers()
+    {
+        IList<User> organisers = await _userManager.GetUsersInRoleAsync("Organiser");
+
+        return ApiResponse<Object>.Ok(organisers.Select(u => new UserDTO
+        {
+            Id = u.Id,
+            Email = u.Email,
+        }));
+    }
+
+    [HttpGet("organiser-requests")]
+    //[Authorize(Roles = "Admin")]
+    public async Task<ApiResponse<Object>> GetOrganiserRequests()
+    {
+        List<User> requesters = [.. _applicationDbContext.Users.Where(u => u.HasRequestedAccess)];
+
+        return ApiResponse<Object>.Ok(requesters.Select(u => new UserDTO
+        {
+            Id = u.Id,
+            Email = u.Email,
+        }));
+    }
 
     /// <summary>
     /// Handles the login api endpoint.
@@ -121,6 +151,123 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
             AccessToken = accessToken,
             RefreshToken = refreshToken
         });
+    }
+
+    /// <summary>
+    /// Handles requesting acces as a user without access.
+    /// </summary>
+    [HttpPost("request-organiser-access")]
+    [Authorize]
+    public async Task<IActionResult> RequestAccess()
+    {
+        string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+            return BadRequest(ApiResponse<Object>.Fail("Name identifier not found."));
+
+        User? user = await _applicationDbContext.Users.FindAsync(userId);
+
+        if (user == null)
+            return NotFound(ApiResponse<Object>.Fail("User not found."));
+
+        if (user.HasRequestedAccess)
+            return BadRequest(ApiResponse<Object>.Fail("You have already requested access."));
+
+        user.HasRequestedAccess = true;
+        await _applicationDbContext.SaveChangesAsync();
+
+        return Ok(ApiResponse<Object>.Ok(null));
+    }
+
+    /// <summary>
+    /// Handles requesting acces as a user without access.
+    /// </summary>
+    [HttpGet("has-requested-organiser-access")]
+    [Authorize]
+    public async Task<IActionResult> HasRequestedAccess()
+    {
+        try
+        {
+            string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest(ApiResponse<Object>.Fail("Name identifier not found."));
+
+            User? user = await _applicationDbContext.Users.FindAsync(userId);
+
+            if (user == null)
+                return NotFound(ApiResponse<Object>.Fail("User not found."));
+
+            return Ok(ApiResponse<bool>.Ok(user.HasRequestedAccess));
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, ApiResponse<bool>.Fail("Error Occurred"));
+        }
+    }
+
+
+    /// <summary>
+    /// Handles instating the organiser role to a user.
+    /// </summary>
+    /// <param name="userId">The id of the user to instate the organiser role to.</param>
+    /// <returns>An HTTP response indicating whether the role was successfully instated.</returns>
+    [HttpPost("instate-organiser/{userId}")]
+    //[Authorize(Roles = "Admin")]
+    public async Task<ApiResponse<Object>> InstateOrganiser(string userId)
+    {
+        User? user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return ApiResponse<Object>.Fail("User not found.");
+        }
+
+        if (await _userManager.IsInRoleAsync(user, "Organiser"))
+        {
+            return ApiResponse<Object>.Fail("User already has the Organiser role.");
+        }
+
+        IdentityResult result = await _userManager.AddToRoleAsync(user, "Organiser");
+
+        if (!result.Succeeded)
+        {
+            return ApiResponse<Object>.Fail(string.Join(" ", result.Errors.Select(e => e.Description)));
+        }
+
+        return ApiResponse<Object>.Ok(null);
+    }
+
+    /// <summary>
+    /// Handles revoking the organiser role from a user.
+    /// </summary>
+    /// <param name="userId">The id of the user to revoke the organiser role from.</param>
+    /// <returns>An HTTP response indicating whether the role was successfully revoked.</returns>
+    [HttpPost("revoke-organiser/{userId}")]
+    //[Authorize(Roles = "Admin")]
+    public async Task<ApiResponse<Object>> RevokeOrganiser(string userId)
+    {
+        User? user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return ApiResponse<Object>.Fail("User not found.");
+        }
+
+        if (!await _userManager.IsInRoleAsync(user, "Organiser"))
+        {
+            return ApiResponse<Object>.Fail("User does not have the Organiser role.");
+        }
+
+        IdentityResult result = await _userManager.RemoveFromRoleAsync(user, "Organiser");
+
+        if (!result.Succeeded)
+        {
+            return ApiResponse<Object>.Fail(string.Join(" ", result.Errors.Select(e => e.Description)));
+        }
+
+        return ApiResponse<Object>.Ok(null);
     }
 
     /// <summary>

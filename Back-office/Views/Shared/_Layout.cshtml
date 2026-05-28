@@ -46,9 +46,13 @@
                                 </li> *@
                             </ul>
                         }
-                        else
+                        else if (User.IsInRole("Organiser, Admin"))
                         {
                             <div class="mx-5">Select an event to edit the event data</div>
+                        }
+                        else
+                        {
+                            <div class="mx-5">You don't have the needed permission to access the pages</div>
                         }
                         <div id="userDropdown">
                         <button id="userDropdownToggle" aria-expanded="false">
@@ -69,7 +73,12 @@
                         <ul id="userDropdownMenu" class="dropdown-menu">
                             @if (User.Identity?.IsAuthenticated == true)
                             {
-                                <li><a class="dropdown-item text-danger" asp-area="" asp-controller="Home" asp-action="Index">Log out</a></li>
+                                <li>
+                                    <form asp-controller="Auth" asp-action="Logout" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item text-danger">Log out</button>
+                                    </form>
+                                </li>
                             }
                             else
                             {
