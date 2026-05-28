@@ -10,9 +10,13 @@ export default function SessionAttendance() {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
-  const handleScan = (result: any) => {
+  const handleScan = (result: string) => {
     if (!result) return;
     
+    if (!result.startsWith('io-event-connecter://')) {
+      setError('Invalid QR code format.');
+      return;
+    }
     // TODO: if result is not from our system, show error message
 
     setLoading(true);
@@ -54,6 +58,7 @@ export default function SessionAttendance() {
 
       <View style={{ backgroundColor: '#f0f0f0' }}>
         <View>
+          {error ? <Text style={{ textAlign: 'center', paddingVertical: 16, color: 'red' }}>{error}</Text> : null}
           <Text style={{ textAlign: 'center', paddingVertical: 16 }}>{qrResult || 'No QR code scanned yet.'}</Text>
         </View>
       </View>

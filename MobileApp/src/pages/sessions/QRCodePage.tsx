@@ -9,6 +9,7 @@ import Colors from "../../enums/colors";
 import { getTextColorForBackground } from "../../utils/colors";
 import { Session } from "../../services/SessionService";
 import { formatTime } from "../../utils/dates";
+import AuthService from "../../services/AuthService";
 
 function Header({ session }: { session: Session }) {
   const navigation = useNavigation<any>();
@@ -61,9 +62,10 @@ export default function QRCodePage() {
   useEffect(() => {
     async function GenerateQRCode() {
       try {
-        const eventUrl = `${config.apiBaseUrl}/sessions/${session.sessionId}`; // TODO: Change. Use UserId.
+        const userId = await AuthService.getUserId();
+        const qrInput = `io-event-connecter://session/${session.sessionId}/user/${userId}`;
         const qr = await QRCode.toDataURL(
-          eventUrl, 
+          qrInput, 
           {  
             width: 300, 
             margin: 2 

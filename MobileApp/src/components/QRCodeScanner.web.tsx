@@ -44,7 +44,7 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
 
         await scanner.start(
           { facingMode: 'environment' },
-          { fps: 10, qrbox: { width: 260, height: 260 } },
+          { fps: 20, qrbox: { width: 280, height: 280 } },
           (decodedText) => {
             setScanned(true);
             stopScanner(scanner!);
@@ -98,7 +98,7 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
     try {
       await scanner.start(
         { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 260, height: 260 } },
+        { fps: 20, qrbox: { width: 280, height: 280 } },
         (decodedText) => {
           setScanned(true);
           stopScanner(scanner);
