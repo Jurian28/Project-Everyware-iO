@@ -11,10 +11,6 @@ function Header({ event, navigation }: { event: Event; navigation: any }) {
       <Pressable onPress={() => navigation.navigate('EventsOverview')} style={eventStyles.backButton}>
         <Text style={eventStyles.backButton}>&larr;</Text>
       </Pressable>
-
-      <Pressable style={eventStyles.qrCodeButton} onPress={() => navigation.navigate('SessionQRCode', { event })}>
-        <Text style={eventStyles.qrCodeButtonText}>Presencion QR Code</Text>
-      </Pressable>
     </View>
   )
 }
@@ -62,13 +58,10 @@ export function EventPage() {
         <Pressable
           onPress={() =>
             navigation.navigate('EventSchedule', {
-              screen: 'EventSchedule',
-              params: {
-                eventId: event.idEvent,
-                eventTitle: event.title,
-                eventColor: event.mainColorHex,
-                eventAccentColor: event.accentColorHex,
-              },
+              eventId: event.idEvent.toString(),
+              eventTitle: event.title,
+              eventColor: event.mainColorHex,
+              eventAccentColor: event.accentColorHex,
             })
           }
           style={eventStyles.eventPageScheduleButton}

@@ -3,7 +3,7 @@ import { Event } from '../../services/EventService';
 import { useNavigation } from '@react-navigation/native';
 import config from '../../config';
 import eventStyles from '../../styles/eventStyles';
-import { getTextColorForBackground } from '../../utils/colorUtils';
+import { getTextColorForBackground } from '../../utils/colors';
 
 export default function EventCard({ event }: { event: Event }) {
   const navigation = useNavigation<any>();

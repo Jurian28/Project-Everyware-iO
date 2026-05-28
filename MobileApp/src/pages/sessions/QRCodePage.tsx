@@ -1,48 +1,52 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { Pressable, Text, View, Image } from "react-native"
-import { Event } from '../../services/EventService';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AppLayout from "../../layouts/AppLayout"
-import eventStyles from "../../styles/eventStyles"
+import sessionStyles from "../../styles/sessionStyles";
 import config from "../../config";
 import Colors from "../../enums/colors";
-import { getTextColorForBackground } from "../../utils/colorUtils";
+import { getTextColorForBackground } from "../../utils/colors";
+import { Session } from "../../services/SessionService";
+import { formatTime } from "../../utils/dates";
 
-function Header({ event }: { event: Event }) {
+function Header({ session }: { session: Session }) {
   const navigation = useNavigation<any>();
 
   return (
-    <View style={eventStyles.eventPageHeader}>
-      <Pressable onPress={() => navigation.navigate('Event', { event })} style={eventStyles.backButton}>
-        <Text style={eventStyles.backButton}>&larr;</Text>
+    <View style={sessionStyles.qrPageHeader}>
+      <Pressable 
+        onPress={() => navigation.navigate('SessionView', { sessionId: session.sessionId })} 
+        style={sessionStyles.backButton}
+      >
+        <Text style={sessionStyles.backButton}>&larr;</Text>
       </Pressable>
     </View>
   )
 }
 
-function QRCodeCard({ event, qrCode }: { event: Event, qrCode: string }) {
-  const textColor = getTextColorForBackground(event.mainColorHex || Colors.DEFAULT_BUTTON_COLOR);
+function QRCodeCard({ eventMainColorHex, session, qrCode }: { eventMainColorHex: string, session: Session, qrCode: string }) {
+  const textColor = getTextColorForBackground(eventMainColorHex || Colors.DEFAULT_BUTTON_COLOR);
   
   return (
-    <View style={[eventStyles.qrCodeCard, { backgroundColor: event.mainColorHex || Colors.DEFAULT_BUTTON_COLOR }]}>
-      <View style={eventStyles.qrCodeBox}>
+    <View style={[sessionStyles.qrCodeCard, { backgroundColor: eventMainColorHex || Colors.DEFAULT_BUTTON_COLOR }]}>
+      <View style={sessionStyles.qrCodeBox}>
         {qrCode ? (
           <Image 
             source={{ uri: qrCode }} 
-            style={eventStyles.qrCodeImage} 
+            style={sessionStyles.qrCodeImage} 
           />
         ) : (
-          <Text style={eventStyles.qrCodeLoadingText}>Generating QR Code...</Text>
+          <Text style={sessionStyles.qrCodeLoadingText}>Generating QR Code...</Text>
         )}
       </View>
       
-      <View style={eventStyles.qrCodeInfoSection}>
-        <Text style={[eventStyles.qrCodeEventTitle, { color: textColor }]}>
-          {event.title}
+      <View style={sessionStyles.qrCodeInfoSection}>
+        <Text style={[sessionStyles.qrCodeEventTitle, { color: textColor }]}>
+          {session.title}
         </Text>
-        <Text style={[eventStyles.qrCodeEventDate, { color: textColor }]}>
-          {event.startDate.toLocaleDateString()}
+        <Text style={[sessionStyles.qrCodeEventDate, { color: textColor }]}>
+          {formatTime(session.startTime)}
         </Text>
       </View>
     </View>
@@ -51,18 +55,16 @@ function QRCodeCard({ event, qrCode }: { event: Event, qrCode: string }) {
 
 export default function QRCodePage() {
   const route = useRoute<any>();
-  const { event }: { event: Event } = route.params;
+  const { eventMainColorHex, session }: { eventMainColorHex: string; session: Session } = route.params;
   const [qrCode, setQrCode] = useState<string>('');
-    
-  const imgSrc = event.logoPath ? `${config.apiBaseUrl}/event${event.logoPath}` : null;
-
+  
   useEffect(() => {
     async function GenerateQRCode() {
       try {
-        const eventUrl = `${config.apiBaseUrl}/event/${event.idEvent}`; // TODO: Change. Use UserId.
+        const eventUrl = `${config.apiBaseUrl}/sessions/${session.sessionId}`; // TODO: Change. Use UserId.
         const qr = await QRCode.toDataURL(
           eventUrl, 
-          { 
+          {  
             width: 300, 
             margin: 2 
           }
@@ -74,19 +76,19 @@ export default function QRCodePage() {
     }
 
     GenerateQRCode();
-  }, [event.idEvent]);
+  }, [session.sessionId]);
     
   return (
     <AppLayout>
-      <View style={eventStyles.eventPageContainer}>
-        <Header event={event} /> 
+      <View style={sessionStyles.qrPadding}>
+        <Header session={session} /> 
 
-        <View style={eventStyles.qrCodePageWrapper}>
-          <Text style={eventStyles.qrCodeTitle}>Attendance QR Code</Text>
+        <View style={sessionStyles.qrCodePageWrapper}>
+          <Text style={sessionStyles.qrCodeTitle}>Attendance QR Code</Text>
           
-          <QRCodeCard event={event} qrCode={qrCode} />
+          <QRCodeCard eventMainColorHex={eventMainColorHex} session={session} qrCode={qrCode} />
 
-          <Text style={eventStyles.qrCodeInstructions}>
+          <Text style={sessionStyles.qrCodeInstructions}>
             Scan this QR code to mark your attendance
           </Text>
         </View>

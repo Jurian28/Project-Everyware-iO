@@ -19,6 +19,7 @@
     "@react-navigation/drawer": "^7.9.9",
     "@react-navigation/native": "^7.2.2",
     "@react-navigation/native-stack": "^7.14.12",
+    "@react-navigation/stack": "^7.9.3",
     "html5-qrcode": "^2.3.8",
     "qrcode": "^1.5.4",
     "react": "19.2.3",

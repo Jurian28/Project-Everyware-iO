@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Text, View, Image, RefreshControl, ScrollView, Pressable } from 'react-native';
+import { Alert, Text, View, Image, RefreshControl, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { EventService, Event } from '../../services/EventService';
 import AppLayout from '../../layouts/AppLayout';
 import AuthService from '../../services/AuthService';
@@ -45,6 +45,15 @@ export default function EventsOverview() {
     setIncludePastEvents(newIncludePastEvents);
     
     loadEvents(newIncludePastEvents);
+  }
+
+  if(loading) {
+    return (
+      <View style={eventStyles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.DEFAULT_BUTTON_COLOR} />
+        <Text style={eventStyles.loadingText}>Loading events...</Text>
+      </View>
+    );
   }
 
   return (

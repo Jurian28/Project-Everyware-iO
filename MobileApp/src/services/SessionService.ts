@@ -28,6 +28,31 @@ export type SessionDTO = {
     speakerName: string;
 };
 
+export type Tag = {
+    idTag: number;
+    title: string;
+    colorHex: string;
+};
+
+export type Room = {
+    roomLabel: string;
+    capacity: number;
+};
+
+export type Session = {
+    sessionId: number;
+    title: string;
+    startTime: string;
+    endTime: string;
+    room?: Room;
+    tags?: Tag[];
+    speakerName?: string;
+    description?: string;
+    placesLeft: number;
+    isEnrolled?: boolean;
+    inQueue?: boolean;
+};
+
 type SessionsResult = {
     success: boolean;
     sessions?: SessionDTO[];
@@ -106,6 +131,8 @@ export class SessionService {
         const res = await fetch(`${baseUrl}/sessions/${sessionId}`, {
             headers: await authHeaders(),
         });
+
+        console.log(`getSession response for sessionId ${sessionId}:`, res);
 
         if (!res.ok) {
             return {

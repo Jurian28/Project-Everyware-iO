@@ -47,6 +47,18 @@ const eventStyles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
   },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+    height: '100%',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#667',
+  },
   
   // Event Card Styles
   eventCard: {
@@ -104,16 +116,6 @@ const eventStyles = StyleSheet.create({
     width: 44,
     fontSize: 48, 
     fontWeight: 'bold'
-  },
-  qrCodeButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: Colors.DEFAULT_BUTTON_COLOR,
-  },
-  qrCodeButtonText: {
-    fontWeight: 'bold',
-    color: 'white'
   },
   eventContentContainer: {
     display: 'flex',
@@ -182,64 +184,6 @@ const eventStyles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-
-  // QR Code Page
-  qrCodeContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 12,
-    padding: 12,
-  },
-  qrCodeTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  qrCodePageWrapper: {
-    alignItems: 'center',
-    gap: 24,
-  },
-  qrCodeCard: {
-    padding: 24,
-    borderRadius: 16,
-    alignItems: 'center',
-    gap: 16,
-    width: '100%',
-  },
-  qrCodeBox: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  qrCodeImage: {
-    width: 280,
-    height: 280,
-  },
-  qrCodeLoadingText: {
-    color: '#999',
-  },
-  qrCodeInfoSection: {
-    gap: 8,
-    alignItems: 'center',
-  },
-  qrCodeEventTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  qrCodeEventDate: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  qrCodeInstructions: {
-    color: '#666',
-    textAlign: 'center',
-    fontSize: 13,
-    marginHorizontal: 16,
-  }
 });
 
 export default eventStyles;

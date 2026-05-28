@@ -8,7 +8,7 @@ module.exports = {
         rules: [
             {
                 test: /\.(js|jsx|ts|tsx)$/,
-                exclude: /node_modules\/(?!react-native-reanimated|react-native-gesture-handler|react-native-drawer-layout)/,
+                exclude: /node_modules\/(?!react-native-reanimated|react-native-gesture-handler|react-native-drawer-layout|@react-navigation\/stack)/,
                 resolve: {
                     fullySpecified: false,
                 },
@@ -27,6 +27,13 @@ module.exports = {
                             'react-native-reanimated/plugin',
                         ],
                     },
+                },
+            },
+            {
+                test: /\.js$/,
+                include: /node_modules\/@react-navigation\/stack/,
+                resolve: {
+                    fullySpecified: false,
                 },
             },
             {
@@ -52,6 +59,7 @@ module.exports = {
             'react-native-vision-camera-barcode-scanner': false,
             'react-native-nitro-modules': false,
             '@react-native-masked-view/masked-view': false,
+            '@react-navigation/native-stack': path.resolve(__dirname, 'src/web-stubs/native-stack.js'),
             '@react-navigation/elements/lib/module/MaskedViewNative': path.resolve(
                 __dirname,
                 'node_modules/@react-navigation/elements/lib/module/MaskedView.js'
@@ -66,7 +74,7 @@ module.exports = {
     plugins: [
         new webpack.DefinePlugin({
             __DEV__: JSON.stringify(process.env.NODE_ENV !== 'production'),
-            __BUNDLE_START_TIME__: JSON.stringify(Date.now()),  // ← fixed, was Date.Now (link)
+            __BUNDLE_START_TIME__: JSON.stringify(Date.now()), 
             __VERSION__: JSON.stringify('1.0.0'),
             'process.env': JSON.stringify(process.env),
             'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
