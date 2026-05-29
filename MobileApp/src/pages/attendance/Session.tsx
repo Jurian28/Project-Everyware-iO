@@ -36,6 +36,7 @@ export default function SessionAttendance() {
       }
       
       setQrResult(result || '');
+      setError('');
     } catch (err) {
       setError('Failed to process QR code. Please try again.');
     } finally {
@@ -83,7 +84,7 @@ function SuccessMessage() {
   return (
     <View style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', paddingVertical: 16 }}>
       <Text style={{ textAlign: 'center', paddingBottom: 6, color: 'green', fontSize: 48 }}>✔</Text>
-      <Text style={{ textAlign: 'center', color: 'green', fontSize: 16, fontWeight: 'bold' }}>Success!</Text>
+      <Text style={{ textAlign: 'center', color: 'green', fontSize: 16, fontWeight: 'bold' }}>Successfully added Attendance!</Text>
     </View>
   )
 }

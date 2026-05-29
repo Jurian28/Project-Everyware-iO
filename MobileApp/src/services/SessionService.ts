@@ -205,13 +205,10 @@ export class SessionService {
 
         const data = await safeJson(res);
 
-        console.log(`markAttendance response for sessionId ${sessionId} and userId ${userId}:`, data);
-        console.log(res);
-
         if (!res.ok) {
             return {
                 success: false,
-                message: data?.message ?? 'Failed to mark attendance',
+                message: data?.error ?? data?.message ?? 'Failed to mark attendance',
             };
         }
 

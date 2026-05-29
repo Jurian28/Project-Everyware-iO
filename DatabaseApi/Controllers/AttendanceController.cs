@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using DatabaseApi.DTOs;
+using System.Net;
 
 namespace DatabaseApi.Controllers
 {
@@ -25,7 +26,6 @@ namespace DatabaseApi.Controllers
         {
             try
             {
-                Console.WriteLine($"[Controller] Received attendance check for session {sessionId} from user {userId}");
                 if (string.IsNullOrEmpty(userId))
                 {
                     return Unauthorized(ApiResponse<Object>.Fail("UserId is required"));
@@ -36,20 +36,29 @@ namespace DatabaseApi.Controllers
                     return BadRequest(ApiResponse<Object>.Fail("Invalid SessionId"));
                 }
 
-                await _applicationDbContext.SessionAttendances.AddAsync(new SessionAttendance
+                var attendance = await _applicationDbContext.SessionAttendances
+                    .FirstOrDefaultAsync(sa => sa.IdSession == sessionId && sa.UserId == userId);
+
+                if (attendance != null)
                 {
-                    UserId = userId,
-                    IdSession = sessionId,
-                    IsAttending = true
-                });
+                    if (attendance.IsAttending)
+                    {
+                        return StatusCode(409, ApiResponse<Object>.Fail("User is already attending this session"));
+                    }
+                    attendance.IsAttending = true;
+                }
+                else
+                {
+                    await _applicationDbContext.SessionAttendances.AddAsync(new SessionAttendance
+                    {
+                        UserId = userId,
+                        IdSession = sessionId,
+                        IsAttending = true
+                    });
+                }
+
                 await _applicationDbContext.SaveChangesAsync();
 
-                Console.WriteLine($"User {userId} marked as attending session {sessionId}");
-                Console.WriteLine($"User {userId} marked as attending session {sessionId}");
-                Console.WriteLine($"User {userId} marked as attending session {sessionId}");
-                Console.WriteLine("");
-
-                // TODO, check attendance
                 return Ok(ApiResponse<SessionAttendenceDTO>.Ok(new SessionAttendenceDTO
                 {
                     UserId = userId,
