@@ -245,6 +245,69 @@ const sessionStyles = StyleSheet.create({
 		textAlign: 'center',
 		fontSize: 13,
 		marginHorizontal: 16,
+	},
+
+	// Attendance page styles:
+	divider: {
+		width: '100%',
+		height: 2,
+		backgroundColor: '#b1b1b1',
+		marginVertical: 16,
+	},
+
+	resultContainer: {
+		backgroundColor: '#f0f0f0',
+	},
+
+	resultInner: {
+		flex: 1,
+	},
+
+	noQrMessage: {
+		textAlign: 'center',
+		paddingVertical: 16,
+		fontSize: 16,
+	},
+
+	successContainer: {
+		alignItems: 'center',
+		justifyContent: 'center',
+		display: 'flex',
+		paddingVertical: 16,
+	},
+
+	successIcon: {
+		textAlign: 'center',
+		paddingBottom: 6,
+		color: 'green',
+		fontSize: 48,
+	},
+
+	successText: {
+		textAlign: 'center',
+		color: 'green',
+		fontSize: 16,
+		fontWeight: 'bold',
+	},
+
+	errorContainer: {
+		alignItems: 'center',
+		justifyContent: 'center',
+		display: 'flex',
+		paddingVertical: 16,
+	},
+
+	errorIcon: {
+		textAlign: 'center',
+		paddingBottom: 12,
+		fontSize: 48,
+	},
+
+	errorText: {
+		textAlign: 'center',
+		color: 'red',
+		fontSize: 16,
+		fontWeight: 'bold',
 	}
 });
 

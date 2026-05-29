@@ -163,9 +163,6 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
       screen: SessionAttendance,
       options: {
         title: 'Session Attendance Checker',
-        // drawerItemStyle: {
-        //   display: 'none',
-        // },
       },
     },
   },

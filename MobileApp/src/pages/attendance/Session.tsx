@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import attendanceStyle from '../../styles/attendanceStyle';
+import sessionStyles from '../../styles/sessionStyles';
 import WebQRScanner from '../../components/QRCodeScanner.web';
 import NativeQRScanner from '../../components/QRCodeScanner.native';
 import colors from '../../enums/colors';
@@ -63,16 +64,16 @@ export default function SessionAttendance() {
         <NativeQRScanner onScan={handleScan} />
       )}
 
-      <View style={{ width: '100%', height: 2, backgroundColor: '#b1b1b1', marginVertical: 16 }} />
+      <View style={sessionStyles.divider} />
 
-      <View style={{ backgroundColor: '#f0f0f0' }}>
-        <View style={{ }}>
+      <View style={sessionStyles.resultContainer}>
+        <View style={sessionStyles.resultInner}>
           {error ? 
             <ErrorMessage error={error} /> 
           : qrResult ? 
             <SuccessMessage />
           : 
-            <Text style={{ textAlign: 'center', paddingVertical: 16, fontSize: 16 }}>No QR code scanned yet</Text>
+            <Text style={sessionStyles.noQrMessage}>No QR code scanned yet</Text>
           }
         </View>
       </View>
@@ -82,18 +83,18 @@ export default function SessionAttendance() {
 
 function SuccessMessage() {
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', paddingVertical: 16 }}>
-      <Text style={{ textAlign: 'center', paddingBottom: 6, color: 'green', fontSize: 48 }}>✔</Text>
-      <Text style={{ textAlign: 'center', color: 'green', fontSize: 16, fontWeight: 'bold' }}>Successfully added Attendance!</Text>
+    <View style={sessionStyles.successContainer}>
+      <Text style={sessionStyles.successIcon}>✔</Text>
+      <Text style={sessionStyles.successText}>Successfully added Attendance!</Text>
     </View>
   )
 }
 
 function ErrorMessage({ error }: { error: string }) {
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', paddingVertical: 16 }}>
-      <Text style={{ textAlign: 'center', paddingBottom: 12, fontSize: 48 }}>❌</Text>
-      <Text style={{ textAlign: 'center', color: 'red', fontSize: 16, fontWeight: 'bold' }}>Error: {error}</Text>
+    <View style={sessionStyles.errorContainer}>
+      <Text style={sessionStyles.errorIcon}>❌</Text>
+      <Text style={sessionStyles.errorText}>Error: {error}</Text>
     </View>
   )
 }
