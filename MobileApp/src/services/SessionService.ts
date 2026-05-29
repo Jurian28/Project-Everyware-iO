@@ -195,4 +195,26 @@ export class SessionService {
 
         return { success: true };
     }
+
+    public static async markAttendance(sessionId: number, userId: string) {
+        const res = await fetch(`${baseUrl}/sessions/${sessionId}/attendance`, {
+            method: 'POST',
+            headers: await authHeaders(),
+            body: JSON.stringify(userId),
+        });
+
+        const data = await safeJson(res);
+
+        console.log(`markAttendance response for sessionId ${sessionId} and userId ${userId}:`, data);
+        console.log(res);
+
+        if (!res.ok) {
+            return {
+                success: false,
+                message: data?.message ?? 'Failed to mark attendance',
+            };
+        }
+
+        return { success: true };
+    }
 }

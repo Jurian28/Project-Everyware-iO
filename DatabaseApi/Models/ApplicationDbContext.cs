@@ -24,6 +24,9 @@ namespace DatabaseApi.Models
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<SessionAttendance>()
+                .HasKey(sa => new { sa.IdSession, sa.UserId });
+
             // User_has_Session relationship
             modelBuilder.Entity<User_has_Session>()
                 .HasKey(uhs => new { uhs.IdUser, uhs.IdSession });

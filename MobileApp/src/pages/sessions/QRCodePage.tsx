@@ -4,7 +4,6 @@ import { Pressable, Text, View, Image } from "react-native"
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AppLayout from "../../layouts/AppLayout"
 import sessionStyles from "../../styles/sessionStyles";
-import config from "../../config";
 import Colors from "../../enums/colors";
 import { getTextColorForBackground } from "../../utils/colors";
 import { Session } from "../../services/SessionService";

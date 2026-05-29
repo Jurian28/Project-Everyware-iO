@@ -4,7 +4,7 @@ namespace DatabaseApi.Models
 {
     public class SessionAttendance
     {
-        [Key]
+        [Required]
         public int IdSession { get; set; }
         [Required]
         public string UserId { get; set; }

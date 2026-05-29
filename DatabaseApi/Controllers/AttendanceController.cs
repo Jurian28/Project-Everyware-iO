@@ -11,7 +11,7 @@ namespace DatabaseApi.Controllers
     /// Controller to handle all attendance input and output.
     /// </summary>
     [ApiController]
-    [Route("[controller]")]
+    [Route("sessions/{sessionId}/[controller]")]
     public class AttendanceController(ApplicationDbContext applicationDbContext, IWebHostEnvironment environment) : Controller
     {
         private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
@@ -21,35 +21,39 @@ namespace DatabaseApi.Controllers
         /// Gets a paginated list of events, ordered by start date.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> CheckAttendance([FromBody] SessionAttendenceDTO sessionAttendenceDTO)
+        public async Task<IActionResult> CheckAttendance([FromRoute] int sessionId, [FromBody] string userId)
         {
             try
             {
-                sessionAttendenceDTO.UserId = sessionAttendenceDTO.UserId;
-
-                if (string.IsNullOrEmpty(sessionAttendenceDTO.UserId))
+                Console.WriteLine($"[Controller] Received attendance check for session {sessionId} from user {userId}");
+                if (string.IsNullOrEmpty(userId))
                 {
                     return Unauthorized(ApiResponse<Object>.Fail("UserId is required"));
                 }
 
-                if (sessionAttendenceDTO.SessionId <= 0)
+                if (sessionId <= 0)
                 {
                     return BadRequest(ApiResponse<Object>.Fail("Invalid SessionId"));
                 }
 
                 await _applicationDbContext.SessionAttendances.AddAsync(new SessionAttendance
                 {
-                    UserId = sessionAttendenceDTO.UserId,
-                    IdSession = sessionAttendenceDTO.SessionId,
-                    IsAttending = sessionAttendenceDTO.IsAttending ?? true
+                    UserId = userId,
+                    IdSession = sessionId,
+                    IsAttending = true
                 });
                 await _applicationDbContext.SaveChangesAsync();
+
+                Console.WriteLine($"User {userId} marked as attending session {sessionId}");
+                Console.WriteLine($"User {userId} marked as attending session {sessionId}");
+                Console.WriteLine($"User {userId} marked as attending session {sessionId}");
+                Console.WriteLine("");
 
                 // TODO, check attendance
                 return Ok(ApiResponse<SessionAttendenceDTO>.Ok(new SessionAttendenceDTO
                 {
-                    UserId = sessionAttendenceDTO.UserId,
-                    SessionId = sessionAttendenceDTO.SessionId,
+                    UserId = userId,
+                    SessionId = sessionId,
                     IsAttending = true
                 }));
             }
