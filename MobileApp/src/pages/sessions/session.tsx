@@ -12,6 +12,7 @@ import EnrollConflictModal from '../../components/sessions/enrollConflictModal';
 import { SessionService } from '../../services/SessionService';
 
 import sessionStyles from '../../styles/sessionStyles';
+import SessionReview from '../../components/sessions/sessionReview';
 
 type Tag = {
     idTag: number;
@@ -295,6 +296,11 @@ export default function SessionViewPage() {
                     {session.description ?? 'No description available yet.'}
                 </Text>
             </Section>
+
+			
+			<Section title="About">
+				<SessionReview sessionId={sessionId}/>
+			</Section>
 
             <EnrollConflictModal
                 visible={conflictVisible}
