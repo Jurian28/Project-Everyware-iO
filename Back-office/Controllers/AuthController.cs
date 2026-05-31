@@ -1,7 +1,9 @@
-﻿using Back_office.Models.Dtos;
+﻿using Back_office.DTOs;
+using Back_office.Models.Dtos;
 using Back_office.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedClassLibrary.DTOs.Auth;
 
 namespace Back_office.Controllers;
 
@@ -10,6 +12,7 @@ namespace Back_office.Controllers;
 /// </summary>
 /// <param name="httpClientFactory">The factory used to create instances of <see cref="HttpClient"/>.</param>
 [Route("[controller]")]
+[Authorize]
 public class AuthController(IHttpClientFactory httpClientFactory) : Controller
 {
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("DatabaseApi");
@@ -19,10 +22,54 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// </summary>
     /// <returns>The login view.</returns>
     [HttpGet("Login")]
+    [AllowAnonymous]
     public IActionResult Login()
     {
-        _httpClient.PostAsJsonAsync("api/auth/requestPermission", new { Garbage = 0 });
         return View("Login");
+    }
+
+    /// <summary>
+    /// Displays the organisers management view.
+    /// </summary>
+    /// <returns>The login view.</returns>
+    [HttpGet("Organisers")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult Organisers()
+    {
+        return View("OrganisersManagement");
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("organiser/{userId}/accept")] 
+    public async Task<HttpResponseMessage> AcceptRequest(string userId)
+    {
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"api/auth/instate-organiser/{userId}", new { Garbage = 0 });
+        Console.WriteLine("kaas");
+        return response;
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("organiser/{userId}/deny")]
+    public async Task<HttpResponseMessage> DenyRequest(string userId)
+    {
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"api/auth/remove-organiser-request/{userId}", new { Garbage = 0 });
+        return response;
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("organiser/deny/all")]
+    public async Task<HttpResponseMessage> DenyAllRequests(string userId)
+    {
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"api/auth/remove-organiser-request", new { Garbage = 0 });
+        return response;
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("organiser/{userId}/revoke")]
+    public async Task<HttpResponseMessage> RevokeOrganiser(string userId)
+    {
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"api/auth/revoke-organiser/{userId}", new { Garbage = 0 });
+        return response;
     }
 
     /// <summary>
@@ -42,6 +89,26 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
         return View("NoPermission", openRequest);
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpGet("data/Organisers")]
+    public async Task<IActionResult> OrganisersData()
+    {
+        HttpResponseMessage response = await _httpClient.GetAsync($"api/auth/organisers");
+        ApiResponse<List<UserDTO>>? apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserDTO>>>();
+
+        return StatusCode((int)response.StatusCode, apiResponse);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("data/Organisers-requests")]
+    public async Task<IActionResult> OrganisersRequestData()
+    {
+        HttpResponseMessage response = await _httpClient.GetAsync($"api/auth/organiser-requests");
+        ApiResponse<List<UserDTO>>? apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserDTO>>>();
+
+        return StatusCode((int)response.StatusCode, apiResponse);
+    }
+
     /// <summary>
     /// Handles requesting of Organiser permissions
     /// </summary>
@@ -59,6 +126,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// <param name="viewModel">The view model containing the user's login credentials.</param>
     /// <returns>A redirect to the home page on success, or the login view with validation errors on failure.</returns>
     [ValidateAntiForgeryToken]
+    [AllowAnonymous]
     [HttpPost("Login")]
     public async Task<IActionResult> Login(LoginViewModel viewModel)
     {
@@ -98,6 +166,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// </summary>
     /// <returns>The registration view.</returns>
     [HttpGet("register")]
+    [AllowAnonymous]
     public IActionResult Register()
     {
         return View();
@@ -110,6 +179,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// <returns>A redirect to the home page on success, or the registration view with validation errors on failure.</returns>
     [ValidateAntiForgeryToken]
     [HttpPost("Register")]
+    [AllowAnonymous]
     public async Task<IActionResult> Register(RegisterViewModel viewModel)
     {
         if (!ModelState.IsValid)

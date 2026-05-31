@@ -55,8 +55,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 var app = builder.Build();
-
-await SeedRoles(app);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -86,7 +84,8 @@ if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
     try
     {
         Console.WriteLine("[DB] Migrating...");
-        db.Database.Migrate();
+        await db.Database.MigrateAsync();
+        await SeedRoles(app);
         Console.WriteLine("[DB] Done Migrating...");
     }
     catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 1801)

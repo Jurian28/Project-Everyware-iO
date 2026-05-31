@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace Back_office.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Organiser, Admin")]
     public class HomeController : Controller
     {
         public IActionResult Index()

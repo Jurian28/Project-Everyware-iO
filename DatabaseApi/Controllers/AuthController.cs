@@ -32,7 +32,7 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
     private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
 
     [HttpGet("organisers")]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<ApiResponse<Object>> GetOrganisers()
     {
         IList<User> organisers = await _userManager.GetUsersInRoleAsync("Organiser");
@@ -45,12 +45,21 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
     }
 
     [HttpGet("organiser-requests")]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<ApiResponse<Object>> GetOrganiserRequests()
     {
-        List<User> requesters = [.. _applicationDbContext.Users.Where(u => u.HasRequestedAccess)];
+        List<User> requesters = await _applicationDbContext.Users
+            .Where(u => u.HasRequestedAccess)
+            .ToListAsync();
 
-        return ApiResponse<Object>.Ok(requesters.Select(u => new UserDTO
+        List<User> filtered = [];
+        foreach (var user in requesters)
+        {
+            if (!await _userManager.IsInRoleAsync(user, "Organiser"))
+                filtered.Add(user);
+        }
+
+        return ApiResponse<Object>.Ok(filtered.Select(u => new UserDTO
         {
             Id = u.Id,
             Email = u.Email,
@@ -207,6 +216,42 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
         }
     }
 
+    /// <summary>
+    /// Handles removing the request for the organiser role from a user or all users.
+    /// </summary>
+    [HttpPost("remove-organiser-request/{userId?}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> RemoveRequest(string? userId)
+    {
+        try
+        {
+            if (userId != null)
+            {
+                User? user = await _userManager.FindByIdAsync(userId);
+
+                if (user == null)
+                {
+                    return NotFound(ApiResponse<Object>.Fail("User not found."));
+                }
+
+                user.HasRequestedAccess = false;
+            }
+            else
+            {
+                await _applicationDbContext.Users
+                    .Where(u => u.HasRequestedAccess)
+                    .ExecuteUpdateAsync(s => s.SetProperty(u => u.HasRequestedAccess, false));
+            }
+
+            await _applicationDbContext.SaveChangesAsync();
+            return Ok(ApiResponse<Object>.Ok(null));
+        }
+        catch (Exception err)
+        {
+            return StatusCode(500, (ApiResponse<Object>.Fail(err.ToString())));
+        }
+    }
+
 
     /// <summary>
     /// Handles instating the organiser role to a user.
@@ -214,29 +259,32 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
     /// <param name="userId">The id of the user to instate the organiser role to.</param>
     /// <returns>An HTTP response indicating whether the role was successfully instated.</returns>
     [HttpPost("instate-organiser/{userId}")]
-    //[Authorize(Roles = "Admin")]
-    public async Task<ApiResponse<Object>> InstateOrganiser(string userId)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> InstateOrganiser(string userId)
     {
         User? user = await _userManager.FindByIdAsync(userId);
 
         if (user == null)
         {
-            return ApiResponse<Object>.Fail("User not found.");
+            return NotFound(ApiResponse<Object>.Fail("User not found."));
         }
 
         if (await _userManager.IsInRoleAsync(user, "Organiser"))
         {
-            return ApiResponse<Object>.Fail("User already has the Organiser role.");
+            return StatusCode(400,ApiResponse<Object>.Fail("User already has the Organiser role."));
         }
 
         IdentityResult result = await _userManager.AddToRoleAsync(user, "Organiser");
 
         if (!result.Succeeded)
         {
-            return ApiResponse<Object>.Fail(string.Join(" ", result.Errors.Select(e => e.Description)));
+            return StatusCode(500,ApiResponse<Object>.Fail(string.Join(" ", result.Errors.Select(e => e.Description))));
         }
 
-        return ApiResponse<Object>.Ok(null);
+        user.HasRequestedAccess = false;
+        await _applicationDbContext.SaveChangesAsync();
+
+        return Ok(ApiResponse<Object>.Ok(null));
     }
 
     /// <summary>
@@ -245,29 +293,29 @@ public class AuthController(UserManager<User> userManager, ApplicationDbContext 
     /// <param name="userId">The id of the user to revoke the organiser role from.</param>
     /// <returns>An HTTP response indicating whether the role was successfully revoked.</returns>
     [HttpPost("revoke-organiser/{userId}")]
-    //[Authorize(Roles = "Admin")]
-    public async Task<ApiResponse<Object>> RevokeOrganiser(string userId)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> RevokeOrganiser(string userId)
     {
         User? user = await _userManager.FindByIdAsync(userId);
 
         if (user == null)
         {
-            return ApiResponse<Object>.Fail("User not found.");
+            return NotFound(ApiResponse<Object>.Fail("User not found."));
         }
 
         if (!await _userManager.IsInRoleAsync(user, "Organiser"))
         {
-            return ApiResponse<Object>.Fail("User does not have the Organiser role.");
+            return BadRequest(ApiResponse<Object>.Fail("User does not have the Organiser role."));
         }
 
         IdentityResult result = await _userManager.RemoveFromRoleAsync(user, "Organiser");
 
         if (!result.Succeeded)
         {
-            return ApiResponse<Object>.Fail(string.Join(" ", result.Errors.Select(e => e.Description)));
+            return BadRequest(ApiResponse<Object>.Fail(string.Join(" ", result.Errors.Select(e => e.Description))));
         }
 
-        return ApiResponse<Object>.Ok(null);
+        return Ok(ApiResponse<Object>.Ok(null));
     }
 
     /// <summary>

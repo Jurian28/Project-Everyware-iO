@@ -1,9 +1,11 @@
-﻿using SharedClassLibrary.DTOs.Events;
+﻿using DatabaseApi.DTOs;
 using DatabaseApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SharedClassLibrary.DTOs.Events;
 using System.Diagnostics;
-using DatabaseApi.DTOs;
+using System.Security.Claims;
 
 namespace DatabaseApi.Controllers
 {
@@ -47,6 +49,59 @@ namespace DatabaseApi.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, ApiResponse<EventListDto>.Fail($"Internal Server Error: {ex.Message}"));
+            }
+        }
+
+        [HttpGet("my-events")]
+        [Authorize(Roles = "Admin,Organiser")]
+        public async Task<IActionResult> GetMyEvents(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string title = "",
+            [FromQuery] string? organiserId = null)
+        {
+            Console.WriteLine("getest");
+            try
+            {
+                page = Math.Max(page, 1);
+
+                string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return StatusCode(500, ApiResponse<Object>.Fail("Could not resolve user identity"));
+
+                IQueryable<Event> query = _applicationDbContext.Events.AsQueryable();
+
+                if (User.IsInRole("Admin"))
+                {
+                    if (!string.IsNullOrEmpty(organiserId))
+                        query = query.Where(e => e.OrganiserId == organiserId);
+                }
+                else
+                {
+                    query = query.Where(e => e.OrganiserId == userId);
+                }
+
+                if (!string.IsNullOrWhiteSpace(title))
+                    query = query.Where(e => e.Title.Contains(title));
+
+                int totalCount = await query.CountAsync();
+                int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+                List<Event> events = await query
+                    .OrderByDescending(e => e.StartDate)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                return Ok(ApiResponse<EventListDto>.Ok(new EventListDto
+                {
+                    TotalPages = totalPages,
+                    Events = [.. events.Select(EventMapper.ToResponseDTO)]
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<Object>.Fail($"Internal Server Error: {ex.Message}"));
             }
         }
 
@@ -114,6 +169,7 @@ namespace DatabaseApi.Controllers
         /// get the image file for an event. The file name is the last part of the logo path, which is stored in the database. Returns a 404 if the file is not found.
         /// </summary>
         [HttpGet("images/{fileName}")]
+        [Authorize(Roles = "Admin,Organiser")]
         public IActionResult GetImage(string fileName)
         {
             string filePath = Path.Combine(_environment.ContentRootPath, "uploads/events", fileName);
@@ -129,11 +185,16 @@ namespace DatabaseApi.Controllers
         /// Creates a new event with the provided data. Handles file upload and returns the created event.
         /// </summary>
         [HttpPost]
+        [Authorize(Roles = "Admin,Organiser")]
         public async Task<IActionResult> Store([FromForm] EventCreateDto dto)
         {
             try
             {
                 if (!ModelState.IsValid) return BadRequest(ApiResponse<Object>.Fail("Bad Request: Invalid Data"));
+
+                string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return StatusCode(500, ApiResponse<Object>.Fail("Could not resolve user identity"));
 
                 string logoPath = await HandleLogoUpload(dto);
                 dto.EndDate = dto.EndDate.AddHours(23 - dto.EndDate.Hour);
@@ -150,18 +211,14 @@ namespace DatabaseApi.Controllers
                     Description = dto.Description,
                     MainColorHex = dto.MainColorHex,
                     AccentColorHex = dto.AccentColorHex,
-                    LogoPath = logoPath
+                    LogoPath = logoPath,
+                    OrganiserId = userId
                 };
 
                 _applicationDbContext.Events.Add(newEvent);
                 await _applicationDbContext.SaveChangesAsync();
 
-                return StatusCode(201, new
-                {
-                    success = true,
-                    data = newEvent,
-                    error = (object)null
-                });
+                return StatusCode(201, ApiResponse<EventDTO>.Ok(EventMapper.ToResponseDTO(newEvent)));
             }
             catch (Exception ex)
             {
@@ -173,10 +230,22 @@ namespace DatabaseApi.Controllers
         /// Updates an existing event with the provided data. Handles file upload and returns the updated event.
         /// </summary>
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Organiser")]
         public async Task<IActionResult> Update(int id, [FromForm] EventUpdateDTO dto)
         {
             try
             {
+                string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return StatusCode(500, ApiResponse<Object>.Fail("Could not resolve user identity"));
+
+                Event? eventItem = await _applicationDbContext.Events.FindAsync(id);
+                if (eventItem == null)
+                    return NotFound(ApiResponse<Object>.Fail("Event not found"));
+
+                if (!User.IsInRole("Admin") && eventItem.OrganiserId != userId)
+                    return StatusCode(403, ApiResponse<Object>.Fail("Forbidden: You do not own this event"));
+
                 if (dto.EndDate < dto.StartDate)
                     ModelState.AddModelError("EndDate", "End time must be after start time.");
 
@@ -188,18 +257,12 @@ namespace DatabaseApi.Controllers
                             x => x.Key,
                             x => x.Value!.Errors.Select(e => e.ErrorMessage).ToList()
                         );
-
                     return BadRequest(new { success = false, errors, error = "Bad Request: Invalid Data" });
                 }
+
                 dto.EndDate = dto.EndDate.AddHours(23 - dto.EndDate.Hour);
                 dto.EndDate = dto.EndDate.AddMinutes(59 - dto.EndDate.Minute);
 
-                Event? eventItem = await _applicationDbContext.Events.FindAsync(id);
-
-                if (eventItem == null)
-                {
-                    return NotFound(ApiResponse<Object>.Fail("Event not found"));
-                }
                 string? logoPath = eventItem.LogoPath;
                 if (dto.LogoFile != null || dto.RemoveLogo)
                 {
@@ -209,10 +272,9 @@ namespace DatabaseApi.Controllers
                         logoPath = null;
                     }
                     if (dto.LogoFile != null)
-                    {
                         logoPath = await HandleLogoUpload(dto);
-                    }
                 }
+
                 eventItem.Title = dto.Title;
                 eventItem.StartDate = dto.StartDate;
                 eventItem.EndDate = dto.EndDate;
@@ -228,7 +290,7 @@ namespace DatabaseApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<Object>.Fail($"Update:Internal Server Error: {ex.Message}"));
+                return StatusCode(500, ApiResponse<Object>.Fail($"Update: Internal Server Error: {ex.Message}"));
             }
         }
 
@@ -236,6 +298,7 @@ namespace DatabaseApi.Controllers
         /// Publishes an event. Returns nothing.
         /// </summary>
         [HttpPost("{id}/publish")]
+        [Authorize(Roles = "Admin,Organiser")]
         public async Task<IActionResult> Publish(int id)
         {
             try
@@ -263,6 +326,7 @@ namespace DatabaseApi.Controllers
         /// Unpublishes an event. Returns nothing.
         /// </summary>
         [HttpPost("{id}/unpublish")]
+        [Authorize(Roles = "Admin,Organiser")]
         public async Task<IActionResult> UnPublish(int id)
         {
             try
