@@ -60,7 +60,6 @@ namespace DatabaseApi.Controllers
             [FromQuery] string title = "",
             [FromQuery] string? organiserId = null)
         {
-            Console.WriteLine("getest");
             try
             {
                 page = Math.Max(page, 1);

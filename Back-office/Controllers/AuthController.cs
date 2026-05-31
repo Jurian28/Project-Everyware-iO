@@ -44,7 +44,6 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     public async Task<HttpResponseMessage> AcceptRequest(string userId)
     {
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"api/auth/instate-organiser/{userId}", new { Garbage = 0 });
-        Console.WriteLine("kaas");
         return response;
     }
 

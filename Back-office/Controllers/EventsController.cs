@@ -34,19 +34,16 @@ public class EventsController : Controller
         try
         {
             string url = $"/event/my-events?page={page}&pageSize={_PageSize}";
-            Console.WriteLine("getest1");
             if (!string.IsNullOrEmpty(search))
                 url += $"&title={search}";
-                Console.WriteLine("getest11");
             HttpResponseMessage response = await _httpClient.GetAsync(url);
-            Console.WriteLine("getest12");
             if (!response.IsSuccessStatusCode)
             {
                 Console.WriteLine($"Error in getting events: {response.StatusCode} | {response.ReasonPhrase}");
                 return RedirectToAction("Index", "Home");
             }
             ApiResponse<EventListDto>? json = await response.Content.ReadFromJsonAsync<ApiResponse<EventListDto>>();
-            Console.WriteLine("getest2");
+
             if (json == null)
             {
                 Console.WriteLine("Error in getting events");
@@ -63,7 +60,7 @@ public class EventsController : Controller
                 page = Math.Max(page, 1);
                 return RedirectToAction("Index", new { search, page });
             }
-            Console.WriteLine("getest3");
+
             ViewData["CurrentSearch"] = search;
             ViewData["CurrentPage"] = page;
             ViewData["TotalPages"] = pages;
