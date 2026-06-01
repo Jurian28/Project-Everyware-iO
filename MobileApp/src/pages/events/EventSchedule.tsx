@@ -21,6 +21,7 @@ export default function EventSchedule() {
   const [sessions, setSessions] = useState<SessionDTO[]>([]);
   const [currentDateIndex, setCurrentDateIndex] = useState(0);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [personal, setPersonal] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -57,12 +58,18 @@ export default function EventSchedule() {
 
   const activeDateString = uniqueDays.length > 0 ? uniqueDays[currentDateIndex] : new Date().toDateString();
   const activeDateSessions = useMemo(() => {
-    return sessions.filter(s => {
+    let filtered = sessions.filter(s => {
       const dateMatch = new Date(s.startTime).toDateString() === activeDateString;
       const tagMatch = selectedTag === null || s.tags.some(t => t.title === selectedTag);
       return dateMatch && tagMatch;
     });
-  }, [sessions, activeDateString, selectedTag]);
+
+    if (personal) {
+      filtered = filtered.filter(s => s.isEnrolled);
+    }
+
+    return filtered;
+  }, [sessions, activeDateString, personal]);
 
   const handlePrevDay = () => {
     if (currentDateIndex > 0) setCurrentDateIndex(currentDateIndex - 1);
@@ -115,7 +122,14 @@ export default function EventSchedule() {
               </View>
             )}
           </View>
-          <View style={{ width: 40 }} />
+          <Pressable
+            onPress={() => setPersonal(prev => !prev)}
+            style={scheduleStyles.navButton}
+          >
+            <Text style={{ fontSize: 16, color: '#1E293B' }}>
+              {personal ? 'All' : 'Personal'}
+            </Text>
+          </Pressable>
         </View>
 
         {uniqueTags.length > 0 && (
