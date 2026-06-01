@@ -4,7 +4,7 @@ const noOrganisersMessage = document.getElementById("noOrganisersMessage");
 const noRequestsMessage = document.getElementById("noRequestsMessage");
 
 async function removeOrganiser(userId) {
-    const response = await fetch(`/auth/organiser/${userId}/revoke`, {
+    const response = await fetch(`/EventOrganiser/organiser/${userId}/revoke`, {
         method: "POST"
     });
     if (response.ok) {
@@ -15,7 +15,7 @@ async function removeOrganiser(userId) {
 }
 
 async function approveRequest(userId) {
-    const response = await fetch(`/auth/organiser/${userId}/accept`, {
+    const response = await fetch(`/EventOrganiser/organiser/${userId}/accept`, {
         method: "POST"
     });
     if (response.ok) {
@@ -27,7 +27,7 @@ async function approveRequest(userId) {
 }
 
 async function denyRequest(userId) {
-    const response = await fetch(`/auth/organiser/${userId}/deny`, {
+    const response = await fetch(`/EventOrganiser/organiser/${userId}/deny`, {
         method: "POST"
     });
     if (response.ok) {
@@ -38,7 +38,7 @@ async function denyRequest(userId) {
 }
 
 async function denyAllRequests() {
-    const response = await fetch(`/auth/organiser/deny/all`, {
+    const response = await fetch(`/EventOrganiser/organiser/deny/all`, {
         method: "POST"
     });
     if (response.ok) {
@@ -49,7 +49,7 @@ async function denyAllRequests() {
 }
 
 async function loadOrganisers() {
-    const response = await fetch(`/auth/data/organisers`);
+    const response = await fetch(`/EventOrganiser/data/organisers`);
     const apiResponse = await response.json();
     const organisers = apiResponse.data;
 
@@ -66,7 +66,7 @@ async function loadOrganisers() {
 }
 
 async function loadRequests() {
-    const response = await fetch(`/auth/data/Organisers-requests`);
+    const response = await fetch(`/EventOrganiser/data/Organisers-requests`);
     const apiResponse = await response.json();
     const requests = apiResponse.data;
 

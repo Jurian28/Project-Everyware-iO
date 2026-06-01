@@ -1,5 +1,5 @@
 ﻿function requestPermission() {
-    fetch("/Auth/Request-Permission", { method: 'POST' })
+    fetch("/EventOrganiser/Request-Permission", { method: 'POST' })
         .then(response => {
             if (!response.ok) return;
             document.getElementById("request").classList.toggle("d-none");
