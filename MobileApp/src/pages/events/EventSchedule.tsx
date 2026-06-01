@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, Text, ActivityIndicator, Alert, Pressable } from 'react-native';
+import { View, Text, ActivityIndicator, Alert, Pressable, ScrollView } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import AppLayout from '../../layouts/AppLayout';
 import scheduleStyles from '../../styles/scheduleStyles';
@@ -9,11 +9,18 @@ import { SessionService, SessionDTO } from '../../services/SessionService';
 export default function EventSchedule() {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { eventId, eventTitle, eventColor, eventAccentColor } = route.params as { eventId: number | string; eventTitle?: string; eventColor?: string; eventAccentColor?: string };
+  const { eventId, eventTitle, eventColor, eventAccentColor } = route.params as {
+    eventId: number | string;
+    eventTitle?: string;
+    eventColor?: string;
+    eventAccentColor?: string;
+  };
 
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<SessionDTO[]>([]);
   const [currentDateIndex, setCurrentDateIndex] = useState(0);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -35,14 +42,27 @@ export default function EventSchedule() {
       const d = new Date(s.startTime);
       days.add(d.toDateString());
     });
-    const sorted = Array.from(days).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-    return sorted;
+    return Array.from(days).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+  }, [sessions]);
+
+  const uniqueTags = useMemo(() => {
+    const visible = new Map<string, string>();
+    sessions.forEach(s =>
+      s.tags.forEach(t => {
+        if (!visible.has(t.title)) visible.set(t.title, t.colorHex);
+      })
+    );
+    return Array.from(visible.entries()).map(([title, colorHex]) => ({ title, colorHex }));
   }, [sessions]);
 
   const activeDateString = uniqueDays.length > 0 ? uniqueDays[currentDateIndex] : new Date().toDateString();
   const activeDateSessions = useMemo(() => {
-    return sessions.filter(s => new Date(s.startTime).toDateString() === activeDateString);
-  }, [sessions, activeDateString]);
+    return sessions.filter(s => {
+      const dateMatch = new Date(s.startTime).toDateString() === activeDateString;
+      const tagMatch = selectedTag === null || s.tags.some(t => t.title === selectedTag);
+      return dateMatch && tagMatch;
+    });
+  }, [sessions, activeDateString, selectedTag]);
 
   const handlePrevDay = () => {
     if (currentDateIndex > 0) setCurrentDateIndex(currentDateIndex - 1);
@@ -83,7 +103,9 @@ export default function EventSchedule() {
                   </Pressable>
                 )}
                 <Text style={scheduleStyles.monthTitle}>
-                  {new Date(activeDateString).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
+                  {new Date(activeDateString).toLocaleDateString(undefined, {
+                    weekday: 'long', month: 'short', day: 'numeric'
+                  })}
                 </Text>
                 {uniqueDays.length > 1 && (
                   <Pressable onPress={handleNextDay} disabled={currentDateIndex === uniqueDays.length - 1} style={{ paddingHorizontal: 10 }}>
@@ -96,6 +118,114 @@ export default function EventSchedule() {
           <View style={{ width: 40 }} />
         </View>
 
+        {uniqueTags.length > 0 && (
+          <View style={{ zIndex: 10, paddingHorizontal: 16, paddingVertical: 8 }}>
+            <Pressable
+              onPress={() => setDropdownOpen(prev => !prev)}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                alignSelf: 'flex-start',
+                borderWidth: 1,
+                borderColor: selectedTag ? (eventColor ?? '#3B82F6') : '#CBD5E1',
+                borderRadius: 8,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                backgroundColor: '#FFFFFF',
+                gap: 6,
+              }}
+            >
+              {selectedTag && (
+                <View
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor:
+                      uniqueTags.find(t => t.title === selectedTag)?.colorHex ?? '#3B82F6',
+                  }}
+                />
+              )}
+              <Text style={{ color: '#1E293B', fontSize: 14 }}>
+                {selectedTag ?? 'All tags'}
+              </Text>
+              <Text style={{ color: '#64748B', fontSize: 12 }}>{dropdownOpen ? '▲' : '▼'}</Text>
+            </Pressable>
+
+            {dropdownOpen && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 44,
+                  left: 16,
+                  minWidth: 180,
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: '#E2E8F0',
+                  shadowColor: '#000',
+                  shadowOpacity: 0.1,
+                  shadowRadius: 8,
+                  shadowOffset: { width: 0, height: 4 },
+                  elevation: 8,
+                  zIndex: 20,
+                  overflow: 'hidden',
+                }}
+              >
+                <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: 240 }}>
+                  <Pressable
+                    onPress={() => { setSelectedTag(null); setDropdownOpen(false); }}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: 14,
+                      paddingVertical: 10,
+                      backgroundColor: selectedTag === null ? '#F1F5F9' : '#FFFFFF',
+                    }}
+                  >
+                    <Text style={{ color: '#1E293B', fontSize: 14, fontWeight: selectedTag === null ? '600' : '400' }}>
+                      All tags
+                    </Text>
+                  </Pressable>
+
+                  {uniqueTags.map(tag => (
+                    <Pressable
+                      key={tag.title}
+                      onPress={() => { setSelectedTag(tag.title); setDropdownOpen(false); }}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 8,
+                        paddingHorizontal: 14,
+                        paddingVertical: 10,
+                        backgroundColor: selectedTag === tag.title ? '#F1F5F9' : '#FFFFFF',
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: 5,
+                          backgroundColor: tag.colorHex,
+                        }}
+                      />
+                      <Text
+                        style={{
+                          color: '#1E293B',
+                          fontSize: 14,
+                          fontWeight: selectedTag === tag.title ? '600' : '400',
+                        }}
+                      >
+                        {tag.title}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+          </View>
+        )}
+
         {loading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <ActivityIndicator size="large" color="#3B82F6" />
@@ -104,9 +234,13 @@ export default function EventSchedule() {
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ color: '#64748B' }}>No sessions available</Text>
           </View>
+        ) : activeDateSessions.length === 0 ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: '#64748B' }}>No sessions match the selected tag</Text>
+          </View>
         ) : (
-          <ScheduleTimeline 
-            sessions={activeDateSessions} 
+          <ScheduleTimeline
+            sessions={activeDateSessions}
             currentDate={new Date(activeDateString)}
             startHour={startHour}
             endHour={endHour}
