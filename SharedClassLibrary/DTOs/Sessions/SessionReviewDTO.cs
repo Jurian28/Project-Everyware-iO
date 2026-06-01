@@ -6,7 +6,7 @@ namespace SharedClassLibrary.DTOs.Sessions
 {
     public class SessionReviewDTO
     {
-        public int stars { get; set; }
-        public string comment { get; set; }
+        public int Rating { get; set; }
+        public required string Comment { get; set; }
     }
 }

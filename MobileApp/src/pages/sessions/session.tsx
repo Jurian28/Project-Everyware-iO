@@ -167,6 +167,9 @@ export default function SessionViewPage() {
     const [conflictSession, setConflictSession] =
         useState<ConflictSession | null>(null);
 
+	let [hasAttendedSession, setHasAttendedSession] = useState(false);
+
+
     const loadSession = async () => {
         try {
             setLoading(true);
@@ -175,6 +178,11 @@ export default function SessionViewPage() {
             const data = await SessionService.getSession(sessionId);
 
             setSession(data);
+
+			if(sessionId == 1) {
+				setHasAttendedSession(true);
+			}
+
         } catch (e: any) {
             setError(e?.message ?? 'Something went wrong');
         } finally {
@@ -299,7 +307,7 @@ export default function SessionViewPage() {
 
 			
 			<Section title="About">
-				<SessionReview sessionId={sessionId}/>
+				<SessionReview sessionId={sessionId} hasAttendedSession={hasAttendedSession}/>
 			</Section>
 
             <EnrollConflictModal

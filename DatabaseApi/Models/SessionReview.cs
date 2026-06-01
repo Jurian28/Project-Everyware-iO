@@ -12,8 +12,9 @@ public class SessionReview
 
     [Required]
     [Range(1, 5, ErrorMessage = "Stars must be between 1 and 5.")]
-    public required int stars { get; set; }
-    public string comment { get; set; }
+    public required int Rating { get; set; }
+    [Required]
+    public required string Comment { get; set; }
 
     // navigation property
     [ForeignKey(nameof(IdSession))]

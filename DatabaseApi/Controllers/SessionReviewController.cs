@@ -21,8 +21,8 @@ namespace DatabaseApi.Controllers
             List<SessionReviewDTO> reviews = _context.SessionReviews
                 .Where(sr => sr.IdSession == sessionId)
                 .Select(sr => new SessionReviewDTO{
-                    stars = sr.stars,
-                    comment = sr.comment
+                    Rating = sr.Rating,
+                    Comment = sr.Comment
                 }).ToList();
 
             return Ok(ApiResponse<List<SessionReviewDTO>>.Ok(reviews));
@@ -34,8 +34,8 @@ namespace DatabaseApi.Controllers
             SessionReview review = new SessionReview
             {
                 IdSession = sessionId,
-                stars = dto.stars,
-                comment = dto.comment
+                Rating = dto.Rating,
+                Comment = dto.Comment
             };
 
             _context.SessionReviews.Add(review);

@@ -3,8 +3,6 @@ import config from '../config';
 
 const baseUrl = config.apiBaseUrl;
 
-
-
 async function authHeaders() {
 	const token = await Keychain.getGenericPassword({
 		service: 'auth_access_token',
@@ -55,6 +53,38 @@ export class SessionReviewService {
 
 		} catch (error)	{
 			return { success: false, message: 'Internal Server Error' };
+		}
+	}
+
+	public static async createReview(sessionId: number, rating: number, comment: string) {
+		const res = await fetch(`${baseUrl}/sessions/${sessionId}/reviews`, {
+			method: 'POST',
+			headers: await authHeaders(),
+			body: JSON.stringify({
+				rating,
+				comment,
+			}),
+		});
+
+		const json = await res.json();
+
+		if (json == null) {
+			return {
+				success: false,
+				message: 'Review failed',
+			};
+		}
+
+		if (json.success == true) {
+			return {
+				success: true,
+				message: "Review succesfull",
+			};
+		} else {
+			return {
+				success: false,
+				message: "Review unsuccesfull",
+			};
 		}
 	}
 }
