@@ -17,11 +17,20 @@ public class NotificationController(ApplicationDbContext context) : Controller
         IEnumerable<Notification> notifications = await _notificationService.GetNotificationsForUser(userId);
         IEnumerable<NotificationDTO> notificationDtos = notifications.Select(notification => new NotificationDTO()
         {
+            Id = notification.Id,
             Title = notification.Title,
             Content = notification.Content
         });
 
         return ApiResponse<IEnumerable<NotificationDTO>>.Ok(notificationDtos);
+    }
+
+    [HttpPost("mark-as-read")]
+    public async Task<ActionResult> MarkAsRead(IEnumerable<int> notificationIds)
+    {
+        await _notificationService.DeleteNotifications(notificationIds);
+
+        return Ok();
     }
 }
 

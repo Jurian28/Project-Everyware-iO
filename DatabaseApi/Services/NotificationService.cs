@@ -24,5 +24,14 @@ public class NotificationService(ApplicationDbContext context)
         });
         await _context.SaveChangesAsync();
     }
+
+    public async Task DeleteNotifications(IEnumerable<int> notificationIds)
+    {
+        IEnumerable<Notification> notificationsToDelete = _context.Notifications
+            .Where(notification => notificationIds.Contains(notification.Id))
+            .ToList();
+        _context.Notifications.RemoveRange(notificationsToDelete);
+        await _context.SaveChangesAsync();
+    }
 }
 

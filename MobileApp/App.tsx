@@ -27,7 +27,8 @@ import AuthService from './src/services/AuthService';
 import EventsOverview from './src/pages/events/Overview';
 import { EventPage } from './src/pages/events/Event';
 import EventScheduleStack from './src/navigation/EventScheduleStack';
-
+import NotificationService from './src/services/NotificationService';
+import { Notifications } from 'react-native-notifications';
 
 function LogoutPage() {
 	const navigator = useNavigation<NavigationProp<ParamListBase>>();
@@ -207,6 +208,11 @@ export default function App() {
 	useEffect(() => {
 		refreshAuthentication().catch(() => undefined);
 	}, [refreshAuthentication]);
+
+    useEffect(() => {
+        Notifications.registerRemoteNotifications();
+        NotificationService.checkAndShowNotifications();
+    }, []);
 
 	const handleNavigationStateChange = useCallback(() => {
 		refreshAuthentication().catch(() => undefined);
