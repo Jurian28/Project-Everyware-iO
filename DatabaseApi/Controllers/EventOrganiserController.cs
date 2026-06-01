@@ -55,8 +55,7 @@ public class EventorganiserController(UserManager<User> userManager, Application
         List<User> filtered = [];
         foreach (var user in requesters)
         {
-            if (!await _userManager.IsInRoleAsync(user, "Organiser"))
-                filtered.Add(user);
+            if (!await _userManager.IsInRoleAsync(user, "Organiser")) { filtered.Add(user); }
         }
 
         return ApiResponse<Object>.Ok(filtered.Select(u => new UserDTO
@@ -75,16 +74,12 @@ public class EventorganiserController(UserManager<User> userManager, Application
     {
         string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (string.IsNullOrEmpty(userId))
-            return BadRequest(ApiResponse<Object>.Fail("Name identifier not found."));
+        if (string.IsNullOrEmpty(userId)) { return BadRequest(ApiResponse<Object>.Fail("Name identifier not found.")); }
 
         User? user = await _applicationDbContext.Users.FindAsync(userId);
 
-        if (user == null)
-            return NotFound(ApiResponse<Object>.Fail("User not found."));
-
-        if (user.HasRequestedAccess)
-            return BadRequest(ApiResponse<Object>.Fail("You have already requested access."));
+        if (user == null) { return NotFound(ApiResponse<Object>.Fail("User not found.")); }
+        if (user.HasRequestedAccess) { return BadRequest(ApiResponse<Object>.Fail("You have already requested access.")); }
 
         user.HasRequestedAccess = true;
         await _applicationDbContext.SaveChangesAsync();
@@ -103,13 +98,10 @@ public class EventorganiserController(UserManager<User> userManager, Application
         {
             string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (string.IsNullOrEmpty(userId))
-                return BadRequest(ApiResponse<Object>.Fail("Name identifier not found."));
-
+            if (string.IsNullOrEmpty(userId)) { return BadRequest(ApiResponse<Object>.Fail("Name identifier not found.")); }
             User? user = await _applicationDbContext.Users.FindAsync(userId);
 
-            if (user == null)
-                return NotFound(ApiResponse<Object>.Fail("User not found."));
+            if (user == null) { return NotFound(ApiResponse<Object>.Fail("User not found.")); }
 
             return Ok(ApiResponse<bool>.Ok(user.HasRequestedAccess));
         }
