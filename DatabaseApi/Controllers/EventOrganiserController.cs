@@ -18,7 +18,7 @@ using User = DatabaseApi.Models.User;
 namespace DatabaseApi.Controllers;
 
 /// <summary>
-/// Controller responsible for handling user authentication, including login, registration, logout, and token refreshing.
+/// Controller responsible for handling Organiser management.
 /// </summary>
 [ApiController]
 [Route("[controller]")]

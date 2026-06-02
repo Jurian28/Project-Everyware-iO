@@ -8,9 +8,8 @@ using SharedClassLibrary.DTOs.Auth;
 namespace Back_office.Controllers;
 
 /// <summary>
-/// Controller responsible for handling user authentication actions such as login, registration, and logout.
+/// Controller responsible for handling Organiser management.
 /// </summary>
-/// <param name="httpClientFactory">The factory used to create instances of <see cref="HttpClient"/>.</param>
 [Route("[controller]")]
 [Authorize]
 public class EventOrganiserController(IHttpClientFactory httpClientFactory) : Controller
