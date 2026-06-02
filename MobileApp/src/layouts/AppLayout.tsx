@@ -5,18 +5,7 @@ import AuthService from '../services/AuthService';
 import NotificationService, {
   Notification,
 } from '../services/NotificationService';
-
-const styles = {
-  container: {
-    flex: 1,
-  },
-  notificationContainer: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    gap: 10,
-  },
-};
+import { appLayoutStyles } from '../styles/appLayoutStyles';
 
 export default function AppLayout({
   children,
@@ -38,7 +27,7 @@ export default function AppLayout({
   useEffect(() => {
     if (!notificationInterval) {
       checkNotifications();
-      setNotificationInterval(setInterval(checkNotifications, 60_000));
+      setNotificationInterval(setInterval(checkNotifications, 30_000));
     }
 
     return () => {
@@ -49,9 +38,9 @@ export default function AppLayout({
   }, [notificationInterval]);
 
   return (
-    <View style={styles.container}>
+    <View style={appLayoutStyles.container}>
       {notifications.length > 0 && (
-        <View style={styles.notificationContainer}>
+        <View style={appLayoutStyles.notificationContainer}>
           {notifications.map(notification => (
             <NotificationToast
               key={notification.id}

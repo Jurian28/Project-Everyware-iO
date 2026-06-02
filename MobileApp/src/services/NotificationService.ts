@@ -2,7 +2,7 @@ import config from '../config';
 import AuthService from './AuthService';
 
 export type Notification = {
-  id: string;
+  id: number;
   title: string;
   content: string;
 };
