@@ -17,15 +17,16 @@ export type RoomResponseDTO = {
 };
 
 export type SessionDTO = {
-    sessionId: number;
-    title: string;
-    startTime: string;
-    endTime: string;
-    plenary: boolean;
-    room: RoomResponseDTO;
-    tags: TagResponseDTO[];
-    speakerId?: number;
-    speakerName: string;
+	sessionId: number;
+	title: string;
+	startTime: string;
+	endTime: string;
+	plenary: boolean;
+	isEnrolled: boolean;
+	room: RoomResponseDTO;
+	tags: TagResponseDTO[];
+	speakerId?: number;
+	speakerName: string;
 };
 
 export type Tag = {
@@ -83,16 +84,12 @@ async function safeJson(res: Response) {
 }
 
 export class SessionService {
-    public static async fetchEventSessions(
-        eventId: string | number,
-    ): Promise<SessionsResult> {
-        try {
-            const response = await fetch(`${baseUrl}/${eventId}/sessions`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+	public static async fetchEventSessions(eventId: string | number): Promise<SessionsResult> {
+		try {
+			const response = await fetch(`${baseUrl}/${eventId}/sessions/withUserData`, {
+				method: 'GET',
+				headers: await authHeaders(),
+			});
 
             if (!response.ok) {
                 const message = await response.text();
