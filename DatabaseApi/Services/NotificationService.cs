@@ -23,14 +23,10 @@ public class NotificationService(ApplicationDbContext context)
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteNotification(int notificationId)
+    public async Task DeleteNotification(Notification notification)
     {
-        Notification? notification = await _context.Notifications.FindAsync(notificationId);
-        if (notification != null)
-        {
-            _context.Notifications.Remove(notification);
-            await _context.SaveChangesAsync();
-        }
+        _context.Notifications.Remove(notification);
+        await _context.SaveChangesAsync();
     }
 }
 

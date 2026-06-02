@@ -17,9 +17,8 @@ export default class NotificationService {
   private static readonly _baseUrl = `${config.apiBaseUrl}/notification`;
 
   public static async getNotifications(): Promise<NotificationApiResponse> {
-    const userId = await AuthService.getUserId();
     const response = await fetch(
-      `${NotificationService._baseUrl}/get-notifications-for-user/${userId}`,
+      `${NotificationService._baseUrl}/get-notifications`,
       {
         headers: await AuthService.getAuthHeaders(),
       },
