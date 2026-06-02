@@ -22,18 +22,31 @@ export default function AppLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notificationInterval, setNotificationInterval] =
+    useState<NodeJS.Timeout | null>(null);
+
+  async function checkNotifications() {
+    if (await AuthService.isAuthenticated()) {
+      const response = await NotificationService.getNotifications();
+
+      if (response.success && response.notifications) {
+        setNotifications(response.notifications);
+      }
+    }
+  }
 
   useEffect(() => {
-    setInterval(async () => {
-      if (await AuthService.isAuthenticated()) {
-        const response = await NotificationService.getNotifications();
+    if (!notificationInterval) {
+      checkNotifications();
+      setNotificationInterval(setInterval(checkNotifications, 60_000));
+    }
 
-        if (response.success && response.notifications) {
-          setNotifications(response.notifications);
-        }
+    return () => {
+      if (notificationInterval) {
+        clearInterval(notificationInterval);
       }
-    }, 10_000);
-  }, []);
+    };
+  }, [notificationInterval]);
 
   return (
     <View style={styles.container}>

@@ -1,15 +1,13 @@
-import React from 'react';
 import {
   type NavigationProp,
   type ParamListBase,
   useNavigation,
 } from '@react-navigation/native';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import AuthLayout from '../../layouts/AuthLayout';
 import AuthService from '../../services/AuthService';
 import authStyles from '../../styles/authStyles';
-import NotificationService from '../../services/NotificationService';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -48,7 +46,6 @@ export default function LoginPage() {
       const loginResult = await AuthService.login(trimmedEmail, password);
 
       if (loginResult.success) {
-        await NotificationService.getNotifications();
         navigation.navigate('Home');
       } else {
         Alert.alert(
