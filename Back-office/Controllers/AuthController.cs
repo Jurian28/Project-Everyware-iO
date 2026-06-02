@@ -1,6 +1,9 @@
-﻿using Back_office.Models.Dtos;
+﻿using Back_office.DTOs;
+using Back_office.Models.Dtos;
 using Back_office.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedClassLibrary.DTOs.Auth;
 
 namespace Back_office.Controllers;
 
@@ -8,20 +11,21 @@ namespace Back_office.Controllers;
 /// Controller responsible for handling user authentication actions such as login, registration, and logout.
 /// </summary>
 /// <param name="httpClientFactory">The factory used to create instances of <see cref="HttpClient"/>.</param>
+[Route("[controller]")]
+[Authorize]
 public class AuthController(IHttpClientFactory httpClientFactory) : Controller
 {
-    private static readonly string AUTH_API_BASE_URL = "http://databaseapi:5000";
-
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("DatabaseApi");
 
     /// <summary>
     /// Displays the login view.
     /// </summary>
     /// <returns>The login view.</returns>
-    [HttpGet]
+    [HttpGet("Login")]
+    [AllowAnonymous]
     public IActionResult Login()
     {
-        return View();
+        return View("Login");
     }
 
     /// <summary>
@@ -30,7 +34,8 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// <param name="viewModel">The view model containing the user's login credentials.</param>
     /// <returns>A redirect to the home page on success, or the login view with validation errors on failure.</returns>
     [ValidateAntiForgeryToken]
-    [HttpPost]
+    [AllowAnonymous]
+    [HttpPost("Login")]
     public async Task<IActionResult> Login(LoginViewModel viewModel)
     {
         if (!ModelState.IsValid)
@@ -38,7 +43,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
             return View(viewModel);
         }
 
-        string loginUrl = $"{AUTH_API_BASE_URL}/api/auth/login";
+        string loginUrl = $"api/auth/login";
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync(loginUrl, new
         {
             viewModel.Email,
@@ -54,7 +59,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
                 SetTokenCookies(json);
             }
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Events");
         }
         else
         {
@@ -68,7 +73,8 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// Displays the registration view.
     /// </summary>
     /// <returns>The registration view.</returns>
-    [HttpGet]
+    [HttpGet("register")]
+    [AllowAnonymous]
     public IActionResult Register()
     {
         return View();
@@ -80,7 +86,8 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// <param name="viewModel">The view model containing the user's registration details.</param>
     /// <returns>A redirect to the home page on success, or the registration view with validation errors on failure.</returns>
     [ValidateAntiForgeryToken]
-    [HttpPost]
+    [HttpPost("Register")]
+    [AllowAnonymous]
     public async Task<IActionResult> Register(RegisterViewModel viewModel)
     {
         if (!ModelState.IsValid)
@@ -95,7 +102,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
             return View(viewModel);
         }
 
-        string registerUrl = $"{AUTH_API_BASE_URL}/api/auth/register";
+        string registerUrl = $"api/auth/register";
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync(registerUrl, new
         {
             viewModel.Email,
@@ -125,17 +132,17 @@ public class AuthController(IHttpClientFactory httpClientFactory) : Controller
     /// Logs the user out by clearing the authentication cookies and notifying the authentication API.
     /// </summary>
     /// <returns>A redirect to the home page.</returns>
-    [HttpPost]
+    [HttpPost("Logout")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         Response.Cookies.Delete("AccessToken");
         Response.Cookies.Delete("RefreshToken");
 
-        string logoutUrl = $"{AUTH_API_BASE_URL}/api/auth/logout";
+        string logoutUrl = $"api/auth/logout";
         await _httpClient.PostAsync(logoutUrl, null);
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Login");
     }
 
     /// <summary>

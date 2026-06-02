@@ -162,3 +162,7 @@ body {
     right: 16px;
     bottom: 16px;
 }
+
+.w-fit-content{
+    width: fit-content;
+}
