@@ -3,19 +3,18 @@ import { Event } from '../../services/EventService';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import config from '../../config';
 import eventStyles from '../../styles/eventStyles';
-import Colors from '../../enums/colors';
 
-function Header({ event, navigation }: { event: Event; navigation: any }) {
+function Header({ navigation }: { navigation: any }) {
   return (
     <View style={eventStyles.eventPageHeader}>
-      <Pressable onPress={() => navigation.navigate('EventsOverview')} style={eventStyles.backButton}>
+      <Pressable onPress={() => navigation.goBack()} style={eventStyles.backButton}>
         <Text style={eventStyles.backButton}>&larr;</Text>
       </Pressable>
     </View>
   )
 }
 
-export function EventPage() {
+export default function EventPage() {
   const route = useRoute<any>();
   const { event } = route.params as { event: Event };
   
@@ -25,7 +24,7 @@ export function EventPage() {
 
   return (
     <View style={eventStyles.eventPageContainer}>
-      <Header event={event} navigation={navigation} />
+      <Header navigation={navigation} />
       
       <View style={eventStyles.eventContentContainer}>
         <Text numberOfLines={2} style={eventStyles.eventPageTitle}>{event.title}</Text>

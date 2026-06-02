@@ -29,6 +29,7 @@ import { EventPage } from './src/pages/events/Event';
 import QRCodePage from './src/pages/sessions/QRCodePage'; 
 import SessionAttendance from './src/pages/attendance/Session';
 import EventScheduleStack from './src/navigation/EventScheduleStack';
+import EventsStack from './src/navigation/EventsStack';
 
 
 function LogoutPage() {
@@ -122,32 +123,39 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
 			},
 		},
     
-    EventsOverview: {
-      screen: EventsOverview,
-      options: {
-        title: 'Events Overview',
-      },
-    },
+		Events: {
+			screen: EventsStack,
+			options: {
+				title: 'Events',
+			},
+		},
 
-    Event: {
-      screen: EventPage,
-      options: {
-        title: 'Event Details',
-        drawerItemStyle: {
-          display: 'none',
-        },
-      },
-    },
+    // EventsOverview: {
+    //   screen: EventsOverview,
+    //   options: {
+    //     title: 'Events Overview',
+    //   },
+    // },
 
-    EventSchedule: {
-      screen: EventScheduleStack,
-      options: {
-        title: 'Event Schedule',
-        drawerItemStyle: {
-          display: 'none',
-        },
-      },
-    },
+    // Event: {
+    //   screen: EventPage,
+    //   options: {
+    //     title: 'Event Details',
+    //     drawerItemStyle: {
+    //       display: 'none',
+    //     },
+    //   },
+    // },
+
+    // EventSchedule: {
+    //   screen: EventScheduleStack,
+    //   options: {
+    //     title: 'Event Schedule',
+    //     drawerItemStyle: {
+    //       display: 'none',
+    //     },
+    //   },
+    // },
 
     AttendanceSession: {
       screen: SessionAttendance,

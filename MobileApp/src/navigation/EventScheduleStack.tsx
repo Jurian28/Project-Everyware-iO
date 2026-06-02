@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 
 import EventSchedule from '../pages/events/EventSchedule';
 import SessionViewPage from '../pages/sessions/session';
