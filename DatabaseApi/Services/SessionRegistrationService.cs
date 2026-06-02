@@ -107,7 +107,7 @@ public class SessionRegistrationService
             await _context.SaveChangesAsync();
 
             string title = $"Enrolled for session {oldestRegistration.Session.Title}";
-            string content = $"A spot has opened for session {oldestRegistration.Session.Title}. You have been enrolled for this session.";
+            string content = $"A spot has opened for session '{oldestRegistration.Session.Title}'. You have been enrolled for this session.";
             await _notificationService.SendNotification(oldestRegistration.User, title, content);
         }
     }

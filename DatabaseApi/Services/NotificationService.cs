@@ -8,9 +8,7 @@ public class NotificationService(ApplicationDbContext context)
 
     public async Task<IEnumerable<Notification>> GetNotificationsForUser(string userId)
     {
-        return _context.Notifications
-            .Where(notification => notification.Receiver.Id == userId)
-            .ToList();
+        return [.. _context.Notifications.Where(notification => notification.Receiver.Id == userId) ];
     }
 
     public async Task SendNotification(User receiver, string title, string content)
@@ -25,13 +23,14 @@ public class NotificationService(ApplicationDbContext context)
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteNotifications(IEnumerable<int> notificationIds)
+    public async Task DeleteNotification(int notificationId)
     {
-        IEnumerable<Notification> notificationsToDelete = _context.Notifications
-            .Where(notification => notificationIds.Contains(notification.Id))
-            .ToList();
-        _context.Notifications.RemoveRange(notificationsToDelete);
-        await _context.SaveChangesAsync();
+        Notification? notification = await _context.Notifications.FindAsync(notificationId);
+        if (notification != null)
+        {
+            _context.Notifications.Remove(notification);
+            await _context.SaveChangesAsync();
+        }
     }
 }
 
