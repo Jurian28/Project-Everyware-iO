@@ -179,7 +179,7 @@ export default function SessionViewPage() {
 
             setSession(data);
 
-			if(sessionId == 1) {
+			if(sessionId == 1) { // TIJDELIJKE CHECK
 				setHasAttendedSession(true);
 			}
 
