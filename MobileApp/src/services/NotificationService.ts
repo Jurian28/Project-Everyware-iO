@@ -20,6 +20,9 @@ export default class NotificationService {
     const userId = await AuthService.getUserId();
     const response = await fetch(
       `${NotificationService._baseUrl}/get-notifications-for-user/${userId}`,
+      {
+        headers: await AuthService.getAuthHeaders(),
+      },
     );
 
     if (!response.ok) {
@@ -46,6 +49,7 @@ export default class NotificationService {
       `${NotificationService._baseUrl}/mark-as-read/${notificationId}`,
       {
         method: 'POST',
+        headers: await AuthService.getAuthHeaders(),
       },
     );
 

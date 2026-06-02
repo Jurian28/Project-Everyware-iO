@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using DatabaseApi.DTOs;
 using DatabaseApi.Models;
 using DatabaseApi.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DatabaseApi.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class NotificationController(ApplicationDbContext context) : Controller
