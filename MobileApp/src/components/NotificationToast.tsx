@@ -21,7 +21,7 @@ export default function NotificationToast({
   useEffect(() => {
     const timer = setTimeout(() => {
       dismiss();
-    }, 10_000);
+    }, 30_000);
 
     return () => clearTimeout(timer);
   }, [dismiss, shown]);
