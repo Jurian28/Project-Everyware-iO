@@ -10,14 +10,7 @@ const Stack = createNativeStackNavigator();
 
 export default function EventScheduleStack() {
 	const route = useRoute<any>();
-	const navigation = useNavigation<any>();
 	const params = route.params || {};
-
-	useEffect(() => {
-		if (Object.keys(params).length > 0) {
-			navigation.setParams(params);
-		}
-	}, [JSON.stringify(params)]);
 
 	return (
 		<Stack.Navigator
@@ -25,6 +18,7 @@ export default function EventScheduleStack() {
 				headerShown: false,
 			}}
 			initialRouteName="EventSchedule"
+			key={params.eventId}
 		>
 			<Stack.Screen
 				name="EventSchedule"
