@@ -4,6 +4,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 
 import EventSchedule from '../pages/events/EventSchedule';
 import SessionViewPage from '../pages/sessions/session';
+import QRCodePage from '../pages/sessions/QRCodePage';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +34,11 @@ export default function EventScheduleStack() {
 			<Stack.Screen
 				name="SessionView"
 				component={SessionViewPage}
+				initialParams={params}
+			/>
+			<Stack.Screen
+				name="SessionQRCode"
+				component={QRCodePage}
 				initialParams={params}
 			/>
 		</Stack.Navigator>

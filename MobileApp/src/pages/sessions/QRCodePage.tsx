@@ -10,16 +10,16 @@ import { Session } from "../../services/SessionService";
 import { formatTime } from "../../utils/dates";
 import AuthService from "../../services/AuthService";
 
-function Header({ session }: { session: Session }) {
+function Header() {
   const navigation = useNavigation<any>();
 
   return (
     <View style={sessionStyles.qrPageHeader}>
       <Pressable 
-        onPress={() => navigation.navigate('SessionView', { sessionId: session.sessionId })} 
+        onPress={() => navigation.goBack()} 
         style={sessionStyles.backButton}
       >
-        <Text style={sessionStyles.backButton}>&larr;</Text>
+        <Text style={sessionStyles.backText}>← Back</Text>
       </Pressable>
     </View>
   )
@@ -82,7 +82,7 @@ export default function QRCodePage() {
   return (
     <AppLayout>
       <View style={sessionStyles.qrPadding}>
-        <Header session={session} /> 
+        <Header /> 
 
         <View style={sessionStyles.qrCodePageWrapper}>
           <Text style={sessionStyles.qrCodeTitle}>Attendance QR Code</Text>

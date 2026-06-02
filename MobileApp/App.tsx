@@ -149,16 +149,6 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
       },
     },
 
-    SessionQRCode: {
-      screen: QRCodePage,
-      options: {
-        title: 'Attendance QR Code',
-        drawerItemStyle: {
-          display: 'none',
-        },
-      },
-    },
-
     AttendanceSession: {
       screen: SessionAttendance,
       options: {

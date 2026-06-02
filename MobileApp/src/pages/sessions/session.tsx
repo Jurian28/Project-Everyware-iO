@@ -118,7 +118,6 @@ export default function SessionViewPage() {
     const navigation = useNavigation<any>();
 
     const { sessionId, eventMainColorHex } = route.params;
-    console.log('SessionViewPage params:',  sessionId, eventMainColorHex);
 
     const [session, setSession] = useState<Session | null>(null);
 
@@ -228,7 +227,7 @@ export default function SessionViewPage() {
                     style={sessionStyles.qrCodeButton} 
                     onPress={() => navigation.navigate('SessionQRCode', { eventMainColorHex, session: session })}
                 >
-                    <Text style={sessionStyles.qrCodeButtonText}>Presencion QR Code</Text>
+                    <Text style={sessionStyles.qrCodeButtonText}>Attendance QR Code</Text>
                 </TouchableOpacity>
             </View>
 
