@@ -1,4 +1,4 @@
-namespace DatabaseApi.DTOs;
+namespace SharedClassLibrary.DTOs;
 
 public class NotificationDTO
 {

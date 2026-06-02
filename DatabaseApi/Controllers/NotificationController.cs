@@ -1,9 +1,9 @@
-using DatabaseApi.DTOs;
 using DatabaseApi.Models;
 using DatabaseApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SharedClassLibrary.DTOs;
 
 namespace DatabaseApi.Controllers;
 

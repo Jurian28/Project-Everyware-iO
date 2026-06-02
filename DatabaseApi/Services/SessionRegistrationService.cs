@@ -4,16 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseApi.Services;
 
-public class SessionRegistrationService
+public class SessionRegistrationService(ApplicationDbContext context)
 {
-    private readonly ApplicationDbContext _context;
-    private readonly NotificationService _notificationService;
-
-    public SessionRegistrationService(ApplicationDbContext context)
-    {
-        _context = context;
-        _notificationService = new(context);
-    }
+    private readonly ApplicationDbContext _context = context;
+    private readonly NotificationService _notificationService = new(context);
 
     public async Task<Session?> GetSession(int sessionId)
     {
