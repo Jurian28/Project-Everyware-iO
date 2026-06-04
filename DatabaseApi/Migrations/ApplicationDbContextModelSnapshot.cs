@@ -175,7 +175,6 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("IdRoom");
 
                     b.ToTable("Sessions");
-<<<<<<< feature/uc-84-aanwezig-melden-event
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.SessionAttendance", b =>
@@ -189,8 +188,6 @@ namespace DatabaseApi.Migrations
                     b.HasKey("IdSession", "UserId");
 
                     b.ToTable("SessionAttendances");
-=======
->>>>>>> develop
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Speaker", b =>
