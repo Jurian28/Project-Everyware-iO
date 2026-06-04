@@ -138,7 +138,6 @@ export default function SessionViewPage() {
             setError(null);
 
             const data = await SessionService.getSession(sessionId);
-            console.log(data);
 
             setSession(data);
         } catch (e: any) {

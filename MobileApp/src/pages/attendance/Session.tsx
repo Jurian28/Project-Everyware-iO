@@ -43,7 +43,7 @@ export default function SessionAttendance() {
     } finally {
       setTimeout(() => {
         setLoading(false);
-      }, 1000); // Simulate processing time
+      }, 500); // Simulate processing time
     }
   }
 

@@ -111,10 +111,10 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
 		Logout: {
 			screen: LogoutPage,
 			options: {
-        title: 'Logout',
+        		title: 'Logout',
 				headerShown: false,
 				drawerItemStyle: {
-          display: 'none',
+          			display: 'none',
 				},
 			},
 		},
@@ -126,12 +126,12 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
 			},
 		},
 
-    AttendanceSession: {
-      screen: SessionAttendance,
-      options: {
-        title: 'Session Attendance Checker',
-      },
-    },
+		AttendanceSession: {
+			screen: SessionAttendance,
+			options: {
+				title: 'Session Attendance Checker',
+			},
+		},
   },
 });
 

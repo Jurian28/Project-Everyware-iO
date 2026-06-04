@@ -133,7 +133,7 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
   return (
     <View>
       <View style={webStyles.container}>
-        {/* This needs to be a div */}
+        {/* This needs to be a div, otherwise it won't work */}
         <div
           id={SCANNER_ID}
           style={{

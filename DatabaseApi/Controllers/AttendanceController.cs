@@ -41,19 +41,14 @@ namespace DatabaseApi.Controllers
 
                 if (attendance != null)
                 {
-                    if (attendance.IsAttending)
-                    {
-                        return StatusCode(409, ApiResponse<Object>.Fail("User is already attending this session"));
-                    }
-                    attendance.IsAttending = true;
+                    return StatusCode(409, ApiResponse<Object>.Fail("User is already attending this session"));
                 }
                 else
                 {
                     await _applicationDbContext.SessionAttendances.AddAsync(new SessionAttendance
                     {
                         UserId = userId,
-                        IdSession = sessionId,
-                        IsAttending = true
+                        IdSession = sessionId
                     });
                 }
 
@@ -62,8 +57,7 @@ namespace DatabaseApi.Controllers
                 return Ok(ApiResponse<SessionAttendenceDTO>.Ok(new SessionAttendenceDTO
                 {
                     UserId = userId,
-                    SessionId = sessionId,
-                    IsAttending = true
+                    SessionId = sessionId
                 }));
             }
             catch (Exception ex)

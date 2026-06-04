@@ -8,7 +8,5 @@ namespace DatabaseApi.Models
         public int IdSession { get; set; }
         [Required]
         public string UserId { get; set; }
-        [Required]
-        public bool IsAttending { get; set; }
     }
 }

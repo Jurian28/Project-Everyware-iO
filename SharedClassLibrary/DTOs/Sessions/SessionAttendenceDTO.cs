@@ -7,6 +7,5 @@ namespace SharedClassLibrary.DTOs.Sessions
     {
         public string UserId { get; set; }
         public int SessionId { get; set; }
-        public bool? IsAttending { get; set; }
     }
 }

@@ -129,8 +129,6 @@ export class SessionService {
             headers: await authHeaders(),
         });
 
-        console.log(`getSession response for sessionId ${sessionId}:`, res);
-
         if (!res.ok) {
             return {
                 success: false,
