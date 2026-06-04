@@ -43,20 +43,10 @@ namespace DatabaseApi.Controllers
                 User_has_Session? existingRegistration = await _sessionRegistrationService.GetExistingRegistration(user, session);
                 if (existingRegistration == null) return BadRequest(ApiResponse<object>.Fail("You are not registered for this session"));
 
-                SessionAttendance? attendance = await _applicationDbContext.SessionAttendances
-                    .FirstOrDefaultAsync(sa => sa.IdSession == sessionId && sa.UserId == userId);
-
-                if (attendance != null)
+                if (existingRegistration.IsAttending)
                     return StatusCode(409, ApiResponse<Object>.Fail("User is already attending this session"));
-                
-                else
-                {
-                    await _applicationDbContext.SessionAttendances.AddAsync(new SessionAttendance
-                    {
-                        UserId = userId,
-                        IdSession = sessionId
-                    });
-                }
+
+                existingRegistration.IsAttending = true;
 
                 await _applicationDbContext.SaveChangesAsync();
 

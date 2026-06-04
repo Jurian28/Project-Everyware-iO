@@ -18,14 +18,10 @@ namespace DatabaseApi.Models
         public DbSet<User_has_Session> User_has_Sessions { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<EventInvite> EventInvites { get; set; }
-        public DbSet<SessionAttendance> SessionAttendances { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<SessionAttendance>()
-                .HasKey(sa => new { sa.IdSession, sa.UserId });
 
             // User_has_Session relationship
             modelBuilder.Entity<User_has_Session>()
