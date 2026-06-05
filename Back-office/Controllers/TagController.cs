@@ -1,9 +1,11 @@
-﻿using SharedClassLibrary.DTOs.Tags;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedClassLibrary.DTOs.Tags;
 
 namespace Back_office.Controllers;
 
 [Route("{eventId}/[controller]")]
+[Authorize(Roles = "Organiser, Admin")]
 /// <summary>
 /// Controller responsible for handling tag management (CRUD) for a specific event.
 /// </summary>
