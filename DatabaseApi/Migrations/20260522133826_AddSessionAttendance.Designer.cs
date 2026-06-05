@@ -4,6 +4,7 @@ using DatabaseApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260522133826_AddSessionAttendance")]
+    partial class AddSessionAttendance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,10 +52,6 @@ namespace DatabaseApi.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MainColorHex")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OrganiserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
@@ -177,6 +176,26 @@ namespace DatabaseApi.Migrations
                     b.ToTable("Sessions");
                 });
 
+            modelBuilder.Entity("DatabaseApi.Models.SessionAttendance", b =>
+                {
+                    b.Property<int>("IdSession")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdSession"));
+
+                    b.Property<bool>("IsAttending")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("IdSession");
+
+                    b.ToTable("SessionAttendances");
+                });
+
             modelBuilder.Entity("DatabaseApi.Models.Speaker", b =>
                 {
                     b.Property<int>("IdSpeaker")
@@ -258,9 +277,6 @@ namespace DatabaseApi.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("HasRequestedAccess")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -316,9 +332,6 @@ namespace DatabaseApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("InWaitingList")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsAttending")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("JoinedDate")

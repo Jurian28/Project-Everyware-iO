@@ -29,6 +29,31 @@ export type SessionDTO = {
 	speakerName: string;
 };
 
+export type Tag = {
+    idTag: number;
+    title: string;
+    colorHex: string;
+};
+
+export type Room = {
+    roomLabel: string;
+    capacity: number;
+};
+
+export type Session = {
+    sessionId: number;
+    title: string;
+    startTime: string;
+    endTime: string;
+    room?: Room;
+    tags?: Tag[];
+    speakerName?: string;
+    description?: string;
+    placesLeft: number;
+    isEnrolled?: boolean;
+    inQueue?: boolean;
+};
+
 type SessionsResult = {
     success: boolean;
     sessions?: SessionDTO[];
@@ -160,6 +185,25 @@ export class SessionService {
             return {
                 success: false,
                 message: data?.message ?? 'Withdraw failed',
+            };
+        }
+
+        return { success: true };
+    }
+
+    public static async markAttendance(sessionId: number, userId: string) {
+        const res = await fetch(`${baseUrl}/sessions/${sessionId}/attendance`, {
+            method: 'POST',
+            headers: await authHeaders(),
+            body: JSON.stringify(userId),
+        });
+
+        const data = await safeJson(res);
+
+        if (!res.ok) {
+            return {
+                success: false,
+                message: data?.error ?? data?.message ?? 'Failed to mark attendance',
             };
         }
 

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Alert, Text, View, Image, RefreshControl, ScrollView, Pressable } from 'react-native';
+import { Alert, Text, View, Image, RefreshControl, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { EventService, Event } from '../../services/EventService';
 import AppLayout from '../../layouts/AppLayout';
 import AuthService from '../../services/AuthService';
 import eventStyles from '../../styles/eventStyles';
 import EventCard from '../../components/event/EventCard';
+import Colors from '../../enums/colors';
 
 export default function EventsOverview() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -46,6 +47,15 @@ export default function EventsOverview() {
     loadEvents(newIncludePastEvents);
   }
 
+  if(loading) {
+    return (
+      <View style={eventStyles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.DEFAULT_BUTTON_COLOR} />
+        <Text style={eventStyles.loadingText}>Loading events...</Text>
+      </View>
+    );
+  }
+
   return (
     <AppLayout>
       <ScrollView 
@@ -65,7 +75,7 @@ export default function EventsOverview() {
 
             <Pressable 
               onPress={onPress}
-              style={[eventStyles.eventsLoadPastEvents, { backgroundColor: includePastEvents ? 'rgb(170, 170, 170)' : 'rgb(50, 150, 250)' }]}  
+              style={[eventStyles.eventsLoadPastEvents, { backgroundColor: includePastEvents ? 'rgb(170, 170, 170)' : Colors.DEFAULT_BUTTON_COLOR }]}  
             >
               <Text style={eventStyles.eventsLoadPastEventsText}>
                 {includePastEvents ? 'Hide Past Events' : 'Load Past Events'}
