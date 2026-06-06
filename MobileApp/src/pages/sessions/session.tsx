@@ -15,18 +15,6 @@ import sessionStyles from '../../styles/sessionStyles';
 import SessionReview from '../../components/sessions/sessionReview';
 import { formatTimeRange } from '../../utils/dates';
 
-type Tag = {
-    idTag: number;
-    title: string;
-    colorHex: string;
-};
-
-type Room = {
-    roomLabel: string;
-    capacity: number;
-};
-
-
 type ConflictSession = {
     idSession: number;
     title: string;
@@ -145,9 +133,6 @@ export default function SessionViewPage() {
     const [conflictSession, setConflictSession] =
         useState<ConflictSession | null>(null);
 
-	let [hasAttendedSession, setHasAttendedSession] = useState(false);
-
-
     const loadSession = async () => {
         try {
             setLoading(true);
@@ -156,11 +141,6 @@ export default function SessionViewPage() {
             const data = await SessionService.getSession(sessionId);
 
             setSession(data);
-
-			if(sessionId == 1) { // TIJDELIJKE CHECK
-				setHasAttendedSession(true);
-			}
-
         } catch (e: any) {
             setError(e?.message ?? 'Something went wrong');
         } finally {
@@ -296,7 +276,7 @@ export default function SessionViewPage() {
 
 			
 			<Section title="About">
-				<SessionReview sessionId={sessionId} hasAttendedSession={hasAttendedSession}/>
+				<SessionReview sessionId={sessionId}/>
 			</Section>
 
             <EnrollConflictModal

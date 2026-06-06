@@ -1,6 +1,8 @@
 ﻿using DatabaseApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedClassLibrary.DTOs.Sessions;
+using System.Security.Claims;
 
 namespace DatabaseApi.Controllers
 {
@@ -16,7 +18,8 @@ namespace DatabaseApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<List<SessionReviewDTO>>>> GetSessionReviewsForSession(int sessionId)
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<SessionReviewsResponseDTO>>> GetSessionReviewsForSession(int sessionId)
         {
             List<SessionReviewDTO> reviews = _context.SessionReviews
                 .Where(sr => sr.IdSession == sessionId)
@@ -25,12 +28,33 @@ namespace DatabaseApi.Controllers
                     Comment = sr.Comment
                 }).ToList();
 
-            return Ok(ApiResponse<List<SessionReviewDTO>>.Ok(reviews));
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+
+            User_has_Session? userSession = _context.User_has_Sessions.Where(us => us.IdUser == userId).Where(us => us.IdSession == sessionId).FirstOrDefault();
+            if (userSession == null) return Forbid();
+
+            bool canReview = userSession.IsAttending;
+
+            SessionReviewsResponseDTO response = new SessionReviewsResponseDTO
+            {
+                CanReview = canReview,
+                Reviews = reviews
+            };
+
+            return Ok(ApiResponse<SessionReviewsResponseDTO>.Ok(response));
         }
 
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<ApiResponse<SessionReviewDTO>>> ReviewSession(int sessionId,[FromBody] SessionReviewDTO dto) {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            Session? session = _context.Sessions.Where(s => s.IdSession == sessionId).FirstOrDefault();
+            if (session == null) return NotFound();
+
             SessionReview review = new SessionReview
             {
                 IdSession = sessionId,

@@ -16,23 +16,22 @@ type Review = {
 
 export default function SessionReview({
 	sessionId,
-	hasAttendedSession,
 }: {
 	sessionId: number;
-	hasAttendedSession: boolean;
 }) {
 	const [reviews, setReviews] = useState<Review[]>([]);
 	const [rating, setRating] = useState(5);
 	const [comment, setComment] = useState("");
 	const [submitting, setSubmitting] = useState(false);
+	const [canReview, setCanReview] = useState(false);
 
-	const canReview = hasAttendedSession;
 
 	const loadReviews = async () => {
 		const res = await SessionReviewService.getReviewsForSessionId(sessionId);
 		if (!res.success) return;
 
-		setReviews(res.reviews);
+		setReviews(res.reviews.reviews);
+		setCanReview(res.reviews.canReview)
 	};
 
 	const submitReview = async () => {
@@ -85,19 +84,19 @@ export default function SessionReview({
 				<View style={{ flexDirection: "row", marginBottom: 10 }}>
 				{[1, 2, 3, 4, 5].map((value) => (
 					<Pressable
-					key={value}
-					onPress={() => setRating(value)}
-					style={{ marginRight: 8 }}
+						key={value}
+						onPress={() => setRating(value)}
+						style={{ marginRight: 8 }}
 					>
-					<Text
-					style={{
-						fontSize: 26,
-						opacity: value <= rating ? 1 : 0.3,
-					}}
+						<Text
+							style={{
+								fontSize: 26,
+								opacity: value <= rating ? 1 : 0.3,
+							}}
 						>
-						⭐
+							⭐
 						</Text>
-						</Pressable>
+					</Pressable>
 				))}
 				</View>
 
@@ -161,7 +160,10 @@ export default function SessionReview({
 				borderRadius: 6,
 			}}
 			>
-			<Text>{"⭐".repeat(review.rating)}</Text>
+			<Text>
+				<Text>{"⭐".repeat(review.rating)}</Text>
+				<Text style={{ opacity: 0.3 }}>{"⭐".repeat(5 - review.rating)}</Text>
+			</Text>
 			<Text>{review.comment}</Text>
 			</View>
 		))
