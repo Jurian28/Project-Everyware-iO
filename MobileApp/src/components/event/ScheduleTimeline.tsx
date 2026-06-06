@@ -159,6 +159,7 @@ export default function ScheduleTimeline({ sessions, currentDate, startHour = 8,
 			  onPress={ () => {
 				  navigation.navigate('SessionView', {
 					  sessionId: session.sessionId,
+            eventMainColorHex: eventColor,
 				  })
 			  }
 			  }

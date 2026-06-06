@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Back_office.DTOs;
+﻿using Back_office.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Back_office.Controllers
 {
     [Route("{eventId}/[controller]")]
+    [Authorize(Roles = "Organiser, Admin")]
     public class RoomController : Controller
     {
         private readonly HttpClient client;

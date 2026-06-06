@@ -1,15 +1,19 @@
 ﻿using DatabaseApi.Models;
 using DatabaseApi.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SharedClassLibrary.DTOs.Auth;
 using SharedClassLibrary.Jwt;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using User = DatabaseApi.Models.User;
 
 namespace DatabaseApi.Controllers;
 

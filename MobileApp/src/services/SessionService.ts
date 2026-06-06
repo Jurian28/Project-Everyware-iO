@@ -17,15 +17,41 @@ export type RoomResponseDTO = {
 };
 
 export type SessionDTO = {
+	sessionId: number;
+	title: string;
+	startTime: string;
+	endTime: string;
+	plenary: boolean;
+	isEnrolled: boolean;
+	room: RoomResponseDTO;
+	tags: TagResponseDTO[];
+	speakerId?: number;
+	speakerName: string;
+};
+
+export type Tag = {
+    idTag: number;
+    title: string;
+    colorHex: string;
+};
+
+export type Room = {
+    roomLabel: string;
+    capacity: number;
+};
+
+export type Session = {
     sessionId: number;
     title: string;
     startTime: string;
     endTime: string;
-    plenary: boolean;
-    room: RoomResponseDTO;
-    tags: TagResponseDTO[];
-    speakerId?: number;
-    speakerName: string;
+    room?: Room;
+    tags?: Tag[];
+    speakerName?: string;
+    description?: string;
+    placesLeft: number;
+    isEnrolled?: boolean;
+    inQueue?: boolean;
 };
 
 type SessionsResult = {
@@ -58,16 +84,12 @@ async function safeJson(res: Response) {
 }
 
 export class SessionService {
-    public static async fetchEventSessions(
-        eventId: string | number,
-    ): Promise<SessionsResult> {
-        try {
-            const response = await fetch(`${baseUrl}/${eventId}/sessions`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+	public static async fetchEventSessions(eventId: string | number): Promise<SessionsResult> {
+		try {
+			const response = await fetch(`${baseUrl}/${eventId}/sessions/withUserData`, {
+				method: 'GET',
+				headers: await authHeaders(),
+			});
 
             if (!response.ok) {
                 const message = await response.text();
@@ -163,6 +185,25 @@ export class SessionService {
             return {
                 success: false,
                 message: data?.message ?? 'Withdraw failed',
+            };
+        }
+
+        return { success: true };
+    }
+
+    public static async markAttendance(sessionId: number, userId: string) {
+        const res = await fetch(`${baseUrl}/sessions/${sessionId}/attendance`, {
+            method: 'POST',
+            headers: await authHeaders(),
+            body: JSON.stringify(userId),
+        });
+
+        const data = await safeJson(res);
+
+        if (!res.ok) {
+            return {
+                success: false,
+                message: data?.error ?? data?.message ?? 'Failed to mark attendance',
             };
         }
 
