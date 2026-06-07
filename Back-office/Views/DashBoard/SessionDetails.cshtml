@@ -1,0 +1,63 @@
+<meta name="event-id" content="@ViewData["EventId"]" />
+<meta name="session-id" content="@ViewData["SessionId"]" />
+<script src="~/lib/chartjs/chart.umd.js"></script>
+<script src="~/js/dashBoard/sessionDetail.js" defer type="module"></script>
+
+<div class="h-100 d-flex flex-column p-4 gap-4">
+    <div class="w-100 pt-3 ps-5">
+        <h1>Dashboard detail</h1>
+    </div>
+    <div class="d-flex flex-row flex-grow-1">
+
+        <div class="w-50 d-flex flex-row align-items-center position-relative">
+            <div class="w-75 h-100 d-flex flex-column align-items-center position-relative pe-4">
+                <canvas id="sessionChart"></canvas>
+                <div id="noChart"
+                     class="w-100 h-100 position-absolute top-0 start-0 d-flex justify-content-center align-items-center fs-5 text-muted d-none">
+                    Geen grafiek data beschikbaar
+                </div>
+            </div>
+
+            <div style="width: 2px;" class="bg-black h-100"></div>
+
+            <div class="d-flex flex-column justify-content-center fs-4 gap-4 px-3">
+                <div>Total Spots: <span id="stat-totalSpots" class="fw-bold">-</span></div>
+                <div>Present: <span id="stat-presentCount" class="fw-bold">-</span></div>
+                <div>Absent: <span id="stat-absentCount" class="fw-bold">-</span></div>
+                <div>Open Spots: <span id="stat-openSpots" class="fw-bold">-</span></div>
+                <div>In waitlist: <span id="stat-waitlist" class="fw-bold">-</span></div>
+            </div>
+        </div>
+
+        <div style="width: 2px;" class="bg-black h-100"></div>
+
+        <div class="w-50 d-flex flex-column h-100">
+            <div class="d-flex justify-content-between mb-3 gap-2">
+                <select id="filterSelect" class="form-select form-select-sm">
+                    <option value="all">Filter: All</option>
+                    <option value="signedup">Signed Up</option>
+                    <option value="waitlist">In Waiting List</option>
+                </select>
+                <select id="sortSelect" class="form-select form-select-sm">
+                    <option value="name-asc">Sort: Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="date-desc">Joined: Newest</option>
+                    <option value="date-asc">Joined: Oldest</option>
+                </select>
+            </div>
+
+            <div id="attendeeListContainer"
+                 class="flex-grow-1 bg-secondary bg-opacity-25 p-3 rounded-3 gap-2 d-flex flex-column overflow-y-auto">
+                <div id="loadingAttendees" class="text-center fs-5 mt-3">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<Template id="attendeeCardTemplate">
+    <div
+        class="attendee-card rounded-2 p-3 mb-2 d-flex flex-row justify-content-between align-items-center bg-white shadow-sm border">
+        <div class="js-attendeeName fw-bold">Naam</div>
+        <div class="js-attendeeStatus badge rounded-pill bg-secondary text-white p-2">Status</div>
+    </div>
+</Template>

@@ -59,7 +59,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<ISessionService, SessionService>();
 
 var app = builder.Build();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -89,7 +88,8 @@ if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
     try
     {
         Console.WriteLine("[DB] Migrating...");
-        db.Database.Migrate();
+        await db.Database.MigrateAsync();
+        await SeedRoles(app);
         Console.WriteLine("[DB] Done Migrating...");
     }
     catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 1801)
@@ -111,3 +111,17 @@ if (Environment.GetEnvironmentVariable("RUNNING_IN_DOCKER") == "true")
 }
 
 app.Run();
+
+static async Task SeedRoles(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    foreach (var role in new[] { "Organiser", "Admin", "User" })
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}

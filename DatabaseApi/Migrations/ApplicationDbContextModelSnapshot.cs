@@ -51,6 +51,10 @@ namespace DatabaseApi.Migrations
                     b.Property<string>("MainColorHex")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OrganiserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -60,7 +64,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasKey("IdEvent");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.EventInvite", b =>
@@ -81,7 +85,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("EventIdEvent");
 
-                    b.ToTable("EventInvites", (string)null);
+                    b.ToTable("EventInvites");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.RefreshToken", b =>
@@ -105,7 +109,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Room", b =>
@@ -134,7 +138,7 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("IdEvent", "RoomLabel")
                         .IsUnique();
 
-                    b.ToTable("Rooms", (string)null);
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Session", b =>
@@ -170,7 +174,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("IdRoom");
 
-                    b.ToTable("Sessions", (string)null);
+                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Speaker", b =>
@@ -205,7 +209,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("IdEvent");
 
-                    b.ToTable("Speakers", (string)null);
+                    b.ToTable("Speakers");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Tag", b =>
@@ -232,7 +236,7 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("IdEvent", "Title")
                         .IsUnique();
 
-                    b.ToTable("Tags", (string)null);
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.User", b =>
@@ -252,6 +256,9 @@ namespace DatabaseApi.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasRequestedAccess")
                         .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
@@ -311,6 +318,9 @@ namespace DatabaseApi.Migrations
                     b.Property<bool>("InWaitingList")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsAttending")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("JoinedDate")
                         .HasColumnType("datetime2");
 
@@ -318,7 +328,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("IdSession");
 
-                    b.ToTable("User_has_Sessions", (string)null);
+                    b.ToTable("User_has_Sessions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -466,7 +476,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("SpeakersIdSpeaker");
 
-                    b.ToTable("Session_has_Speaker", (string)null);
+                    b.ToTable("Session_has_Speaker");
                 });
 
             modelBuilder.Entity("Session_has_Tag", b =>
@@ -481,7 +491,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("TagsIdTag");
 
-                    b.ToTable("Session_has_Tag", (string)null);
+                    b.ToTable("Session_has_Tag");
                 });
 
             modelBuilder.Entity("User_has_Event", b =>
@@ -496,7 +506,7 @@ namespace DatabaseApi.Migrations
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("User_has_Event", (string)null);
+                    b.ToTable("User_has_Event");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.EventInvite", b =>

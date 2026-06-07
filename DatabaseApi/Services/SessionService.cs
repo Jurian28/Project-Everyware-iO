@@ -17,6 +17,8 @@ public class SessionService : ISessionService
     {
         var query = _context.Sessions
             .Include(s => s.Room)
+            .Include(s => s.RegisteredUsers)
+                .ThenInclude(u => u.User)
             .Where(s => s.IdEvent == eventId)
             .AsQueryable();
 
@@ -29,10 +31,19 @@ public class SessionService : ISessionService
         {
             SessionId = s.IdSession,
             SessionTitle = s.Title,
+            StartTime = s.StartTime,
             TotalSpots = s.Room.Capacity,
             FilledSpots = s.RegisteredUsers.Count(o => o.InWaitingList == false),
             SpotsInWaitingList = s.RegisteredUsers.Count(o => o.InWaitingList == true),
-            IsPlenarySession = s.Plenary
+            IsPlenarySession = s.Plenary,
+            Attendees = s.RegisteredUsers.Select(r => new AttendeeDTO
+            {
+                IdUser = r.IdUser,
+                InWaitingList = r.InWaitingList,
+                JoinedDate = r.JoinedDate,
+                UserName = r.User.UserName,
+                IsAttending = r.IsAttending
+            }).ToList()
         }).ToListAsync();
     }
 }

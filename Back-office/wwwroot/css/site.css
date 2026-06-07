@@ -182,6 +182,10 @@ body {
     bottom: 16px;
 }
 
+.w-fit-content{
+    width: fit-content;
+}
+
 .bg-grey{
     background-color: var(--grey)
 }

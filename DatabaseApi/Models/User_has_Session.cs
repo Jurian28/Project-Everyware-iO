@@ -12,6 +12,8 @@ namespace DatabaseApi.Models
         public bool InWaitingList { get; set; }
         [Required]
         public DateTime JoinedDate { get; set; }
+        [Required]
+        public bool IsAttending { get; set; } = false;
 
         // Navigation properties
         public User User { get; set; }

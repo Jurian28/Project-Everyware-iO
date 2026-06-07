@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedClassLibrary.DTOs.Rooms;
 using SharedClassLibrary.DTOs.Sessions;
+using SharedClassLibrary.DTOs.Tags;
+using System.Security.Claims;
 using DatabaseApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using SharedClassLibrary.DTOs.Tags;
 
 namespace DatabaseApi.Controllers
@@ -16,7 +19,7 @@ namespace DatabaseApi.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<SessionController> _logger;
         private readonly SessionRegistrationService _sessionRegistrationService;
-        
+
         private readonly ISessionService _sessionService;
         private readonly string noRoomErrorMessage = "Geen gekoppelde kamer";
         private readonly string noSpeakerErrorMessage = "Geen gekoppelde spreker";
@@ -44,6 +47,58 @@ namespace DatabaseApi.Controllers
                     StartTime = s.StartTime,
                     EndTime = s.EndTime,
                     Plenary = s.Plenary,
+
+                    Room = s.Room != null
+                        ? new RoomResponseDTO
+                        {
+                            IdRoom = s.Room.IdRoom,
+                            RoomLabel = s.Room.RoomLabel,
+                            Capacity = s.Room.Capacity
+                        }
+                        : new RoomResponseDTO { RoomLabel = noRoomErrorMessage },
+                    Tags = s.Tags.Select(t => new TagResponseDTO
+                    {
+                        IdTag = t.IdTag,
+                        IdEvent = t.IdEvent,
+                        Title = t.Title,
+                        ColorHex = t.ColorHex,
+                    }).ToList(),
+                    SpeakerId = s.Speakers.Select(s => s.IdSpeaker).FirstOrDefault(),
+                    SpeakerName = s.Speakers
+                        .Select(s => $"{s.FirstName} {s.MiddleName} {s.LastName}".Replace("  ", " ").Trim())
+                        .FirstOrDefault() ?? noSpeakerErrorMessage
+                })
+                .ToListAsync();
+
+            return Ok(ApiResponse<IEnumerable<SessionDTO>>.Ok(sessions));
+        }
+
+        [HttpGet("withUserData")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<IEnumerable<SessionDTO>>>> GetAllSessionsWithUserData(int eventId)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            List<SessionDTO> sessions = await _context.Sessions
+                .Include(s => s.Room)
+                .Include(s => s.Speakers)
+                .Include(s => s.Tags)
+                .Include(s => s.RegisteredUsers)
+                .Where(s => s.IdEvent == eventId)
+                .Select(s => new SessionDTO
+                {
+                    SessionId = s.IdSession,
+                    Title = s.Title,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime,
+                    Plenary = s.Plenary,
+                    IsEnrolled = s.RegisteredUsers.Any(u => u.IdUser == userId),
+
                     Room = s.Room != null
                         ? new RoomResponseDTO
                         {

@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using DatabaseApi.Models;
+﻿using DatabaseApi.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseApi.Models.Seeders;
 
@@ -20,6 +21,7 @@ public class DatabaseSeeder
         await SeedSessionsAsync();
         await SeedTagsAsync();
         await SeedUsersAsync();
+        await SeedUserRolesAsync();
         await SeedRelationsAsync();
     }
 
@@ -36,7 +38,8 @@ public class DatabaseSeeder
             MainColorHex = "#D9D9D9",
             AccentColorHex = "#B0B0B0",
             Location = "'s-Hertogenbosch",
-            LogoPath = ""
+            LogoPath = "",
+            OrganiserId = ""
         });
 
         await _context.SaveChangesAsync();
@@ -114,13 +117,34 @@ public class DatabaseSeeder
     {
         if (_context.Users.Any()) return;
 
-        string passwordHash = "AQAAAAIAAYagAAAAEE9XsCMDkXMdTDw5BcaJ7teKfgRDJpxSUt6WF2/3BaCbJaJkCFImPUBAKfygEXtbVg==";
+        string passwordHash = "AQAAAAIAAYagAAAAEAnNUBYiBuP6lxQ9vLOGQrHjXRJzWwIqlcShBBpqp127UrvWnB6+e7fctBznQQzs+g==";
 
         _context.Users.AddRange(
             new User { Id = "1", UserName = "jan.smit@example.com", NormalizedUserName = "JAN.SMIT@EXAMPLE.COM", Email = "jan.smit@example.com", NormalizedEmail = "JAN.SMIT@EXAMPLE.COM", EmailConfirmed = true, SecurityStamp = "STATIC-STAMP-001", PasswordHash = passwordHash },
             new User { Id = "2", UserName = "john.doe@example.com", NormalizedUserName = "JOHN.DOE@EXAMPLE.COM", Email = "john.doe@example.com", NormalizedEmail = "JOHN.DOE@EXAMPLE.COM", EmailConfirmed = true, SecurityStamp = "STATIC-STAMP-002", PasswordHash = passwordHash },
             new User { Id = "3", UserName = "jane.smith@example.com", NormalizedUserName = "JANE.SMITH@EXAMPLE.COM", Email = "jane.smith@example.com", NormalizedEmail = "JANE.SMITH@EXAMPLE.COM", EmailConfirmed = true, SecurityStamp = "STATIC-STAMP-003", PasswordHash = passwordHash }
         );
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedUserRolesAsync()
+    {
+        var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Admin");
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == "jan.smit@example.com");
+
+        if (adminRole == null || user == null) return;
+
+        bool alreadyAssigned = await _context.UserRoles
+            .AnyAsync(ur => ur.UserId == user.Id && ur.RoleId == adminRole.Id);
+
+        if (alreadyAssigned) return;
+
+        _context.UserRoles.Add(new IdentityUserRole<string>
+        {
+            UserId = user.Id,
+            RoleId = adminRole.Id
+        });
 
         await _context.SaveChangesAsync();
     }

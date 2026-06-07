@@ -1,0 +1,15 @@
+﻿@model bool
+
+@section Scripts {
+    <script src="~/js/noPermission.js"></script>
+}
+
+<div class="w-100 h-100 d-flex flex-column justify-content-center mb-5 gap-5">
+    <h1 class="mx-auto">You Don't have the needed permission. <br />
+        <span id="request" class="@(!Model ? "" : "d-none")">Click the button to ask for permission from the admin</span>
+        <span id="requested" class="@(Model ? "" : "d-none")">You already requested or have access</span>
+     </h1>
+    <button id="requestAccessButton" class="btn btn-primary w-fit-content mx-auto @(!Model ? "" : "d-none")" onclick="requestPermission()">
+        Ask permission
+    </button>
+</div>
