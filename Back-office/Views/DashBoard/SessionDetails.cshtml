@@ -32,18 +32,25 @@
         <div style="width: 2px;" class="bg-black h-100"></div>
 
         <div class="w-50 d-flex flex-column h-100">
-            <div class="d-flex justify-content-between mb-3 gap-2">
-                <select id="filterSelect" class="form-select form-select-sm">
-                    <option value="all">Filter: All</option>
-                    <option value="signedup">Signed Up</option>
-                    <option value="waitlist">In Waiting List</option>
-                </select>
-                <select id="sortSelect" class="form-select form-select-sm">
-                    <option value="name-asc">Sort: Name (A-Z)</option>
-                    <option value="name-desc">Name (Z-A)</option>
-                    <option value="date-desc">Joined: Newest</option>
-                    <option value="date-asc">Joined: Oldest</option>
-                </select>
+            <div class="d-flex justify-content-between mb-3 gap-3">
+                <div class="input-group input-group-sm">
+                    <label class="input-group-text bg-light text-muted" for="filterSelect">Filter</label>
+                    <select id="filterSelect" class="form-select">
+                        <option value="all">All</option>
+                        <option value="signedup">Signed Up</option>
+                        <option value="waitlist">In Waiting List</option>
+                    </select>
+                </div>
+
+                <div class="input-group input-group-sm">
+                    <label class="input-group-text bg-light text-muted" for="sortSelect">Sort</label>
+                    <select id="sortSelect" class="form-select">
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                        <option value="date-desc">Joined: Newest</option>
+                        <option value="date-asc">Joined: Oldest</option>
+                    </select>
+                </div>
             </div>
 
             <div id="attendeeListContainer"
