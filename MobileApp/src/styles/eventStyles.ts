@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import Colors from '../enums/colors';
 
 const eventStyles = StyleSheet.create({
   // Overview Page Styles
@@ -46,6 +47,18 @@ const eventStyles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
   },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+    height: '100%',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#667',
+  },
   
   // Event Card Styles
   eventCard: {
@@ -84,7 +97,7 @@ const eventStyles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
     gap: 16,
-    width: '65%',
+    width: '60%',
   },
   eventCardDescription: {
     marginBottom: 8,
@@ -107,6 +120,13 @@ const eventStyles = StyleSheet.create({
   eventContentContainer: {
     display: 'flex',
     gap: 8,
+  },
+  eventPageHeader: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
   },
   eventPageTitle: {
     fontSize: 24,
@@ -152,6 +172,17 @@ const eventStyles = StyleSheet.create({
   },
   eventPageDescriptionText: {
     fontSize: 14,
+  },
+  eventPageScheduleButton: {
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: Colors.DEFAULT_BUTTON_COLOR,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  eventPageScheduleButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 

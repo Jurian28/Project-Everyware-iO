@@ -1,11 +1,13 @@
-using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SharedClassLibrary.DTOs.Tags;
 using SharedClassLibrary.DTOs.Sessions;
+using SharedClassLibrary.DTOs.Tags;
+using System.Text.Json;
 
 namespace Back_office.Controllers
 {
     [Route("{eventId}/[controller]")]
+    [Authorize(Roles = "Organiser, Admin")]
     public class SessionController : Controller
     {
 

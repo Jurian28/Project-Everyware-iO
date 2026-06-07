@@ -9,50 +9,16 @@ import {
 } from 'react-native';
 
 import EnrollConflictModal from '../../components/sessions/enrollConflictModal';
-import { SessionService } from '../../services/SessionService';
+import { Session, SessionService, Tag } from '../../services/SessionService';
 
 import sessionStyles from '../../styles/sessionStyles';
-
-type Tag = {
-    idTag: number;
-    title: string;
-    colorHex: string;
-};
-
-type Room = {
-    roomLabel: string;
-    capacity: number;
-};
+import { formatTimeRange } from '../../utils/dates';
 
 type ConflictSession = {
     idSession: number;
     title: string;
     startTime: string;
     endTime: string;
-};
-
-type Session = {
-    sessionId: number;
-    title: string;
-    startTime: string;
-    endTime: string;
-    room?: Room;
-    tags?: Tag[];
-    speakerName?: string;
-    description?: string;
-    placesLeft: number;
-    isEnrolled?: boolean;
-    inQueue?: boolean;
-};
-
-const formatTimeRange = (start: string, end: string) => {
-    const fmt = (d: Date) =>
-        d.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-
-    return `${fmt(new Date(start))} - ${fmt(new Date(end))}`;
 };
 
 function TagItem({ tag }: { tag: Tag }) {
@@ -151,7 +117,7 @@ export default function SessionViewPage() {
     const route = useRoute<any>();
     const navigation = useNavigation<any>();
 
-    const { sessionId } = route.params;
+    const { sessionId, eventMainColorHex } = route.params;
 
     const [session, setSession] = useState<Session | null>(null);
 
@@ -248,12 +214,23 @@ export default function SessionViewPage() {
 
     return (
         <ScrollView contentContainerStyle={sessionStyles.container}>
-            <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={sessionStyles.backButton}
-            >
-                <Text style={sessionStyles.backText}>← Back</Text>
-            </TouchableOpacity>
+            <View style={sessionStyles.detailsHeader}>
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={sessionStyles.backButton}
+                >
+                    <Text style={sessionStyles.backText}>← Back</Text>
+                </TouchableOpacity>
+
+                {session.isEnrolled && (
+                    <TouchableOpacity 
+                        style={sessionStyles.qrCodeButton} 
+                        onPress={() => navigation.navigate('SessionQRCode', { eventMainColorHex, session: session })}
+                    >
+                        <Text style={sessionStyles.qrCodeButtonText}>Attendance QR Code</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
 
             <Text style={sessionStyles.title}>{session.title}</Text>
 

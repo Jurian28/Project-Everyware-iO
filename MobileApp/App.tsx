@@ -24,9 +24,8 @@ import HomePage from './src/pages/Home';
 import LoginPage from './src/pages/auth/Login';
 import RegisterPage from './src/pages/auth/Register';
 import AuthService from './src/services/AuthService';
-import EventsOverview from './src/pages/events/Overview';
-import { EventPage } from './src/pages/events/Event';
-import EventScheduleStack from './src/navigation/EventScheduleStack';
+import SessionAttendance from './src/pages/attendance/Session';
+import EventsStack from './src/navigation/EventsStack';
 
 
 function LogoutPage() {
@@ -112,43 +111,28 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
 		Logout: {
 			screen: LogoutPage,
 			options: {
-				title: 'Logout',
+        		title: 'Logout',
 				headerShown: false,
 				drawerItemStyle: {
-					display: 'none',
+          			display: 'none',
 				},
 			},
 		},
-
-
-
-		EventsOverview: {
-			screen: EventsOverview,
+    
+		Events: {
+			screen: EventsStack,
 			options: {
-				title: 'Events Overview',
+				title: 'Events',
 			},
 		},
 
-		Event: {
-			screen: EventPage,
+		AttendanceSession: {
+			screen: SessionAttendance,
 			options: {
-				title: 'Event Details',
-				drawerItemStyle: {
-					display: 'none',
-				},
+				title: 'Session Attendance Checker',
 			},
 		},
-
-		EventSchedule: {
-			screen: EventScheduleStack,
-			options: {
-				title: 'Event Schedule',
-				drawerItemStyle: {
-					display: 'none',
-				},
-			},
-		},
-	},
+  },
 });
 
 const unauthenticatedDrawerNavigation = createDrawerNavigator({
