@@ -49,23 +49,54 @@ async function fetchSessionDetails() {
     }
 }
 
+function isSessionStarted() {
+    console.log('hi');
+    console.log(session.startTime);
+    if (!session || !session.startTime) return false;
+    return new Date(session.startTime) <= new Date();
+}
+
+function getAttendanceCounts() {
+    const signedUpAttendees = session.attendees ? session.attendees.filter(a => !a.inWaitingList) : [];
+    const present = signedUpAttendees.filter(a => a.isAttending).length;
+    const absent = signedUpAttendees.filter(a => !a.isAttending).length;
+    return { present, absent };
+}
+
 function updateStats() {
     statTotalSpots.innerText = session.totalSpots;
-    statPresent.innerText = 0; // TODO update when new db field added
-    statAbsent.innerText = 0; // TODO update when new db field added
-    statOpenSpots.innerText = session.totalSpots - session.filledSpots;
     statWaitlist.innerText = session.spotsInWaitingList;
+    statOpenSpots.innerText = session.totalSpots - session.filledSpots;
+
+    if (isSessionStarted()) {
+        const { present, absent } = getAttendanceCounts();
+        statPresent.innerText = present;
+        statAbsent.innerText = absent;
+    } else {
+        statPresent.innerText = 0;
+        statAbsent.innerText = 0;
+    }
 }
 
 function updateChart() {
     noChartElement.classList.add("d-none");
     canvas.style.display = "block";
 
-    // TODO update when new db field added
+    let labels, data;
+
+    if (isSessionStarted()) {
+        const { present, absent } = getAttendanceCounts();
+        labels = ["Present", "Absent", "Open Spots", "In Waitlist"];
+        data = [present, absent, session.totalSpots - session.filledSpots, session.spotsInWaitingList];
+    } else {
+        labels = ["Filled Spots", "Open Spots", "In Waitlist"];
+        data = [session.filledSpots, session.totalSpots - session.filledSpots, session.spotsInWaitingList];
+    }
+
     chart = upsert(canvas, {
         config: chartConfig,
-        labels: ["Filled Spots", "Open Spots", "In Waitlist"],
-        data: [session.filledSpots, session.totalSpots - session.filledSpots, session.spotsInWaitingList]
+        labels: labels,
+        data: data
     });
 }
 
@@ -99,6 +130,8 @@ function renderAttendeeList() {
         return;
     }
 
+    const hasStarted = isSessionStarted();
+
     attendees.forEach(attendee => {
         let card = attendeeTemplate.content.cloneNode(true);
         card.querySelector(".js-attendeeName").innerText = attendee.userName;
@@ -109,8 +142,18 @@ function renderAttendeeList() {
             statusBadge.classList.add("text-dark");
             statusBadge.innerText = "In waiting list";
         } else {
-            statusBadge.classList.replace("bg-secondary", "bg-success");
-            statusBadge.innerText = "Signed up";
+            if (hasStarted) {
+                if (attendee.isAttending) {
+                    statusBadge.classList.replace("bg-secondary", "bg-success");
+                    statusBadge.innerText = "Present";
+                } else {
+                    statusBadge.classList.replace("bg-secondary", "bg-danger");
+                    statusBadge.innerText = "Absent";
+                }
+            } else {
+                statusBadge.classList.replace("bg-secondary", "bg-success");
+                statusBadge.innerText = "Signed up";
+            }
         }
         listContainer.append(card);
     });

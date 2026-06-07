@@ -31,17 +31,18 @@ public class SessionService : ISessionService
         {
             SessionId = s.IdSession,
             SessionTitle = s.Title,
+            StartTime = s.StartTime,
             TotalSpots = s.Room.Capacity,
             FilledSpots = s.RegisteredUsers.Count(o => o.InWaitingList == false),
             SpotsInWaitingList = s.RegisteredUsers.Count(o => o.InWaitingList == true),
             IsPlenarySession = s.Plenary,
             Attendees = s.RegisteredUsers.Select(r => new AttendeeDTO
             {
-                // TODO update when new db field added
                 IdUser = r.IdUser,
                 InWaitingList = r.InWaitingList,
                 JoinedDate = r.JoinedDate,
-                UserName = r.User.UserName
+                UserName = r.User.UserName,
+                IsAttending = r.IsAttending
             }).ToList()
         }).ToListAsync();
     }

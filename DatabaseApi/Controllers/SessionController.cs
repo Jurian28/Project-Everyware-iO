@@ -7,6 +7,7 @@ using SharedClassLibrary.DTOs.Sessions;
 using SharedClassLibrary.DTOs.Tags;
 using System.Security.Claims;
 using DatabaseApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using SharedClassLibrary.DTOs.Tags;
 
 namespace DatabaseApi.Controllers
@@ -18,7 +19,7 @@ namespace DatabaseApi.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<SessionController> _logger;
         private readonly SessionRegistrationService _sessionRegistrationService;
-        
+
         private readonly ISessionService _sessionService;
         private readonly string noRoomErrorMessage = "Geen gekoppelde kamer";
         private readonly string noSpeakerErrorMessage = "Geen gekoppelde spreker";
