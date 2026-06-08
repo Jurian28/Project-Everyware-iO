@@ -1,11 +1,23 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Image, Pressable, Text, View } from 'react-native';
 import config from '../../config';
-import AppLayout from '../../layouts/AppLayout';
 import { Event } from '../../services/EventService';
 import eventStyles from '../../styles/eventStyles';
 
-export function EventPage() {
+function Header({ navigation }: { navigation: any }) {
+  return (
+    <View style={eventStyles.eventPageHeader}>
+      <Pressable
+        onPress={() => navigation.goBack()}
+        style={eventStyles.backButton}
+      >
+        <Text style={eventStyles.backButton}>&larr;</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+export default function EventPage() {
   const route = useRoute<any>();
   const { event } = route.params as { event: Event };
 
@@ -16,87 +28,70 @@ export function EventPage() {
     : null;
 
   return (
-    <AppLayout>
-      <View style={eventStyles.eventPageContainer}>
-        <View>
-          <Pressable
-            onPress={() => navigation.navigate('EventsOverview')}
-            style={eventStyles.backButton}
-          >
-            <Text style={eventStyles.backButton}>&larr;</Text>
-          </Pressable>
-        </View>
-        <View style={eventStyles.eventContentContainer}>
-          <Text numberOfLines={2} style={eventStyles.eventPageTitle}>
-            {event.title}
-          </Text>
+    <View style={eventStyles.eventPageContainer}>
+      <Header navigation={navigation} />
 
-          <View style={eventStyles.eventImageContainer}>
-            {imgSrc ? (
-              <Image
-                source={{ uri: imgSrc }}
-                style={eventStyles.eventPageImage}
-              />
-            ) : (
-              <Text style={eventStyles.eventPageNoImage}>No Logo</Text>
-            )}
-          </View>
+      <View style={eventStyles.eventContentContainer}>
+        <Text numberOfLines={2} style={eventStyles.eventPageTitle}>
+          {event.title}
+        </Text>
 
-          <View>
-            <Text style={eventStyles.eventPageMeta}>
-              {event.startDate.toLocaleDateString()} -{' '}
-              {event.endDate.toLocaleDateString()}
-            </Text>
-
-            {event.location && (
-              <Text style={eventStyles.eventPageMeta}>{event.location}</Text>
-            )}
-          </View>
-
-          <View
-            style={[
-              eventStyles.eventPageDivider,
-              { backgroundColor: event.mainColorHex },
-            ]}
-          />
-
-          <Pressable
-            onPress={() =>
-              navigation.navigate('EventSchedule', {
-                screen: 'EventSchedule',
-                params: {
-                  eventId: event.idEvent,
-                  eventTitle: event.title,
-                  eventColor: event.mainColorHex,
-                  eventAccentColor: event.accentColorHex,
-                },
-              })
-            }
-            style={{
-              backgroundColor: '#2563EB',
-              padding: 12,
-              borderRadius: 8,
-              alignItems: 'center',
-              marginVertical: 10,
-            }}
-          >
-            <Text style={{ color: 'white', fontWeight: 'bold' }}>
-              View Schedule
-            </Text>
-          </Pressable>
-
-          {event.description && (
-            <View style={eventStyles.eventPageDescriptionSection}>
-              <Text style={eventStyles.eventPageDescriptionTitle}>
-                Description
-              </Text>
-              <Text style={eventStyles.eventPageDescriptionText}>
-                {event.description}
-              </Text>
-            </View>
+        <View style={eventStyles.eventImageContainer}>
+          {imgSrc ? (
+            <Image
+              source={{ uri: imgSrc }}
+              style={eventStyles.eventPageImage}
+            />
+          ) : (
+            <Text style={eventStyles.eventPageNoImage}>No Logo</Text>
           )}
         </View>
+
+        <View>
+          <Text style={eventStyles.eventPageMeta}>
+            {event.startDate.toLocaleDateString()} -{' '}
+            {event.endDate.toLocaleDateString()}
+          </Text>
+
+          {event.location && (
+            <Text style={eventStyles.eventPageMeta}>{event.location}</Text>
+          )}
+        </View>
+
+        <View
+          style={[
+            eventStyles.eventPageDivider,
+            { backgroundColor: event.mainColorHex },
+          ]}
+        />
+
+        <Pressable
+          onPress={() =>
+            navigation.navigate('EventSchedule', {
+              eventId: event.idEvent.toString(),
+              eventTitle: event.title,
+              eventColor: event.mainColorHex,
+              eventAccentColor: event.accentColorHex,
+            })
+          }
+          style={eventStyles.eventPageScheduleButton}
+        >
+          <Text style={eventStyles.eventPageScheduleButtonText}>
+            View Schedule
+          </Text>
+        </Pressable>
+
+        {event.description && (
+          <View style={eventStyles.eventPageDescriptionSection}>
+            <Text style={eventStyles.eventPageDescriptionTitle}>
+              Description
+            </Text>
+            <Text style={eventStyles.eventPageDescriptionText}>
+              {event.description}
+            </Text>
+          </View>
+        )}
       </View>
-    </AppLayout>
+    </View>
   );
 }

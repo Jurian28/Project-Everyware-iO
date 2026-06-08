@@ -4,6 +4,7 @@ using DatabaseApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260529154843_FixSessionAttendance")]
+    partial class FixSessionAttendance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,10 +54,6 @@ namespace DatabaseApi.Migrations
                     b.Property<string>("MainColorHex")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("OrganiserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -86,36 +85,6 @@ namespace DatabaseApi.Migrations
                     b.HasIndex("EventIdEvent");
 
                     b.ToTable("EventInvites");
-                });
-
-            modelBuilder.Entity("DatabaseApi.Models.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReceiverId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReceiverId");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.RefreshToken", b =>
@@ -207,6 +176,22 @@ namespace DatabaseApi.Migrations
                     b.ToTable("Sessions");
                 });
 
+            modelBuilder.Entity("DatabaseApi.Models.SessionAttendance", b =>
+                {
+                    b.Property<int>("IdSession")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsAttending")
+                        .HasColumnType("bit");
+
+                    b.HasKey("IdSession", "UserId");
+
+                    b.ToTable("SessionAttendances");
+                });
+
             modelBuilder.Entity("DatabaseApi.Models.Speaker", b =>
                 {
                     b.Property<int>("IdSpeaker")
@@ -288,9 +273,6 @@ namespace DatabaseApi.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("HasRequestedAccess")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -346,9 +328,6 @@ namespace DatabaseApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("InWaitingList")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsAttending")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("JoinedDate")
@@ -548,17 +527,6 @@ namespace DatabaseApi.Migrations
                         .IsRequired();
 
                     b.Navigation("Event");
-                });
-
-            modelBuilder.Entity("DatabaseApi.Models.Notification", b =>
-                {
-                    b.HasOne("DatabaseApi.Models.User", "Receiver")
-                        .WithMany()
-                        .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Receiver");
                 });
 
             modelBuilder.Entity("DatabaseApi.Models.Room", b =>

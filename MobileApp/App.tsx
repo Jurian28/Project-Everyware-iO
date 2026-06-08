@@ -19,12 +19,11 @@ import {
   Text,
   View,
 } from 'react-native';
-import EventScheduleStack from './src/navigation/EventScheduleStack';
+import EventsStack from './src/navigation/EventsStack';
 import HomePage from './src/pages/Home';
+import SessionAttendance from './src/pages/attendance/Session';
 import LoginPage from './src/pages/auth/Login';
 import RegisterPage from './src/pages/auth/Register';
-import { EventPage } from './src/pages/events/Event';
-import EventsOverview from './src/pages/events/Overview';
 import AuthService from './src/services/AuthService';
 
 function LogoutPage() {
@@ -123,30 +122,17 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
       },
     },
 
-    EventsOverview: {
-      screen: EventsOverview,
+    Events: {
+      screen: EventsStack,
       options: {
-        title: 'Events Overview',
+        title: 'Events',
       },
     },
 
-    Event: {
-      screen: EventPage,
+    AttendanceSession: {
+      screen: SessionAttendance,
       options: {
-        title: 'Event Details',
-        drawerItemStyle: {
-          display: 'none',
-        },
-      },
-    },
-
-    EventSchedule: {
-      screen: EventScheduleStack,
-      options: {
-        title: 'Event Schedule',
-        drawerItemStyle: {
-          display: 'none',
-        },
+        title: 'Session Attendance Checker',
       },
     },
   },

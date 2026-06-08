@@ -9,51 +9,16 @@ import {
 } from 'react-native';
 
 import EnrollConflictModal from '../../components/sessions/enrollConflictModal';
-import { SessionService } from '../../services/SessionService';
+import { Session, SessionService, Tag } from '../../services/SessionService';
 
-import AppLayout from '../../layouts/AppLayout';
 import sessionStyles from '../../styles/sessionStyles';
-
-type Tag = {
-  idTag: number;
-  title: string;
-  colorHex: string;
-};
-
-type Room = {
-  roomLabel: string;
-  capacity: number;
-};
+import { formatTimeRange } from '../../utils/dates';
 
 type ConflictSession = {
   idSession: number;
   title: string;
   startTime: string;
   endTime: string;
-};
-
-type Session = {
-  sessionId: number;
-  title: string;
-  startTime: string;
-  endTime: string;
-  room?: Room;
-  tags?: Tag[];
-  speakerName?: string;
-  description?: string;
-  placesLeft: number;
-  isEnrolled?: boolean;
-  inQueue?: boolean;
-};
-
-const formatTimeRange = (start: string, end: string) => {
-  const fmt = (d: Date) =>
-    d.toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
-  return `${fmt(new Date(start))} - ${fmt(new Date(end))}`;
 };
 
 function TagItem({ tag }: { tag: Tag }) {
@@ -152,7 +117,7 @@ export default function SessionViewPage() {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
 
-  const { sessionId } = route.params;
+  const { sessionId, eventMainColorHex } = route.params;
 
   const [session, setSession] = useState<Session | null>(null);
 
@@ -248,8 +213,8 @@ export default function SessionViewPage() {
   if (!session) return <ErrorState message="Session not found" />;
 
   return (
-    <AppLayout>
-      <ScrollView contentContainerStyle={sessionStyles.container}>
+    <ScrollView contentContainerStyle={sessionStyles.container}>
+      <View style={sessionStyles.detailsHeader}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={sessionStyles.backButton}
@@ -257,52 +222,68 @@ export default function SessionViewPage() {
           <Text style={sessionStyles.backText}>← Back</Text>
         </TouchableOpacity>
 
-        <Text style={sessionStyles.title}>{session.title}</Text>
+        {session.isEnrolled && (
+          <TouchableOpacity
+            style={sessionStyles.qrCodeButton}
+            onPress={() =>
+              navigation.navigate('SessionQRCode', {
+                eventMainColorHex,
+                session: session,
+              })
+            }
+          >
+            <Text style={sessionStyles.qrCodeButtonText}>
+              Attendance QR Code
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
 
-        <Text style={sessionStyles.time}>
-          {formatTimeRange(session.startTime, session.endTime)}
+      <Text style={sessionStyles.title}>{session.title}</Text>
+
+      <Text style={sessionStyles.time}>
+        {formatTimeRange(session.startTime, session.endTime)}
+      </Text>
+
+      {session.room?.roomLabel && (
+        <Text style={sessionStyles.location}>{session.room.roomLabel}</Text>
+      )}
+
+      {!!session.tags?.length && (
+        <View style={sessionStyles.tagRow}>
+          {session.tags.map(tag => (
+            <TagItem key={tag.idTag} tag={tag} />
+          ))}
+        </View>
+      )}
+
+      <PlacesLeft
+        placesLeft={session.placesLeft}
+        isEnrolled={session.isEnrolled ?? false}
+        inQueue={session.inQueue ?? false}
+        onEnroll={handleEnroll}
+        onWithdraw={handleWithdraw}
+        loading={actionLoading}
+      />
+
+      <Section title="Speakers">
+        <Text style={sessionStyles.speakerName}>
+          {session.speakerName ?? 'TBA'}
         </Text>
+      </Section>
 
-        {session.room?.roomLabel && (
-          <Text style={sessionStyles.location}>{session.room.roomLabel}</Text>
-        )}
+      <Section title="About">
+        <Text style={sessionStyles.aboutText}>
+          {session.description ?? 'No description available yet.'}
+        </Text>
+      </Section>
 
-        {!!session.tags?.length && (
-          <View style={sessionStyles.tagRow}>
-            {session.tags.map(tag => (
-              <TagItem key={tag.idTag} tag={tag} />
-            ))}
-          </View>
-        )}
-
-        <PlacesLeft
-          placesLeft={session.placesLeft}
-          isEnrolled={session.isEnrolled ?? false}
-          inQueue={session.inQueue ?? false}
-          onEnroll={handleEnroll}
-          onWithdraw={handleWithdraw}
-          loading={actionLoading}
-        />
-
-        <Section title="Speakers">
-          <Text style={sessionStyles.speakerName}>
-            {session.speakerName ?? 'TBA'}
-          </Text>
-        </Section>
-
-        <Section title="About">
-          <Text style={sessionStyles.aboutText}>
-            {session.description ?? 'No description available yet.'}
-          </Text>
-        </Section>
-
-        <EnrollConflictModal
-          visible={conflictVisible}
-          conflictSession={conflictSession}
-          onCancel={() => setConflictVisible(false)}
-          onConfirm={confirmOverride}
-        />
-      </ScrollView>
-    </AppLayout>
+      <EnrollConflictModal
+        visible={conflictVisible}
+        conflictSession={conflictSession}
+        onCancel={() => setConflictVisible(false)}
+        onConfirm={confirmOverride}
+      />
+    </ScrollView>
   );
 }
