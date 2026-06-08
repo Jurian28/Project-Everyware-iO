@@ -1,58 +1,69 @@
-import { View, Text, Pressable, Image } from 'react-native';
-import { Event } from '../../services/EventService';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { Image, Pressable, Text, View } from 'react-native';
 import config from '../../config';
+import { Event } from '../../services/EventService';
 import eventStyles from '../../styles/eventStyles';
 
 function Header({ navigation }: { navigation: any }) {
   return (
     <View style={eventStyles.eventPageHeader}>
-      <Pressable onPress={() => navigation.goBack()} style={eventStyles.backButton}>
+      <Pressable
+        onPress={() => navigation.goBack()}
+        style={eventStyles.backButton}
+      >
         <Text style={eventStyles.backButton}>&larr;</Text>
       </Pressable>
     </View>
-  )
+  );
 }
 
 export default function EventPage() {
   const route = useRoute<any>();
   const { event } = route.params as { event: Event };
-  
+
   const navigation = useNavigation<any>();
 
-  const imgSrc = event.logoPath ? `${config.apiBaseUrl}/event${event.logoPath}` : null;
+  const imgSrc = event.logoPath
+    ? `${config.apiBaseUrl}/event${event.logoPath}`
+    : null;
 
   return (
     <View style={eventStyles.eventPageContainer}>
       <Header navigation={navigation} />
-      
+
       <View style={eventStyles.eventContentContainer}>
-        <Text numberOfLines={2} style={eventStyles.eventPageTitle}>{event.title}</Text>
+        <Text numberOfLines={2} style={eventStyles.eventPageTitle}>
+          {event.title}
+        </Text>
 
         <View style={eventStyles.eventImageContainer}>
-          {imgSrc ? 
-              <Image 
-                source={{ uri: imgSrc }} 
-                style={eventStyles.eventPageImage}
-              /> 
-          : 
-              <Text style={eventStyles.eventPageNoImage}>No Logo</Text>
-          }
+          {imgSrc ? (
+            <Image
+              source={{ uri: imgSrc }}
+              style={eventStyles.eventPageImage}
+            />
+          ) : (
+            <Text style={eventStyles.eventPageNoImage}>No Logo</Text>
+          )}
         </View>
 
         <View>
           <Text style={eventStyles.eventPageMeta}>
-            {event.startDate.toLocaleDateString()} - {event.endDate.toLocaleDateString()}
+            {event.startDate.toLocaleDateString()} -{' '}
+            {event.endDate.toLocaleDateString()}
           </Text>
 
           {event.location && (
-            <Text style={eventStyles.eventPageMeta}>
-              {event.location}
-            </Text>
+            <Text style={eventStyles.eventPageMeta}>{event.location}</Text>
           )}
         </View>
 
-        <View style={[eventStyles.eventPageDivider, { backgroundColor: event.mainColorHex }]} />
+        <View
+          style={[
+            eventStyles.eventPageDivider,
+            { backgroundColor: event.mainColorHex },
+          ]}
+        />
 
         <Pressable
           onPress={() =>
@@ -72,11 +83,15 @@ export default function EventPage() {
 
         {event.description && (
           <View style={eventStyles.eventPageDescriptionSection}>
-            <Text style={eventStyles.eventPageDescriptionTitle}>Description</Text>
-            <Text style={eventStyles.eventPageDescriptionText}>{event.description}</Text>
+            <Text style={eventStyles.eventPageDescriptionTitle}>
+              Description
+            </Text>
+            <Text style={eventStyles.eventPageDescriptionText}>
+              {event.description}
+            </Text>
           </View>
         )}
       </View>
     </View>
-  )
+  );
 }

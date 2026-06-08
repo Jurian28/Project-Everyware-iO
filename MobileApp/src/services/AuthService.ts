@@ -1,6 +1,6 @@
+import { jwtDecode } from 'jwt-decode';
 import * as Keychain from 'react-native-keychain';
 import config from '../config';
-import { jwtDecode } from 'jwt-decode';
 
 type AuthResult = {
   success: boolean;
@@ -127,6 +127,21 @@ export default class AuthService {
         message: configForAction.failureMessage,
       };
     }
+  }
+
+  public static async getAuthHeaders() {
+    const token = await Keychain.getGenericPassword({
+      service: AuthService._accessTokenServiceKey,
+    });
+
+    return {
+      'Content-Type': 'application/json',
+      ...(token
+        ? {
+            Authorization: `Bearer ${token.password}`,
+          }
+        : {}),
+    };
   }
 
   public static async login(
