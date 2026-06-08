@@ -27,7 +27,7 @@ if (loadingElement) {
     loadingElement.classList.remove("d-none");
 }
 updatePage();
-// setInterval(updatePage, 5000);
+setInterval(updatePage, 5000);
 
 async function fetchSessions() {
     const response = await fetch(`/${eventId}/session/GetSpotsData`);
@@ -114,7 +114,6 @@ function setSessionCardData(sessionCard, session) {
 }
 
 function calculateAttendancepercentage(session) {
-
     return (session.filledSpots / session.totalSpots) * 100
 }
 

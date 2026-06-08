@@ -24,7 +24,7 @@ let chart;
 let session;
 
 updatePage();
-// setInterval(initPage, 5000);
+setInterval(updatePage, 5000);
 
 async function updatePage() {
     await fetchSessionDetails();
@@ -50,8 +50,6 @@ async function fetchSessionDetails() {
 }
 
 function isSessionStarted() {
-    console.log('hi');
-    console.log(session.startTime);
     if (!session || !session.startTime) return false;
     return new Date(session.startTime) <= new Date();
 }
@@ -162,5 +160,5 @@ function renderAttendeeList() {
 function showNoData() {
     noChartElement.classList.remove("d-none");
     canvas.style.display = "none";
-    if (loadingElement) loadingElement.innerText = "Geen aanmeldingen gevonden.";
+    if (loadingElement) loadingElement.innerText = "No registrations found.";
 }

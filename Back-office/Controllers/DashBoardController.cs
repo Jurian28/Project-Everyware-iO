@@ -1,23 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Back_office.Controllers
+namespace Back_office.Controllers;
+
+[Route("{eventId}/[controller]")]
+public class DashBoardController : Controller
 {
-    [Route("{eventId}/[controller]")]
-    public class DashBoardController : Controller
+    public IActionResult Index(int eventId)
     {
-        public IActionResult Index(int eventId)
-        {
-            ViewData["EventId"] = eventId;
-            return View();
-        }
+        ViewData["EventId"] = eventId;
+        return View();
+    }
 
-        [HttpGet("{sessionId}")]
-        public IActionResult GetSessionDetail(int eventId, int sessionId)
-        {
-            ViewData["EventId"] = eventId;
-            ViewData["SessionId"] = sessionId;
+    [HttpGet("{sessionId}")]
+    public IActionResult GetSessionDetail(int eventId, int sessionId)
+    {
+        ViewData["EventId"] = eventId;
+        ViewData["SessionId"] = sessionId;
 
-            return View("SessionDetails");
-        }
+        return View("SessionDetails");
     }
 }
+
