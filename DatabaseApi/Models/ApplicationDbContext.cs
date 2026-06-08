@@ -18,6 +18,7 @@ namespace DatabaseApi.Models
         public DbSet<User_has_Session> User_has_Sessions { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<EventInvite> EventInvites { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

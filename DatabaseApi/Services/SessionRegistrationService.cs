@@ -7,6 +7,7 @@ namespace DatabaseApi.Services;
 public class SessionRegistrationService(ApplicationDbContext context)
 {
     private readonly ApplicationDbContext _context = context;
+    private readonly NotificationService _notificationService = new(context);
 
     public async Task<Session?> GetSession(int sessionId)
     {
@@ -44,7 +45,8 @@ public class SessionRegistrationService(ApplicationDbContext context)
 
     public async Task<List<User_has_Session>> GetQueuedRegistrations(Session session)
     {
-        return [.. session.RegisteredUsers
+        return [.. _context.User_has_Sessions
+            .Include(userHasSession => userHasSession.User)
             .Where(registeredUser => registeredUser.InWaitingList)
             .OrderByDescending(registeredUser => registeredUser.JoinedDate) ];
     }
@@ -97,6 +99,11 @@ public class SessionRegistrationService(ApplicationDbContext context)
             User_has_Session oldestRegistration = queuedRegistrations.First();
             oldestRegistration.InWaitingList = false;
             await _context.SaveChangesAsync();
+
+            string title = $"Enrolled for session {oldestRegistration.Session.Title}";
+            string content = $"A spot has opened for session '{oldestRegistration.Session.Title}'. You have been enrolled for this session.";
+            await _notificationService.SendNotification(oldestRegistration.User, title, content);
         }
     }
 }
+

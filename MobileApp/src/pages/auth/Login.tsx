@@ -1,10 +1,9 @@
-import React from 'react';
 import {
   type NavigationProp,
   type ParamListBase,
   useNavigation,
 } from '@react-navigation/native';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import AuthLayout from '../../layouts/AuthLayout';
 import AuthService from '../../services/AuthService';
