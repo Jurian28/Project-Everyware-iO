@@ -63,9 +63,6 @@ export default function SessionReview({
 
 	return (
 		<ScrollView style={{ padding: 16 }}>
-		<Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 10 }}>
-		Reviews
-		</Text>
 
 			{canReview && (
 				<View
