@@ -275,7 +275,7 @@ export default function SessionViewPage() {
             </Section>
 
 			
-			<Section title="About">
+			<Section title="Reviews">
 				<SessionReview sessionId={sessionId}/>
 			</Section>
 

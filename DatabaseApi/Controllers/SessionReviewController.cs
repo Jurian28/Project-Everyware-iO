@@ -21,19 +21,18 @@ namespace DatabaseApi.Controllers
         [Authorize]
         public async Task<ActionResult<ApiResponse<SessionReviewsResponseDTO>>> GetSessionReviewsForSession(int sessionId)
         {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            User_has_Session? userSession = _context.User_has_Sessions.Where(us => us.IdUser == userId).Where(us => us.IdSession == sessionId).FirstOrDefault();
+            if (userSession == null) return Forbid();
+
             List<SessionReviewDTO> reviews = _context.SessionReviews
                 .Where(sr => sr.IdSession == sessionId)
                 .Select(sr => new SessionReviewDTO{
                     Rating = sr.Rating,
                     Comment = sr.Comment
                 }).ToList();
-
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
-
-
-            User_has_Session? userSession = _context.User_has_Sessions.Where(us => us.IdUser == userId).Where(us => us.IdSession == sessionId).FirstOrDefault();
-            if (userSession == null) return Forbid();
 
             bool canReview = userSession.IsAttending;
 
@@ -54,6 +53,19 @@ namespace DatabaseApi.Controllers
 
             Session? session = _context.Sessions.Where(s => s.IdSession == sessionId).FirstOrDefault();
             if (session == null) return NotFound();
+
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            User_has_Session? userSession = _context.User_has_Sessions
+                .Where(us => us.IdUser == userId)
+                .Where(us => us.IdSession == sessionId)
+                .FirstOrDefault();
+
+            if (userSession == null) return Forbid();
+
+            if (!userSession.IsAttending)
+                return BadRequest(ApiResponse<SessionReviewDTO>.Fail("You must attend this session before reviewing it."));
 
             SessionReview review = new SessionReview
             {
