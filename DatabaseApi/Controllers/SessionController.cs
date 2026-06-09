@@ -1,5 +1,5 @@
 using DatabaseApi.Models;
-using Microsoft.AspNetCore.Authorization;
+using DatabaseApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedClassLibrary.DTOs.Rooms;
@@ -7,7 +7,8 @@ using SharedClassLibrary.DTOs.Sessions;
 using SharedClassLibrary.DTOs.Tags;
 using System.Security.Claims;
 using DatabaseApi.Services;
-using DatabaseApi.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using SharedClassLibrary.DTOs.Tags;
 
 namespace DatabaseApi.Controllers
 {
@@ -18,15 +19,17 @@ namespace DatabaseApi.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<SessionController> _logger;
         private readonly SessionRegistrationService _sessionRegistrationService;
-        
+
+        private readonly ISessionService _sessionService;
         private readonly string noRoomErrorMessage = "Geen gekoppelde kamer";
         private readonly string noSpeakerErrorMessage = "Geen gekoppelde spreker";
 
-        public SessionController(ApplicationDbContext context, ILogger<SessionController> logger)
+        public SessionController(ApplicationDbContext context, ILogger<SessionController> logger, ISessionService sessionService)
         {
             _context = context;
             _logger = logger;
             _sessionRegistrationService = new(_context);
+            _sessionService = sessionService;
         }
 
         [HttpGet]
@@ -281,6 +284,23 @@ namespace DatabaseApi.Controllers
             catch
             {
                 return StatusCode(500);
+            }
+        }
+
+        /// <summary>
+        /// Get total,open and waitinglistspots for all sessions of event or 1 session if sessionId is given
+        /// </summary>
+        [HttpGet("GetSpotsData/{sessionId?}")]
+        public async Task<ApiResponse<List<SessionSpotsDTO>>> GetSpotsData(int eventId, int? sessionId)
+        {
+            try
+            {
+                List<SessionSpotsDTO> DTOs = await _sessionService.ReturnSessionSpotsData(eventId, sessionId);
+                return ApiResponse<List<SessionSpotsDTO>>.Ok(DTOs);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<List<SessionSpotsDTO>>.Fail(ex.ToString());
             }
         }
     }
