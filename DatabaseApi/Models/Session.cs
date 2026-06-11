@@ -18,6 +18,9 @@ namespace DatabaseApi.Models
         public int IdEvent { get; set; }
         [Required]
         public int IdRoom { get; set; }
+        public bool StartingNotificationSent { get; set; } = false;
+        // Indicates how long before the start of the event a notification should be sent to all participants
+        public TimeSpan NotificationLeadTime { get; set; } = TimeSpan.Zero;
 
         // Navigation properties
         public Event Event { get; set; }
