@@ -22,52 +22,70 @@ namespace DatabaseApi.Controllers
         public async Task<ActionResult<ApiResponse<SessionReviewsResponseDTO>>> GetSessionReviewsForSession(int sessionId)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-            User_has_Session? userSession = _context.User_has_Sessions.Where(us => us.IdUser == userId).Where(us => us.IdSession == sessionId).FirstOrDefault();
-            if (userSession == null) return Forbid();
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(ApiResponse<SessionReviewsResponseDTO>.Fail("User is not authenticated."));
+
+            User_has_Session? userSession = _context.User_has_Sessions
+                .FirstOrDefault(us => us.IdUser == userId && us.IdSession == sessionId);
+
+            if (userSession == null)
+                return StatusCode(403,
+                    ApiResponse<SessionReviewsResponseDTO>.Fail("You do not have access to this session."));
 
             List<SessionReviewDTO> reviews = _context.SessionReviews
                 .Where(sr => sr.IdSession == sessionId)
-                .Select(sr => new SessionReviewDTO{
+                .Select(sr => new SessionReviewDTO
+                {
                     Rating = sr.Rating,
                     Comment = sr.Comment
-                }).ToList();
+                })
+                .ToList();
 
-            bool canReview = userSession.IsAttending;
-
-            SessionReviewsResponseDTO response = new SessionReviewsResponseDTO
+            SessionReviewsResponseDTO response = new()
             {
-                CanReview = canReview,
+                CanReview = userSession.IsAttending,
                 Reviews = reviews
             };
 
             return Ok(ApiResponse<SessionReviewsResponseDTO>.Ok(response));
         }
 
-
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<ApiResponse<SessionReviewDTO>>> ReviewSession(int sessionId,[FromBody] SessionReviewDTO dto) {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+        public async Task<ActionResult<ApiResponse<SessionReviewDTO>>> ReviewSession(
+            int sessionId,
+            [FromBody] SessionReviewDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(
+                    ApiResponse<SessionReviewDTO>.Fail("Invalid request data."));
 
-            Session? session = _context.Sessions.Where(s => s.IdSession == sessionId).FirstOrDefault();
-            if (session == null) return NotFound();
+            Session? session = _context.Sessions
+                .FirstOrDefault(s => s.IdSession == sessionId);
+
+            if (session == null)
+                return NotFound(
+                    ApiResponse<SessionReviewDTO>.Fail("Session not found."));
 
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(
+                    ApiResponse<SessionReviewDTO>.Fail("User is not authenticated."));
 
             User_has_Session? userSession = _context.User_has_Sessions
-                .Where(us => us.IdUser == userId)
-                .Where(us => us.IdSession == sessionId)
-                .FirstOrDefault();
+                .FirstOrDefault(us => us.IdUser == userId && us.IdSession == sessionId);
 
-            if (userSession == null) return Forbid();
+            if (userSession == null)
+                return StatusCode(403,
+                    ApiResponse<SessionReviewDTO>.Fail("You do not have access to this session."));
 
             if (!userSession.IsAttending)
-                return BadRequest(ApiResponse<SessionReviewDTO>.Fail("You must attend this session before reviewing it."));
+                return BadRequest(
+                    ApiResponse<SessionReviewDTO>.Fail("You must attend this session before reviewing it."));
 
-            SessionReview review = new SessionReview
+            SessionReview review = new SessionReview()
             {
                 IdSession = sessionId,
                 Rating = dto.Rating,
