@@ -21,8 +21,6 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddHostedService<StartNotificationsService>();
-
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<JwtHandler>();
 
@@ -60,6 +58,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
     
 builder.Services.AddScoped<ISessionService, SessionService>();
+
+builder.Services.AddHostedService<StartNotificationsService>();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
