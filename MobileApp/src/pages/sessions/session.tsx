@@ -222,21 +222,35 @@ export default function SessionViewPage() {
           <Text style={sessionStyles.backText}>← Back</Text>
         </TouchableOpacity>
 
-        {session.isEnrolled && (
+        <View style={{ flexDirection: 'row', gap: 8 }}>
           <TouchableOpacity
             style={sessionStyles.qrCodeButton}
             onPress={() =>
-              navigation.navigate('SessionQRCode', {
+              navigation.navigate('ManagePolls', {
+                sessionId: session.sessionId,
                 eventMainColorHex,
-                session: session,
               })
             }
           >
-            <Text style={sessionStyles.qrCodeButtonText}>
-              Attendance QR Code
-            </Text>
+            <Text style={sessionStyles.qrCodeButtonText}>Manage Polls</Text>
           </TouchableOpacity>
-        )}
+
+          {session.isEnrolled && (
+            <TouchableOpacity
+              style={sessionStyles.qrCodeButton}
+              onPress={() =>
+                navigation.navigate('SessionQRCode', {
+                  eventMainColorHex,
+                  session: session,
+                })
+              }
+            >
+              <Text style={sessionStyles.qrCodeButtonText}>
+                Attendance QR Code
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       <Text style={sessionStyles.title}>{session.title}</Text>

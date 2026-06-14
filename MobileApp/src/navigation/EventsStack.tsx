@@ -4,6 +4,8 @@ import EventPage from '../pages/events/Event';
 import EventSchedule from '../pages/events/EventSchedule';
 import SessionViewPage from '../pages/sessions/session';
 import QRCodePage from '../pages/sessions/QRCodePage';
+import ManagePolls from '../pages/polls/ManagePolls';
+import CreatePoll from '../pages/polls/CreatePoll';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +17,8 @@ export default function EventsStack() {
       <Stack.Screen name="EventSchedule" component={EventSchedule} />
       <Stack.Screen name="SessionView" component={SessionViewPage} />
       <Stack.Screen name="SessionQRCode" component={QRCodePage} />
+      <Stack.Screen name="ManagePolls" component={ManagePolls} />
+      <Stack.Screen name="CreatePoll" component={CreatePoll} />
     </Stack.Navigator>
   );
 }
