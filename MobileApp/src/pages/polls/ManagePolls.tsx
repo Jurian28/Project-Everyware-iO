@@ -30,17 +30,93 @@ function ErrorState({ message }: { message: string }) {
   );
 }
 
+function ResultsBar({
+  voteCount,
+  totalVotes,
+  isSelected,
+  answerText,
+}: {
+  voteCount: number;
+  totalVotes: number;
+  isSelected: boolean;
+  answerText: string;
+}) {
+  const percentage = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
+
+  return (
+    <View
+      style={[
+        pollStyles.answerItem,
+        pollStyles.answerItemResult,
+        isSelected && pollStyles.answerItemSelected,
+      ]}
+    >
+      <View style={pollStyles.resultBarContainer}>
+        <View
+          style={[
+            pollStyles.resultBarFill,
+            { width: `${Math.max(percentage, 2)}%` },
+            isSelected && pollStyles.resultBarFillSelected,
+          ]}
+        />
+      </View>
+      <View
+        style={[
+          pollStyles.resultContent,
+          isSelected && { paddingRight: 24 },
+        ]}
+      >
+        <Text style={pollStyles.answerText}>{answerText}</Text>
+        <Text style={pollStyles.voteCountText}>
+          {Math.round(percentage)}% ({voteCount})
+        </Text>
+      </View>
+      {isSelected && <Text style={pollStyles.checkMark}>✓</Text>}
+    </View>
+  );
+}
+
+function VoteOption({
+  answerText,
+  answerId,
+  disabled,
+  onVote,
+}: {
+  answerText: string;
+  answerId: number;
+  disabled: boolean;
+  onVote: (answerId: number) => void;
+}) {
+  return (
+    <TouchableOpacity
+      style={[pollStyles.answerItem, pollStyles.answerItemVotable]}
+      onPress={() => onVote(answerId)}
+      disabled={disabled}
+    >
+      <Text style={pollStyles.answerText}>{answerText}</Text>
+    </TouchableOpacity>
+  );
+}
+
 function PollCard({
   poll,
+  onVote,
   onDelete,
   onClose,
   showActions,
+  canVote,
+  isVoting,
 }: {
   poll: PollDTO;
+  onVote: (answerId: number) => void;
   onDelete: () => void;
   onClose: () => void;
   showActions: boolean;
+  canVote: boolean;
+  isVoting: boolean;
 }) {
+  const totalVotes = poll.answers.reduce((sum, a) => sum + a.voteCount, 0);
+
   return (
     <View style={pollStyles.pollCard}>
       <View style={pollStyles.pollMeta}>
@@ -52,10 +128,11 @@ function PollCard({
           ]}
         >
           <Text
-            style={[
-              pollStyles.statusBadge,
-              { color: poll.isClosed ? '#374151' : '#065f46' },
-            ]}
+            style={{
+              color: poll.isClosed ? '#374151' : '#065f46',
+              fontSize: 12,
+              fontWeight: '600',
+            }}
           >
             {poll.isClosed ? 'Closed' : 'Open'}
           </Text>
@@ -66,14 +143,32 @@ function PollCard({
         <Text style={pollStyles.pollDescription}>{poll.description}</Text>
       )}
 
+      {totalVotes > 0 && (
+        <Text style={pollStyles.totalVotesText}>
+          {totalVotes} vote{totalVotes !== 1 ? 's' : ''}
+        </Text>
+      )}
+
       <View style={pollStyles.answersList}>
-        {poll.answers.map((answer, index) => (
-          <View key={answer.idPollAnswer} style={pollStyles.answerItem}>
-            <Text style={pollStyles.answerText}>
-              {index + 1}. {answer.text}
-            </Text>
-          </View>
-        ))}
+        {canVote && !poll.isClosed && !poll.hasVoted
+          ? poll.answers.map(answer => (
+              <VoteOption
+                key={answer.idPollAnswer}
+                answerText={answer.text}
+                answerId={answer.idPollAnswer}
+                disabled={isVoting}
+                onVote={onVote}
+              />
+            ))
+          : poll.answers.map(answer => (
+              <ResultsBar
+                key={answer.idPollAnswer}
+                answerText={answer.text}
+                voteCount={answer.voteCount}
+                totalVotes={totalVotes}
+                isSelected={answer.idPollAnswer === poll.votedAnswerId}
+              />
+            ))}
       </View>
 
       {showActions && (
@@ -109,6 +204,7 @@ export default function ManagePolls() {
   const [error, setError] = useState<string | null>(null);
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [rolesLoaded, setRolesLoaded] = useState(false);
+  const [votingPollId, setVotingPollId] = useState<number | null>(null);
 
   React.useEffect(() => {
     AuthService.getUserRoles().then(roles => {
@@ -172,6 +268,24 @@ export default function ManagePolls() {
     }
   };
 
+  const handleVote = async (poll: PollDTO, answerId: number) => {
+    try {
+      setVotingPollId(poll.idPoll);
+      const res = await PollService.vote(poll.idPoll, answerId);
+      if (res.success && res.poll) {
+        setPolls(prev =>
+          prev.map(p => (p.idPoll === poll.idPoll ? res.poll! : p)),
+        );
+      } else {
+        alert(res.message ?? 'Failed to vote');
+      }
+    } catch (e: any) {
+      alert(e.message ?? 'Failed to vote');
+    } finally {
+      setVotingPollId(null);
+    }
+  };
+
   if (!rolesLoaded || loading) return <Loading />;
   if (error) return <ErrorState message={error} />;
 
@@ -215,9 +329,12 @@ export default function ManagePolls() {
             <PollCard
               key={poll.idPoll}
               poll={poll}
+              onVote={answerId => handleVote(poll, answerId)}
               onDelete={() => handleDelete(poll)}
               onClose={() => handleClose(poll)}
               showActions={hasPollAccess}
+              canVote={!hasPollAccess}
+              isVoting={votingPollId === poll.idPoll}
             />
           ))
         )}

@@ -93,6 +93,73 @@ const pollStyles = StyleSheet.create({
     borderColor: '#e6e6e6',
   },
 
+  answerItemVotable: {
+    borderColor: '#3b82f6',
+    borderWidth: 1.5,
+  },
+
+  answerItemResult: {
+    position: 'relative',
+    overflow: 'hidden',
+    paddingVertical: 10,
+  },
+
+  answerItemSelected: {
+    borderColor: '#059669',
+    borderWidth: 2,
+  },
+
+  resultBarContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+  },
+
+  resultBarFill: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    backgroundColor: '#dbeafe',
+    borderRadius: 8,
+  },
+
+  resultBarFillSelected: {
+    backgroundColor: '#a7f3d0',
+  },
+
+  resultContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  voteCountText: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: '600',
+  },
+
+  totalVotesText: {
+    fontSize: 11,
+    color: '#9ca3af',
+    marginBottom: 6,
+    marginTop: -2,
+  },
+
+  checkMark: {
+    position: 'absolute',
+    right: 8,
+    top: 6,
+    fontSize: 16,
+    color: '#059669',
+    fontWeight: '700',
+  },
+
   answerText: {
     fontSize: 14,
     color: '#374151',

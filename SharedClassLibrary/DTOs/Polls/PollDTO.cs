@@ -7,5 +7,7 @@ public class PollDTO
     public string? Description { get; set; }
     public bool IsClosed { get; set; }
     public int IdSession { get; set; }
+    public bool HasVoted { get; set; }
+    public int? VotedAnswerId { get; set; }
     public List<PollAnswerDTO> Answers { get; set; } = new();
 }

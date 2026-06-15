@@ -19,7 +19,7 @@ namespace DatabaseApi.DTOs
             };
         }
 
-        public static PollDTO ToResponseDTO(Poll poll)
+        public static PollDTO ToResponseDTO(Poll poll, string? userId = null)
         {
             return new PollDTO
             {
@@ -28,10 +28,15 @@ namespace DatabaseApi.DTOs
                 Description = poll.Description,
                 IsClosed = poll.IsClosed,
                 IdSession = poll.IdSession,
+                HasVoted = userId != null && poll.Answers.Any(a => a.Votes.Any(v => v.IdUser == userId)),
+                VotedAnswerId = userId != null
+                    ? poll.Answers.SelectMany(a => a.Votes).FirstOrDefault(v => v.IdUser == userId)?.IdPollAnswer
+                    : null,
                 Answers = poll.Answers.Select(a => new PollAnswerDTO
                 {
                     IdPollAnswer = a.IdPollAnswer,
-                    Text = a.Text
+                    Text = a.Text,
+                    VoteCount = a.Votes.Count
                 }).ToList()
             };
         }

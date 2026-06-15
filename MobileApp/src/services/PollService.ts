@@ -6,6 +6,7 @@ const baseUrl = config.apiBaseUrl;
 export type PollAnswerDTO = {
   idPollAnswer: number;
   text: string;
+  voteCount: number;
 };
 
 export type PollDTO = {
@@ -14,6 +15,8 @@ export type PollDTO = {
   description?: string;
   isClosed: boolean;
   idSession: number;
+  hasVoted: boolean;
+  votedAnswerId: number | null;
   answers: PollAnswerDTO[];
 };
 
@@ -166,6 +169,36 @@ export class PollService {
 
       if (!data?.success) {
         return { success: false, message: data?.error ?? 'Close failed' };
+      }
+
+      return { success: true, poll: data.data };
+    } catch (error) {
+      return { success: false, message: 'Internal Server Error' };
+    }
+  }
+
+  public static async vote(
+    pollId: number,
+    idPollAnswer: number,
+  ): Promise<{ success: boolean; poll?: PollDTO; message?: string }> {
+    try {
+      const response = await fetch(`${baseUrl}/poll/${pollId}/vote`, {
+        method: 'POST',
+        headers: await AuthService.getAuthHeaders(),
+        body: JSON.stringify({ idPollAnswer }),
+      });
+
+      const data = await safeJson(response);
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data?.error ?? data?.message ?? 'Failed to vote',
+        };
+      }
+
+      if (!data?.success) {
+        return { success: false, message: data?.error ?? 'Vote failed' };
       }
 
       return { success: true, poll: data.data };

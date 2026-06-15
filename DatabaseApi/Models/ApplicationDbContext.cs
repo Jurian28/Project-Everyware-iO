@@ -21,6 +21,7 @@ namespace DatabaseApi.Models
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Poll> Polls { get; set; }
         public DbSet<PollAnswer> PollAnswers { get; set; }
+        public DbSet<PollVote> PollVotes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -106,6 +107,17 @@ namespace DatabaseApi.Models
                 .WithMany(p => p.Answers)
                 .HasForeignKey(a => a.IdPoll)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // PollVote relationship with PollAnswer
+            modelBuilder.Entity<PollVote>()
+                .HasOne(v => v.PollAnswer)
+                .WithMany(a => a.Votes)
+                .HasForeignKey(v => v.IdPollAnswer)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PollVote>()
+                .HasIndex(v => new { v.IdUser, v.IdPoll })
+                .IsUnique();
 
             // Speaker relationship with Event
             modelBuilder.Entity<Speaker>()

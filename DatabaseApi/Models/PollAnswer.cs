@@ -12,5 +12,6 @@ namespace DatabaseApi.Models
         public int IdPoll { get; set; }
 
         public Poll Poll { get; set; }
+        public ICollection<PollVote> Votes { get; set; } = new List<PollVote>();
     }
 }
