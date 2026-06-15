@@ -31,7 +31,7 @@ public class StartNotificationsService(IServiceScopeFactory scopeFactory) : Back
         List<Session> sessions = await context.Sessions
             .Include(session => session.RegisteredUsers)
                 .ThenInclude(userHasSession => userHasSession.User)
-            .Where(session => !session.StartingNotificationSent && session.StartNotificationSendTime <= now)
+            .Where(session => session.StartNotificationSendTime != null && !session.StartingNotificationSent && session.StartNotificationSendTime <= now)
             .ToListAsync(cancellationToken);
 
         foreach (Session session in sessions)
