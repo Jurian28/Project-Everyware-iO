@@ -44,7 +44,7 @@ export default function CreatePoll() {
   };
 
   const handleRemoveAnswer = (index: number) => {
-    if (answers.length <= 1) return;
+    if (answers.length <= 2) return;
     setAnswers(answers.filter((_, i) => i !== index));
   };
 
@@ -61,8 +61,8 @@ export default function CreatePoll() {
     }
 
     const nonEmptyAnswers = answers.filter(a => a.trim().length > 0);
-    if (nonEmptyAnswers.length < 1) {
-      Alert.alert('Validation', 'Please add at least one answer.');
+    if (nonEmptyAnswers.length < 2) {
+      Alert.alert('Validation', 'Please add at least two answers.');
       return;
     }
 
@@ -151,7 +151,7 @@ export default function CreatePoll() {
                 onChangeText={value => handleAnswerChange(index, value)}
                 placeholder={`Answer ${index + 1}`}
               />
-              {answers.length > 1 && (
+              {answers.length > 2 && (
                 <TouchableOpacity
                   style={pollStyles.removeButton}
                   onPress={() => handleRemoveAnswer(index)}

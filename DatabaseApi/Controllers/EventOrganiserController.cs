@@ -150,40 +150,6 @@ public class EventorganiserController(UserManager<User> userManager, Application
 
 
     /// <summary>
-    /// Handles instating the organiser role to a user.
-    /// </summary>
-    /// <param name="userId">The id of the user to instate the organiser role to.</param>
-    /// <returns>An HTTP response indicating whether the role was successfully instated.</returns>
-    [HttpPost("instate-organiser/{userId}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> InstateOrganiser(string userId)
-    {
-        User? user = await _userManager.FindByIdAsync(userId);
-
-        if (user == null)
-        {
-            return NotFound(ApiResponse<Object>.Fail("User not found."));
-        }
-
-        if (await _userManager.IsInRoleAsync(user, "Organiser"))
-        {
-            return StatusCode(400, ApiResponse<Object>.Fail("User already has the Organiser role."));
-        }
-
-        IdentityResult result = await _userManager.AddToRoleAsync(user, "Organiser");
-
-        if (!result.Succeeded)
-        {
-            return StatusCode(500, ApiResponse<Object>.Fail(string.Join(" ", result.Errors.Select(e => e.Description))));
-        }
-
-        user.HasRequestedAccess = false;
-        await _applicationDbContext.SaveChangesAsync();
-
-        return Ok(ApiResponse<Object>.Ok(null));
-    }
-
-    /// <summary>
     /// Handles revoking the organiser role from a user.
     /// </summary>
     /// <param name="userId">The id of the user to revoke the organiser role from.</param>

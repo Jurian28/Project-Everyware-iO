@@ -58,32 +58,6 @@ export class PollService {
     }
   }
 
-  public static async getPoll(
-    pollId: number,
-  ): Promise<{ success: boolean; poll?: PollDTO; message?: string }> {
-    try {
-      const response = await fetch(`${baseUrl}/poll/${pollId}`, {
-        method: 'GET',
-        headers: await AuthService.getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const message = await response.text();
-        return { success: false, message };
-      }
-
-      const json = await response.json();
-
-      if (!json.success) {
-        return { success: false, message: json.error ?? 'Failed to fetch poll' };
-      }
-
-      return { success: true, poll: json.data };
-    } catch (error) {
-      return { success: false, message: 'Internal Server Error' };
-    }
-  }
-
   public static async createPoll(
     title: string,
     description: string | undefined,
