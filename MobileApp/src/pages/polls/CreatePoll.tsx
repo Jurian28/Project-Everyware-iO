@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import AppLayout from '../../layouts/AppLayout';
+import AuthService from '../../services/AuthService';
 import { PollService } from '../../services/PollService';
 import pollStyles from '../../styles/pollStyles';
 
@@ -18,6 +19,20 @@ export default function CreatePoll() {
   const navigation = useNavigation<any>();
 
   const { sessionId } = route.params;
+
+  const [userRoles, setUserRoles] = useState<string[]>([]);
+  const [rolesLoaded, setRolesLoaded] = useState(false);
+
+  React.useEffect(() => {
+    AuthService.getUserRoles().then(roles => {
+      setUserRoles(roles);
+      setRolesLoaded(true);
+    });
+  }, []);
+
+  const hasPollAccess = userRoles.some(
+    r => r === 'Speaker' || r === 'Admin',
+  );
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -72,6 +87,24 @@ export default function CreatePoll() {
       setSubmitting(false);
     }
   };
+
+  if (!rolesLoaded) return null;
+  if (!hasPollAccess)
+    return (
+      <AppLayout>
+        <View style={pollStyles.center}>
+          <Text style={{ color: 'red', fontSize: 16, textAlign: 'center' }}>
+            You don't have permission to create polls. Only Speakers and Admins can access this feature.
+          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={[pollStyles.button, { marginTop: 20 }]}
+          >
+            <Text style={pollStyles.buttonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </AppLayout>
+    );
 
   return (
     <AppLayout>

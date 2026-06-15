@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import EnrollConflictModal from '../../components/sessions/enrollConflictModal';
+import AuthService from '../../services/AuthService';
 import { Session, SessionService, Tag } from '../../services/SessionService';
 
 import sessionStyles from '../../styles/sessionStyles';
@@ -132,6 +133,8 @@ export default function SessionViewPage() {
   const [conflictSession, setConflictSession] =
     useState<ConflictSession | null>(null);
 
+  const [userRoles, setUserRoles] = useState<string[]>([]);
+
   const loadSession = async () => {
     try {
       setLoading(true);
@@ -150,6 +153,10 @@ export default function SessionViewPage() {
   useEffect(() => {
     loadSession();
   }, [sessionId]);
+
+  useEffect(() => {
+    AuthService.getUserRoles().then(setUserRoles);
+  }, []);
 
   const handleEnroll = async () => {
     if (!session) return;
@@ -232,7 +239,11 @@ export default function SessionViewPage() {
               })
             }
           >
-            <Text style={sessionStyles.qrCodeButtonText}>Manage Polls</Text>
+            <Text style={sessionStyles.qrCodeButtonText}>
+              {userRoles.some(r => r === 'Speaker' || r === 'Admin')
+                ? 'Manage Polls'
+                : 'Polls'}
+            </Text>
           </TouchableOpacity>
 
           {session.isEnrolled && (

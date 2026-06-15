@@ -117,7 +117,7 @@ static async Task SeedRoles(WebApplication app)
     using var scope = app.Services.CreateScope();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    foreach (var role in new[] { "Organiser", "Admin", "User" })
+    foreach (var role in new[] { "Organiser", "Admin", "User", "Speaker" })
     {
         if (!await roleManager.RoleExistsAsync(role))
         {

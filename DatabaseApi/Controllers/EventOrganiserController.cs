@@ -213,4 +213,81 @@ public class EventorganiserController(UserManager<User> userManager, Application
 
         return Ok(ApiResponse<Object>.Ok(null));
     }
+
+    /// <summary>
+    /// Returns all users who have the Speaker role.
+    /// </summary>
+    [HttpGet("speakers")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ApiResponse<Object>> GetSpeakers()
+    {
+        IList<User> speakers = await _userManager.GetUsersInRoleAsync("Speaker");
+
+        return ApiResponse<Object>.Ok(speakers.Select(u => new UserDTO
+        {
+            Id = u.Id,
+            Email = u.Email,
+        }));
+    }
+
+    /// <summary>
+    /// Removes the Speaker role from a user.
+    /// </summary>
+    [HttpPost("revoke-speaker/{userId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> RevokeSpeaker(string userId)
+    {
+        User? user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound(ApiResponse<Object>.Fail("User not found."));
+        }
+
+        if (!await _userManager.IsInRoleAsync(user, "Speaker"))
+        {
+            return BadRequest(ApiResponse<Object>.Fail("User does not have the Speaker role."));
+        }
+
+        IdentityResult result = await _userManager.RemoveFromRoleAsync(user, "Speaker");
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(ApiResponse<Object>.Fail(string.Join(" ", result.Errors.Select(e => e.Description))));
+        }
+
+        return Ok(ApiResponse<Object>.Ok(null));
+    }
+
+    /// <summary>
+    /// Generic endpoint to instate a user into any role.
+    /// </summary>
+    [HttpPost("instate-role/{userId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> InstateRole(string userId, [FromBody] RoleAssignmentDto dto)
+    {
+        User? user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound(ApiResponse<Object>.Fail("User not found."));
+        }
+
+        if (await _userManager.IsInRoleAsync(user, dto.Role))
+        {
+            return StatusCode(400, ApiResponse<Object>.Fail($"User already has the {dto.Role} role."));
+        }
+
+        IdentityResult result = await _userManager.AddToRoleAsync(user, dto.Role);
+
+        if (!result.Succeeded)
+        {
+            return StatusCode(500, ApiResponse<Object>.Fail(string.Join(" ", result.Errors.Select(e => e.Description))));
+        }
+
+        user.HasRequestedAccess = false;
+        await _applicationDbContext.SaveChangesAsync();
+
+        return Ok(ApiResponse<Object>.Ok(null));
+    }
 }

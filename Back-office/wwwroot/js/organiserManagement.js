@@ -1,7 +1,9 @@
 ﻿const loadingOrganisers = document.getElementById("loadingOrganisers");
 const loadingRequests = document.getElementById("loadingRequests");
+const loadingSpeakers = document.getElementById("loadingSpeakers");
 const noOrganisersMessage = document.getElementById("noOrganisersMessage");
 const noRequestsMessage = document.getElementById("noRequestsMessage");
+const noSpeakersMessage = document.getElementById("noSpeakersMessage");
 
 async function removeOrganiser(userId) {
     const response = await fetch(`/EventOrganiser/organiser/${userId}/revoke`, {
@@ -14,15 +16,29 @@ async function removeOrganiser(userId) {
     }
 }
 
-async function approveRequest(userId) {
-    const response = await fetch(`/EventOrganiser/organiser/${userId}/accept`, {
+async function removeSpeaker(userId) {
+    const response = await fetch(`/EventOrganiser/speaker/${userId}/revoke`, {
+        method: "POST"
+    });
+    if (response.ok) {
+        loadSpeakers();
+    } else {
+        console.error("Failed to remove speaker");
+    }
+}
+
+async function approveRequest(userId, role) {
+    const response = await fetch(`/EventOrganiser/accept-request/${userId}?role=${encodeURIComponent(role)}`, {
         method: "POST"
     });
     if (response.ok) {
         loadRequests();
         loadOrganisers();
+        loadSpeakers();
     } else {
-        console.error("Failed to approve request");
+        const text = await response.text().catch(() => 'Unknown error');
+        console.error("Failed to approve request:", response.status, text);
+        alert("Failed to approve request. Check console for details.");
     }
 }
 
@@ -65,6 +81,23 @@ async function loadOrganisers() {
     }
 }
 
+async function loadSpeakers() {
+    const response = await fetch(`/EventOrganiser/data/Speakers`);
+    const apiResponse = await response.json();
+    const speakers = apiResponse.data;
+
+    loadingSpeakers.classList.add("d-none");
+
+    if (speakers && speakers.length > 0) {
+        renderSpeakers(speakers);
+        noSpeakersMessage.classList.add("d-none");
+    } else {
+        container = document.getElementById("speakerList");
+        container.querySelectorAll(".speaker-row").forEach(el => el.remove());
+        noSpeakersMessage.classList.remove("d-none");
+    }
+}
+
 async function loadRequests() {
     const response = await fetch(`/EventOrganiser/data/Organisers-requests`);
     const apiResponse = await response.json();
@@ -92,7 +125,22 @@ function renderOrganisers(organisers) {
         const clone = template.content.cloneNode(true);
         clone.querySelector("div").classList.add("organiser-row");
         clone.querySelector("[data-field='email']").textContent = organiser.email;
-        clone.querySelector("[data-action='remove']").addEventListener("click", () => showModal("revokeOrganiserModal" , () => removeOrganiser(organiser.id), organiser.email));
+        clone.querySelector("[data-action='remove']").addEventListener("click", () => showModal("revokeOrganiserModal", () => removeOrganiser(organiser.id), organiser.email));
+        container.appendChild(clone);
+    });
+}
+
+function renderSpeakers(speakers) {
+    const container = document.getElementById("speakerList");
+    const template = document.getElementById("speakerRowTemplate");
+
+    container.querySelectorAll(".speaker-row").forEach(el => el.remove());
+
+    speakers.forEach(speaker => {
+        const clone = template.content.cloneNode(true);
+        clone.querySelector("div").classList.add("speaker-row");
+        clone.querySelector("[data-field='email']").textContent = speaker.email;
+        clone.querySelector("[data-action='remove']").addEventListener("click", () => showModal("revokeSpeakerModal", () => removeSpeaker(speaker.id), speaker.email));
         container.appendChild(clone);
     });
 }
@@ -105,13 +153,25 @@ function renderRequests(requests) {
 
     requests.forEach(request => {
         const clone = template.content.cloneNode(true);
-        clone.querySelector("div").classList.add("request-row");
-        clone.querySelector("[data-field='email']").textContent = request.email;
-        clone.querySelector("[data-action='approve']").addEventListener("click", () => approveRequest(request.id));
-        clone.querySelector("[data-action='deny']").addEventListener("click", () => denyRequest(request.id));
+        const row = clone.querySelector("div");
+        const emailEl = clone.querySelector("[data-field='email']");
+        const roleSelect = clone.querySelector("[data-action='role-select']");
+        const approveBtn = clone.querySelector("[data-action='approve']");
+        const denyBtn = clone.querySelector("[data-action='deny']");
+
+        row.classList.add("request-row");
+        emailEl.textContent = request.email;
+        roleSelect.value = "Organiser";
+
+        approveBtn.addEventListener("click", () => {
+            approveRequest(request.id, roleSelect.value);
+        });
+        denyBtn.addEventListener("click", () => denyRequest(request.id));
+
         container.appendChild(clone);
     });
 }
 
 loadOrganisers();
+loadSpeakers();
 loadRequests();

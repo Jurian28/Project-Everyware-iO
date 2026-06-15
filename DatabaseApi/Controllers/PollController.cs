@@ -57,7 +57,7 @@ namespace DatabaseApi.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Speaker, Admin")]
         public async Task<ActionResult<ApiResponse<PollDTO>>> Create([FromBody] PollCreateDTO dto)
         {
             if (!ModelState.IsValid)
@@ -99,7 +99,7 @@ namespace DatabaseApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Speaker, Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             Poll? poll = await _context.Polls
@@ -122,7 +122,7 @@ namespace DatabaseApi.Controllers
         }
 
         [HttpPost("{id}/close")]
-        [Authorize]
+        [Authorize(Roles = "Speaker, Admin")]
         public async Task<ActionResult<ApiResponse<PollDTO>>> Close(int id)
         {
             Poll? poll = await _context.Polls

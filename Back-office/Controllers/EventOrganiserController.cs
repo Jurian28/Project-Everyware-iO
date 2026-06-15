@@ -28,10 +28,10 @@ public class EventOrganiserController(IHttpClientFactory httpClientFactory) : Co
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpPost("organiser/{userId}/accept")] 
-    public async Task<HttpResponseMessage> AcceptRequest(string userId)
+    [HttpPost("accept-request/{userId}")]
+    public async Task<HttpResponseMessage> AcceptRequest(string userId, [FromQuery] string role = "Organiser")
     {
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"EventOrganiser/instate-organiser/{userId}", new { Garbage = 0 });
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"EventOrganiser/instate-role/{userId}", new { Role = role });
         return response;
     }
 
@@ -56,6 +56,14 @@ public class EventOrganiserController(IHttpClientFactory httpClientFactory) : Co
     public async Task<HttpResponseMessage> RevokeOrganiser(string userId)
     {
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"EventOrganiser/revoke-organiser/{userId}", new { Garbage = 0 });
+        return response;
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("speaker/{userId}/revoke")]
+    public async Task<HttpResponseMessage> RevokeSpeaker(string userId)
+    {
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"EventOrganiser/revoke-speaker/{userId}", new { Garbage = 0 });
         return response;
     }
 
@@ -91,6 +99,16 @@ public class EventOrganiserController(IHttpClientFactory httpClientFactory) : Co
     public async Task<IActionResult> OrganisersRequestData()
     {
         HttpResponseMessage response = await _httpClient.GetAsync($"EventOrganiser/organiser-requests");
+        ApiResponse<List<UserDTO>>? apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserDTO>>>();
+
+        return StatusCode((int)response.StatusCode, apiResponse);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("data/Speakers")]
+    public async Task<IActionResult> SpeakersData()
+    {
+        HttpResponseMessage response = await _httpClient.GetAsync($"EventOrganiser/speakers");
         ApiResponse<List<UserDTO>>? apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserDTO>>>();
 
         return StatusCode((int)response.StatusCode, apiResponse);

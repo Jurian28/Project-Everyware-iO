@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import AppLayout from '../../layouts/AppLayout';
+import AuthService from '../../services/AuthService';
 import { PollDTO, PollService } from '../../services/PollService';
 import pollStyles from '../../styles/pollStyles';
 
@@ -33,10 +34,12 @@ function PollCard({
   poll,
   onDelete,
   onClose,
+  showActions,
 }: {
   poll: PollDTO;
   onDelete: () => void;
   onClose: () => void;
+  showActions: boolean;
 }) {
   return (
     <View style={pollStyles.pollCard}>
@@ -73,22 +76,24 @@ function PollCard({
         ))}
       </View>
 
-      <View style={pollStyles.actionRow}>
-        {!poll.isClosed && (
+      {showActions && (
+        <View style={pollStyles.actionRow}>
+          {!poll.isClosed && (
+            <TouchableOpacity
+              style={[pollStyles.button, pollStyles.closeButton]}
+              onPress={onClose}
+            >
+              <Text style={pollStyles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
-            style={[pollStyles.button, pollStyles.closeButton]}
-            onPress={onClose}
+            style={[pollStyles.button, pollStyles.deleteButton]}
+            onPress={onDelete}
           >
-            <Text style={pollStyles.buttonText}>Close</Text>
+            <Text style={pollStyles.buttonText}>Delete</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={[pollStyles.button, pollStyles.deleteButton]}
-          onPress={onDelete}
-        >
-          <Text style={pollStyles.buttonText}>Delete</Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -102,6 +107,19 @@ export default function ManagePolls() {
   const [polls, setPolls] = useState<PollDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userRoles, setUserRoles] = useState<string[]>([]);
+  const [rolesLoaded, setRolesLoaded] = useState(false);
+
+  React.useEffect(() => {
+    AuthService.getUserRoles().then(roles => {
+      setUserRoles(roles);
+      setRolesLoaded(true);
+    });
+  }, []);
+
+  const hasPollAccess = userRoles.some(
+    r => r === 'Speaker' || r === 'Admin',
+  );
 
   const loadPolls = async () => {
     try {
@@ -154,7 +172,7 @@ export default function ManagePolls() {
     }
   };
 
-  if (loading) return <Loading />;
+  if (!rolesLoaded || loading) return <Loading />;
   if (error) return <ErrorState message={error} />;
 
   return (
@@ -171,20 +189,26 @@ export default function ManagePolls() {
         </TouchableOpacity>
 
         <View style={pollStyles.header}>
-          <Text style={pollStyles.headerTitle}>Manage Polls</Text>
-          <TouchableOpacity
-            style={pollStyles.createButton}
-            onPress={() =>
-              navigation.navigate('CreatePoll', { sessionId })
-            }
-          >
-            <Text style={pollStyles.createButtonText}>+ Create Poll</Text>
-          </TouchableOpacity>
+          <Text style={pollStyles.headerTitle}>
+            {hasPollAccess ? 'Manage Polls' : 'Polls'}
+          </Text>
+          {hasPollAccess && (
+            <TouchableOpacity
+              style={pollStyles.createButton}
+              onPress={() =>
+                navigation.navigate('CreatePoll', { sessionId })
+              }
+            >
+              <Text style={pollStyles.createButtonText}>+ Create Poll</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {polls.length === 0 ? (
           <Text style={pollStyles.emptyText}>
-            No polls yet. Create one to get started.
+            {hasPollAccess
+              ? 'No polls yet. Create one to get started.'
+              : 'No polls available.'}
           </Text>
         ) : (
           polls.map(poll => (
@@ -193,6 +217,7 @@ export default function ManagePolls() {
               poll={poll}
               onDelete={() => handleDelete(poll)}
               onClose={() => handleClose(poll)}
+              showActions={hasPollAccess}
             />
           ))
         )}
