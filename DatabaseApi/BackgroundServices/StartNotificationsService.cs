@@ -37,7 +37,7 @@ public class StartNotificationsService(IServiceScopeFactory scopeFactory) : Back
         foreach (Session session in sessions)
         {
             string title = string.Format(SESSION_NOTIFICATION_TITLE, session.Title);
-            string content = string.Format(SESSION_NOTIFICATION_CONTENT, session.StartTime);
+            string content = string.Format(SESSION_NOTIFICATION_CONTENT, session.StartTime.ToString("dd-MM-yyyy hh:mm"));
 
             foreach (User user in session.RegisteredUsers.Select(userHasSession => userHasSession.User))
                 await notificationService.SendNotification(user, title, content);
