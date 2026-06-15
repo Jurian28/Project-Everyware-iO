@@ -11,6 +11,7 @@ public class StartNotificationsService(IServiceScopeFactory scopeFactory) : Back
     private static readonly string SESSION_NOTIFICATION_TITLE = "Session '{0}' is starting soon";
     private static readonly string SESSION_NOTIFICATION_CONTENT = "The session is starting at {0}.";
     private static readonly uint TIMER_INTERVAL_SECONDS = 30;
+    private static readonly string DATE_FORMAT = "dd-MM-yyyy hh:mm";
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
@@ -37,7 +38,7 @@ public class StartNotificationsService(IServiceScopeFactory scopeFactory) : Back
         foreach (Session session in sessions)
         {
             string title = string.Format(SESSION_NOTIFICATION_TITLE, session.Title);
-            string content = string.Format(SESSION_NOTIFICATION_CONTENT, session.StartTime.ToString("dd-MM-yyyy hh:mm"));
+            string content = string.Format(SESSION_NOTIFICATION_CONTENT, session.StartTime.ToString(DATE_FORMAT));
 
             foreach (User user in session.RegisteredUsers.Select(userHasSession => userHasSession.User))
                 await notificationService.SendNotification(user, title, content);
