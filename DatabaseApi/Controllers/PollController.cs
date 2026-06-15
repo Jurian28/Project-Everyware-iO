@@ -52,22 +52,6 @@ namespace DatabaseApi.Controllers
             return Ok(ApiResponse<IEnumerable<PollDTO>>.Ok(polls));
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ApiResponse<PollDTO>>> GetById(int id)
-        {
-            string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            Poll? poll = await _context.Polls
-                .Include(p => p.Answers)
-                    .ThenInclude(a => a.Votes)
-                .FirstOrDefaultAsync(p => p.IdPoll == id);
-
-            if (poll == null)
-                return NotFound(ApiResponse<PollDTO>.Fail("Poll not found."));
-
-            return Ok(ApiResponse<PollDTO>.Ok(PollMapper.ToResponseDTO(poll, userId)));
-        }
-
         [HttpPost]
         [Authorize(Roles = "Speaker, Admin")]
         public async Task<ActionResult<ApiResponse<PollDTO>>> Create([FromBody] PollCreateDTO dto)
