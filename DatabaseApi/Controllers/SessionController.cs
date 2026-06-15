@@ -237,7 +237,10 @@ public class SessionController : ControllerBase
             StartTime = s.StartTime,
             EndTime = s.EndTime,
             Plenary = s.Plenary,
-            StartNotificationSendTime = s.StartNotificationSendTime,
+            StartNotificationSendTime = 
+            s.StartNotificationSendTime == null
+                ? null
+                : TimeZoneInfo.ConvertTimeFromUtc((DateTime)s.StartNotificationSendTime, TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam")),
 
             Room = s.Room != null
                 ? new RoomResponseDTO
