@@ -167,7 +167,12 @@ public class SessionController : ControllerBase
         session.EndTime = dto.EndTime;
         session.Plenary = dto.Plenary;
         session.IdRoom = dto.IdRoom;
-        session.StartNotificationSendTime = dto.StartNotificationSendTime;
+
+        if (dto.StartNotificationSendTime != null)
+        {
+            DateTime utcTime = TimeZoneInfo.ConvertTimeToUtc((DateTime)dto.StartNotificationSendTime, TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam"));
+            session.StartNotificationSendTime = utcTime;
+        }
 
         var incomingTagIds = dto.Tags?.Select(t => t.IdTag).ToList() ?? new List<int>();
 

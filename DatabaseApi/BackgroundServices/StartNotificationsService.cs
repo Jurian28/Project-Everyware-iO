@@ -27,7 +27,7 @@ public class StartNotificationsService(IServiceScopeFactory scopeFactory) : Back
         ApplicationDbContext context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         NotificationService notificationService = new(context);
 
-        DateTime now = DateTime.Now;
+        DateTime now = DateTime.UtcNow;
         List<Session> sessions = await context.Sessions
             .Include(session => session.RegisteredUsers)
                 .ThenInclude(userHasSession => userHasSession.User)
