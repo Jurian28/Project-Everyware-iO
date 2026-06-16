@@ -43,7 +43,7 @@ builder.Services.AddAuthentication(options =>
         },
         OnForbidden = ctx =>
         {
-            ctx.Response.Redirect("/EventOrganiser/No-Permission");
+            ctx.Response.Redirect("/RoleManagement/No-Permission");
             return Task.CompletedTask;
         }
     };

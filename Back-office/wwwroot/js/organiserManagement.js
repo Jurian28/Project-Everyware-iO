@@ -6,7 +6,7 @@ const noRequestsMessage = document.getElementById("noRequestsMessage");
 const noSpeakersMessage = document.getElementById("noSpeakersMessage");
 
 async function removeOrganiser(userId) {
-    const response = await fetch(`/EventOrganiser/organiser/${userId}/revoke`, {
+    const response = await fetch(`/RoleManagement/revoke-role/${userId}?role=Organiser`, {
         method: "POST"
     });
     if (response.ok) {
@@ -17,7 +17,7 @@ async function removeOrganiser(userId) {
 }
 
 async function removeSpeaker(userId) {
-    const response = await fetch(`/EventOrganiser/speaker/${userId}/revoke`, {
+    const response = await fetch(`/RoleManagement/revoke-role/${userId}?role=Speaker`, {
         method: "POST"
     });
     if (response.ok) {
@@ -28,7 +28,7 @@ async function removeSpeaker(userId) {
 }
 
 async function approveRequest(userId, role) {
-    const response = await fetch(`/EventOrganiser/accept-request/${userId}?role=${encodeURIComponent(role)}`, {
+    const response = await fetch(`/RoleManagement/accept-request/${userId}?role=${encodeURIComponent(role)}`, {
         method: "POST"
     });
     if (response.ok) {
@@ -43,7 +43,7 @@ async function approveRequest(userId, role) {
 }
 
 async function denyRequest(userId) {
-    const response = await fetch(`/EventOrganiser/organiser/${userId}/deny`, {
+    const response = await fetch(`/RoleManagement/request/${userId}/deny`, {
         method: "POST"
     });
     if (response.ok) {
@@ -54,7 +54,7 @@ async function denyRequest(userId) {
 }
 
 async function denyAllRequests() {
-    const response = await fetch(`/EventOrganiser/organiser/deny/all`, {
+    const response = await fetch(`/RoleManagement/request/deny/all`, {
         method: "POST"
     });
     if (response.ok) {
@@ -65,7 +65,7 @@ async function denyAllRequests() {
 }
 
 async function loadOrganisers() {
-    const response = await fetch(`/EventOrganiser/data/organisers`);
+    const response = await fetch(`/RoleManagement/data/organisers`);
     const apiResponse = await response.json();
     const organisers = apiResponse.data;
 
@@ -82,7 +82,7 @@ async function loadOrganisers() {
 }
 
 async function loadSpeakers() {
-    const response = await fetch(`/EventOrganiser/data/Speakers`);
+    const response = await fetch(`/RoleManagement/data/Speakers`);
     const apiResponse = await response.json();
     const speakers = apiResponse.data;
 
@@ -99,7 +99,7 @@ async function loadSpeakers() {
 }
 
 async function loadRequests() {
-    const response = await fetch(`/EventOrganiser/data/Organisers-requests`);
+    const response = await fetch(`/RoleManagement/data/role-requests`);
     const apiResponse = await response.json();
     const requests = apiResponse.data;
 

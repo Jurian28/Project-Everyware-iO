@@ -12,7 +12,7 @@ namespace Back_office.Controllers;
 /// </summary>
 [Route("[controller]")]
 [Authorize]
-public class EventOrganiserController(IHttpClientFactory httpClientFactory) : Controller
+public class RoleManagementController(IHttpClientFactory httpClientFactory) : Controller
 {
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("DatabaseApi");
 
@@ -31,39 +31,31 @@ public class EventOrganiserController(IHttpClientFactory httpClientFactory) : Co
     [HttpPost("accept-request/{userId}")]
     public async Task<HttpResponseMessage> AcceptRequest(string userId, [FromQuery] string role = "Organiser")
     {
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"EventOrganiser/instate-role/{userId}", new { Role = role });
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"RoleManagement/instate-role/{userId}", new { Role = role });
         return response;
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpPost("organiser/{userId}/deny")]
+    [HttpPost("request/{userId}/deny")]
     public async Task<HttpResponseMessage> DenyRequest(string userId)
     {
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"EventOrganiser/remove-organiser-request/{userId}", new { Garbage = 0 });
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"RoleManagement/remove-role-request/{userId}", new { Garbage = 0 });
         return response;
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpPost("organiser/deny/all")]
+    [HttpPost("request/deny/all")]
     public async Task<HttpResponseMessage> DenyAllRequests(string userId)
     {
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"EventOrganiser/remove-organiser-request", new { Garbage = 0 });
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"RoleManagement/remove-role-request", new { Garbage = 0 });
         return response;
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpPost("organiser/{userId}/revoke")]
-    public async Task<HttpResponseMessage> RevokeOrganiser(string userId)
+    [HttpPost("revoke-role/{userId}")]
+    public async Task<HttpResponseMessage> RevokeRole(string userId, [FromQuery] string role)
     {
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"EventOrganiser/revoke-organiser/{userId}", new { Garbage = 0 });
-        return response;
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpPost("speaker/{userId}/revoke")]
-    public async Task<HttpResponseMessage> RevokeSpeaker(string userId)
-    {
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"EventOrganiser/revoke-speaker/{userId}", new { Garbage = 0 });
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"RoleManagement/revoke-role/{userId}", new { Role = role });
         return response;
     }
 
@@ -75,7 +67,7 @@ public class EventOrganiserController(IHttpClientFactory httpClientFactory) : Co
     public async Task<IActionResult> NoPermission()
     {
         bool openRequest = false;
-        HttpResponseMessage response = await _httpClient.GetAsync("EventOrganiser/has-requested-organiser-access");
+        HttpResponseMessage response = await _httpClient.GetAsync("RoleManagement/has-requested-role-access");
         if (response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
@@ -88,17 +80,17 @@ public class EventOrganiserController(IHttpClientFactory httpClientFactory) : Co
     [HttpGet("data/Organisers")]
     public async Task<IActionResult> OrganisersData()
     {
-        HttpResponseMessage response = await _httpClient.GetAsync($"EventOrganiser/organisers");
+        HttpResponseMessage response = await _httpClient.GetAsync($"RoleManagement/organisers");
         ApiResponse<List<UserDTO>>? apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserDTO>>>();
 
         return StatusCode((int)response.StatusCode, apiResponse);
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpGet("data/Organisers-requests")]
+    [HttpGet("data/role-requests")]
     public async Task<IActionResult> OrganisersRequestData()
     {
-        HttpResponseMessage response = await _httpClient.GetAsync($"EventOrganiser/organiser-requests");
+        HttpResponseMessage response = await _httpClient.GetAsync($"RoleManagement/role-requests");
         ApiResponse<List<UserDTO>>? apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserDTO>>>();
 
         return StatusCode((int)response.StatusCode, apiResponse);
@@ -108,7 +100,7 @@ public class EventOrganiserController(IHttpClientFactory httpClientFactory) : Co
     [HttpGet("data/Speakers")]
     public async Task<IActionResult> SpeakersData()
     {
-        HttpResponseMessage response = await _httpClient.GetAsync($"EventOrganiser/speakers");
+        HttpResponseMessage response = await _httpClient.GetAsync($"RoleManagement/speakers");
         ApiResponse<List<UserDTO>>? apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserDTO>>>();
 
         return StatusCode((int)response.StatusCode, apiResponse);
@@ -121,7 +113,7 @@ public class EventOrganiserController(IHttpClientFactory httpClientFactory) : Co
     [Authorize]
     public async Task<HttpResponseMessage> requestPermission()
     {
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync("EventOrganiser/request-organiser-access", new { Garbage = 0 });
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync("RoleManagement/request-role-access", new { Garbage = 0 });
         return response;
     }
 }

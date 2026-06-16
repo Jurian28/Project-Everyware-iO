@@ -22,7 +22,7 @@ namespace DatabaseApi.Controllers;
 /// </summary>
 [ApiController]
 [Route("[controller]")]
-public class EventorganiserController(UserManager<User> userManager, ApplicationDbContext applicationDbContext) : Controller
+public class RoleManagementController(UserManager<User> userManager, ApplicationDbContext applicationDbContext) : Controller
 {
     private static readonly string INCOMPLETE_CREDENTIALS_MESSAGE = "Email and password are required.";
     private static readonly string INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
@@ -44,7 +44,7 @@ public class EventorganiserController(UserManager<User> userManager, Application
         }));
     }
 
-    [HttpGet("organiser-requests")]
+    [HttpGet("role-requests")]
     [Authorize(Roles = "Admin")]
     public async Task<ApiResponse<Object>> GetOrganiserRequests()
     {
@@ -68,7 +68,7 @@ public class EventorganiserController(UserManager<User> userManager, Application
     /// <summary>
     /// Handles requesting acces as a user without access.
     /// </summary>
-    [HttpPost("request-organiser-access")]
+    [HttpPost("request-role-access")]
     [Authorize]
     public async Task<IActionResult> RequestAccess()
     {
@@ -90,7 +90,7 @@ public class EventorganiserController(UserManager<User> userManager, Application
     /// <summary>
     /// Handles requesting acces as a user without access.
     /// </summary>
-    [HttpGet("has-requested-organiser-access")]
+    [HttpGet("has-requested-role-access")]
     [Authorize]
     public async Task<IActionResult> HasRequestedAccess()
     {
@@ -115,7 +115,7 @@ public class EventorganiserController(UserManager<User> userManager, Application
     /// <summary>
     /// Handles removing the request for the organiser role from a user or all users.
     /// </summary>
-    [HttpPost("remove-organiser-request/{userId?}")]
+    [HttpPost("remove-role-request/{userId?}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> RemoveRequest(string? userId)
     {
@@ -150,37 +150,6 @@ public class EventorganiserController(UserManager<User> userManager, Application
 
 
     /// <summary>
-    /// Handles revoking the organiser role from a user.
-    /// </summary>
-    /// <param name="userId">The id of the user to revoke the organiser role from.</param>
-    /// <returns>An HTTP response indicating whether the role was successfully revoked.</returns>
-    [HttpPost("revoke-organiser/{userId}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> RevokeOrganiser(string userId)
-    {
-        User? user = await _userManager.FindByIdAsync(userId);
-
-        if (user == null)
-        {
-            return NotFound(ApiResponse<Object>.Fail("User not found."));
-        }
-
-        if (!await _userManager.IsInRoleAsync(user, "Organiser"))
-        {
-            return BadRequest(ApiResponse<Object>.Fail("User does not have the Organiser role."));
-        }
-
-        IdentityResult result = await _userManager.RemoveFromRoleAsync(user, "Organiser");
-
-        if (!result.Succeeded)
-        {
-            return BadRequest(ApiResponse<Object>.Fail(string.Join(" ", result.Errors.Select(e => e.Description))));
-        }
-
-        return Ok(ApiResponse<Object>.Ok(null));
-    }
-
-    /// <summary>
     /// Returns all users who have the Speaker role.
     /// </summary>
     [HttpGet("speakers")]
@@ -197,11 +166,11 @@ public class EventorganiserController(UserManager<User> userManager, Application
     }
 
     /// <summary>
-    /// Removes the Speaker role from a user.
+    /// Generic endpoint to revoke any role from a user.
     /// </summary>
-    [HttpPost("revoke-speaker/{userId}")]
+    [HttpPost("revoke-role/{userId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> RevokeSpeaker(string userId)
+    public async Task<IActionResult> RevokeRole(string userId, [FromBody] RoleAssignmentDto dto)
     {
         User? user = await _userManager.FindByIdAsync(userId);
 
@@ -210,12 +179,12 @@ public class EventorganiserController(UserManager<User> userManager, Application
             return NotFound(ApiResponse<Object>.Fail("User not found."));
         }
 
-        if (!await _userManager.IsInRoleAsync(user, "Speaker"))
+        if (!await _userManager.IsInRoleAsync(user, dto.Role))
         {
-            return BadRequest(ApiResponse<Object>.Fail("User does not have the Speaker role."));
+            return BadRequest(ApiResponse<Object>.Fail($"User does not have the {dto.Role} role."));
         }
 
-        IdentityResult result = await _userManager.RemoveFromRoleAsync(user, "Speaker");
+        IdentityResult result = await _userManager.RemoveFromRoleAsync(user, dto.Role);
 
         if (!result.Succeeded)
         {
