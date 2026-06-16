@@ -25,6 +25,7 @@ import SessionAttendance from './src/pages/attendance/Session';
 import LoginPage from './src/pages/auth/Login';
 import RegisterPage from './src/pages/auth/Register';
 import AuthService from './src/services/AuthService';
+import { Image } from 'react-native';
 
 function LogoutPage() {
   const navigator = useNavigation<NavigationProp<ParamListBase>>();
@@ -101,6 +102,27 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
     headerLeft: ({ tintColor }) => (
       <DrawerToggleButton navigation={navigation} tintColor={tintColor} />
     ),
+	headerBackground: () => (
+		 <View
+			 style={{
+				 flex: 1,
+				 backgroundColor: '#F8F9FA', 
+				 borderBottomWidth: StyleSheet.hairlineWidth,
+				 borderBottomColor: '#D1D5DB',
+				 justifyContent: 'center',
+				 alignItems: 'center',
+			 }}
+		 >
+			 <Image
+				 source={require('./assets/iOLogo.png')}
+				 style={{
+					 width: 120,
+					 height: 40,
+				 }}
+				 resizeMode="contain"
+			 />
+		 </View>
+		),
   }),
 
   screens: {
