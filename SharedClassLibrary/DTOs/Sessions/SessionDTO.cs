@@ -18,5 +18,7 @@ namespace SharedClassLibrary.DTOs.Sessions
         public int PlacesLeft { get; set; }
         public bool IsEnrolled { get; set; }
         public bool InQueue { get; set; }
+        public DateTime? StartNotificationSendTime { get; set; } = null;
     }
 }
+
