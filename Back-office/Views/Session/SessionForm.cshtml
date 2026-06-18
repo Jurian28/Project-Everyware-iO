@@ -53,6 +53,7 @@
                            max="@Model.EventEndTime?.ToString("yyyy-MM-ddTHH:mm")" required>
                 </div>
             </div>
+
             <div class="row">
                 <div class="mb-3">
                     <label class="fw-bold d-block">Plenary session</label>
@@ -62,6 +63,14 @@
                         @(Model.session?.Plenary == true ? "checked" : "") value="true">
                     </div>
                 </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold mb-1">
+                    When should a reminder be sent to all participants <br />
+                    <span class="text-muted">(optional, leave empty for no notification)</span>
+                </label>
+                <input type="datetime-local" name="StartNotificationSendTime" class="form-control bg-light border-dark shadow-sm" value="@Model.session?.StartNotificationSendTime?.ToString("yyyy-MM-ddTHH:mm")" />
             </div>
         </div>
 

@@ -1,10 +1,12 @@
 const startTime = document.querySelector('input[name="StartTime"]');
 const endTime = document.querySelector('input[name="EndTime"]');
+const notificationTimeInput = document.querySelector('input[name="StartNotificationSendTime"]');
 const plenaryToggle = document.getElementById('plenaryToggle');
 const roomSelector = document.getElementById('roomSelector');
 const capacityInput = document.getElementById('capacityInput');
 const tagSelector = document.getElementById('tagSelector');
 const tagContainer = document.getElementById('tagContainer');
+
 function updateEndTimeConstraint() {
     if (startTime.value) {
         endTime.min = startTime.value;
@@ -14,8 +16,21 @@ function updateEndTimeConstraint() {
         }
     }
 }
+function updateNotificationTimeConstraint() {
+    if (startTime.value) {
+        notificationTimeInput.max = startTime.value;
 
-startTime.addEventListener("change", updateEndTimeConstraint);
+        if (!notificationTimeInput.value || startTime.value > notificationTimeInput.value) {
+            notificationTimeInput.value = startTime.value;
+        }
+    }
+}
+
+startTime.addEventListener("change", () => {
+    updateEndTimeConstraint();
+    updateNotificationTimeConstraint();
+});
+
 
 if (startTime.value) {
     updateEndTimeConstraint();

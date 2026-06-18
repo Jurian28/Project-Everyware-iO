@@ -18,6 +18,8 @@ namespace DatabaseApi.Models
         public int IdEvent { get; set; }
         [Required]
         public int IdRoom { get; set; }
+        public bool StartingNotificationSent { get; set; } = false;
+        public DateTime? StartNotificationSendTime { get; set; } = null;
 
         // Navigation properties
         public Event Event { get; set; }

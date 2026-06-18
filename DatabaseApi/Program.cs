@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SharedClassLibrary.Jwt;
+using DatabaseApi.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +58,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
     
 builder.Services.AddScoped<ISessionService, SessionService>();
+
+builder.Services.AddHostedService<StartNotificationsService>();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
