@@ -12,6 +12,7 @@ import EnrollConflictModal from '../../components/sessions/enrollConflictModal';
 import { Session, SessionService, Tag } from '../../services/SessionService';
 
 import sessionStyles from '../../styles/sessionStyles';
+import SessionReview from '../../components/sessions/sessionReview';
 import { formatTimeRange } from '../../utils/dates';
 
 type ConflictSession = {
@@ -266,6 +267,13 @@ export default function SessionViewPage() {
         loading={actionLoading}
       />
 
+            <EnrollConflictModal
+                visible={conflictVisible}
+                conflictSession={conflictSession}
+                onCancel={() => setConflictVisible(false)}
+                onConfirm={confirmOverride}
+            />
+    
       <Section title="Speakers">
         <Text style={sessionStyles.speakerName}>
           {session.speakerName ?? 'TBA'}
@@ -277,6 +285,10 @@ export default function SessionViewPage() {
           {session.description ?? 'No description available yet.'}
         </Text>
       </Section>
+
+      <Section title="Reviews">
+				<SessionReview sessionId={sessionId}/>
+			</Section>
 
       <EnrollConflictModal
         visible={conflictVisible}

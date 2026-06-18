@@ -13,6 +13,7 @@ namespace DatabaseApi.Models
         public DbSet<Event> Events { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Session> Sessions { get; set; }
+        public DbSet<SessionReview> SessionReviews { get; set; }
         public DbSet<Speaker> Speakers { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<User_has_Session> User_has_Sessions { get; set; }
