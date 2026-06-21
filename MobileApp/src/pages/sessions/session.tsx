@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import EnrollConflictModal from '../../components/sessions/enrollConflictModal';
+import AuthService from '../../services/AuthService';
 import { Session, SessionService, Tag } from '../../services/SessionService';
 
 import sessionStyles from '../../styles/sessionStyles';
@@ -133,6 +134,8 @@ export default function SessionViewPage() {
   const [conflictSession, setConflictSession] =
     useState<ConflictSession | null>(null);
 
+  const [userRoles, setUserRoles] = useState<string[]>([]);
+
   const loadSession = async () => {
     try {
       setLoading(true);
@@ -151,6 +154,10 @@ export default function SessionViewPage() {
   useEffect(() => {
     loadSession();
   }, [sessionId]);
+
+  useEffect(() => {
+    AuthService.getUserRoles().then(setUserRoles);
+  }, []);
 
   const handleEnroll = async () => {
     if (!session) return;
@@ -223,21 +230,39 @@ export default function SessionViewPage() {
           <Text style={sessionStyles.backText}>← Back</Text>
         </TouchableOpacity>
 
-        {session.isEnrolled && (
+        <View style={{ flexDirection: 'row', gap: 8 }}>
           <TouchableOpacity
             style={sessionStyles.qrCodeButton}
             onPress={() =>
-              navigation.navigate('SessionQRCode', {
+              navigation.navigate('ManagePolls', {
+                sessionId: session.sessionId,
                 eventMainColorHex,
-                session: session,
               })
             }
           >
             <Text style={sessionStyles.qrCodeButtonText}>
-              Attendance QR Code
+              {userRoles.some(r => r === 'Speaker' || r === 'Admin')
+                ? 'Manage Polls'
+                : 'Polls'}
             </Text>
           </TouchableOpacity>
-        )}
+
+          {session.isEnrolled && (
+            <TouchableOpacity
+              style={sessionStyles.qrCodeButton}
+              onPress={() =>
+                navigation.navigate('SessionQRCode', {
+                  eventMainColorHex,
+                  session: session,
+                })
+              }
+            >
+              <Text style={sessionStyles.qrCodeButtonText}>
+                Attendance QR Code
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       <Text style={sessionStyles.title}>{session.title}</Text>

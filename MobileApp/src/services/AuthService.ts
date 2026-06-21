@@ -214,4 +214,36 @@ export default class AuthService {
       return null;
     }
   }
+
+  public static async getUserRoles(): Promise<string[]> {
+    try {
+      const credentials = await Keychain.getGenericPassword({
+        service: AuthService._accessTokenServiceKey,
+      });
+
+      if (!credentials) {
+        return [];
+      }
+
+      const decoded: any = jwtDecode(credentials.password);
+
+      const roleClaim =
+        decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+        decoded['role'] ||
+        [];
+
+      if (Array.isArray(roleClaim)) {
+        return roleClaim;
+      }
+
+      if (typeof roleClaim === 'string') {
+        return [roleClaim];
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Failed to extract roles from token', error);
+      return [];
+    }
+  }
 }

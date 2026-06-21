@@ -27,5 +27,6 @@ namespace DatabaseApi.Models
         public ICollection<Speaker> Speakers { get; set; } = new List<Speaker>();
         public ICollection<User_has_Session> RegisteredUsers { get; set; } = new List<User_has_Session>();
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+        public ICollection<Poll> Polls { get; set; } = new List<Poll>();
     }
 }

@@ -20,6 +20,9 @@ namespace DatabaseApi.Models
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<EventInvite> EventInvites { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Poll> Polls { get; set; }
+        public DbSet<PollAnswer> PollAnswers { get; set; }
+        public DbSet<PollVote> PollVotes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -91,6 +94,31 @@ namespace DatabaseApi.Models
                 .HasMany(s => s.Speakers)
                 .WithMany(sp => sp.Sessions)
                 .UsingEntity("Session_has_Speaker");
+
+            // Poll relationship with Session
+            modelBuilder.Entity<Poll>()
+                .HasOne(p => p.Session)
+                .WithMany(s => s.Polls)
+                .HasForeignKey(p => p.IdSession)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // PollAnswer relationship with Poll
+            modelBuilder.Entity<PollAnswer>()
+                .HasOne(a => a.Poll)
+                .WithMany(p => p.Answers)
+                .HasForeignKey(a => a.IdPoll)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // PollVote relationship with PollAnswer
+            modelBuilder.Entity<PollVote>()
+                .HasOne(v => v.PollAnswer)
+                .WithMany(a => a.Votes)
+                .HasForeignKey(v => v.IdPollAnswer)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PollVote>()
+                .HasIndex(v => new { v.IdUser, v.IdPoll })
+                .IsUnique();
 
             // Speaker relationship with Event
             modelBuilder.Entity<Speaker>()

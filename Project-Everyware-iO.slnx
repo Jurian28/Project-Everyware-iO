@@ -3,5 +3,4 @@
   <Project Path="DatabaseApi/DatabaseApi.csproj" Id="646e0b1b-f7eb-4819-892f-2c433dac826b" />
   <Project Path="SharedClassLibrary/SharedClassLibrary.csproj" Id="5259db8a-48e4-4095-ab4c-d8c977626a6e" />
   <Project Path="UnitTests/UnitTests.csproj" Id="cd8d70e6-4ad8-4830-ad22-757bcde10e62" />
-  <Project Path="WebApp/WebApp.csproj" />
 </Solution>
