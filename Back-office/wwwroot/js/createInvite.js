@@ -32,6 +32,41 @@ function showErrorMessage(message) {
     errorMessageBox.classList.remove('d-none');
 }
 
+function showInviteToken(token) {
+    const form = document.getElementById('createInviteForm');
+    const footer = document.querySelector('#createInviteModal .modal-footer');
+
+    if (form) form.classList.add('d-none');
+
+    if (successMessageBox) {
+        successMessageBox.innerHTML = `
+            <div class="text-center">
+                <p class="mb-1 fw-semibold">Share this code with the invitee:</p>
+                <div class="d-flex align-items-center justify-content-center gap-2 my-2">
+                    <span id="inviteTokenDisplay" style="font-size:1.6rem;letter-spacing:.15em;font-weight:700;font-family:monospace">${token}</span>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="copyInviteToken('${token}')">Copy</button>
+                </div>
+                <small class="text-muted">They enter this code in the mobile app under "Accept Invite".</small>
+            </div>`;
+        successMessageBox.classList.remove('d-none');
+    }
+
+    if (footer) {
+        footer.innerHTML = '<button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="resetInviteForm()">Close</button>';
+    }
+}
+
+function copyInviteToken(token) {
+    navigator.clipboard.writeText(token).catch(() => {});
+    const btn = document.querySelector('#createInviteModal .btn-outline-secondary');
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000); }
+}
+
+function resetInviteForm() {
+    const form = document.getElementById('createInviteForm');
+    if (form) { form.classList.remove('d-none'); form.reset(); }
+}
+
 async function getInviteErrorMessage(response) {
     const errorMessage = 'Unable to create invite.';
 
@@ -72,22 +107,11 @@ createInviteForm.addEventListener('submit', async event => {
         });
 
         if (response.ok) {
-            const modalElement = document.getElementById('createInviteModal');
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            
-            modal?.hide();
-
             const result = await response.json();
-            const inviteLink = result.data?.inviteLink;
+            const token = result.data?.token;
 
-            if (inviteLink) {
-                try {
-                    await navigator.clipboard.writeText(inviteLink);
-                    showSuccessMessage('Invite link copied to clipboard!');
-                } catch (err) {
-                    console.error('Failed to copy link: ', err);
-                    showErrorMessage(`Failed to copy link. The link is: ${inviteLink}`);
-                }
+            if (token) {
+                showInviteToken(token);
             } else {
                 showSuccessMessage('Invite created successfully.');
             }

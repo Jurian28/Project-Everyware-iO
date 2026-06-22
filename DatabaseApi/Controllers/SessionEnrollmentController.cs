@@ -58,54 +58,67 @@ public class SessionEnrollmentController : ControllerBase
     {
         string userId = GetUserId();
 
-        SessionDTO? session = await _context.Sessions
+        Session? rawSession = await _context.Sessions
             .Include(s => s.Room)
             .Include(s => s.Speakers)
             .Include(s => s.Tags)
             .Include(s => s.RegisteredUsers)
             .Where(s => s.IdSession == sessionId)
-            .Select(s => new SessionDTO
-            {
-                SessionId = s.IdSession,
-                Title = s.Title,
-                StartTime = s.StartTime,
-                EndTime = s.EndTime,
-                Plenary = s.Plenary,
-                PlacesLeft = s.Room.Capacity - s.RegisteredUsers.Count(registeredUser => !registeredUser.InWaitingList),
-                IsEnrolled = s.RegisteredUsers
-                    .Any(u => u.IdUser == userId),
-                InQueue = s.RegisteredUsers
-                    .Where(u => u.IdUser == userId)
-                    .Select(u => u.InWaitingList)
-                    .FirstOrDefault(),
-
-                Room = s.Room != null
-                    ? new RoomResponseDTO
-                    {
-                        IdRoom = s.Room.IdRoom,
-                        RoomLabel = s.Room.RoomLabel,
-                        Capacity = s.Room.Capacity
-                    }
-                    : new RoomResponseDTO { RoomLabel = "No room" },
-                Tags = s.Tags.Select(t => new TagResponseDTO
-                {
-                    IdTag = t.IdTag,
-                    IdEvent = t.IdEvent,
-                    Title = t.Title,
-                    ColorHex = t.ColorHex,
-                }).ToList(),
-                SpeakerId = s.Speakers.Select(s => s.IdSpeaker).FirstOrDefault(),
-                SpeakerName = s.Speakers
-                    .Select(s => $"{s.FirstName} {s.MiddleName} {s.LastName}")
-                    .FirstOrDefault() ?? "No speaker"
-            })
             .FirstOrDefaultAsync();
 
-        if (session == null)
+        if (rawSession == null)
         {
             Console.WriteLine($"Session with ID {sessionId} not found");
             return NotFound(ApiResponse<SessionDTO>.Fail("Session not found"));
         }
+
+        User_has_Session? userRegistration = rawSession.RegisteredUsers.FirstOrDefault(u => u.IdUser == userId);
+        bool inQueue = userRegistration?.InWaitingList ?? false;
+
+        int? queuePosition = null;
+        if (inQueue)
+        {
+            List<User_has_Session> waitingList = rawSession.RegisteredUsers
+                .Where(u => u.InWaitingList)
+                .OrderBy(u => u.JoinedDate)
+                .ToList();
+            int idx = waitingList.FindIndex(u => u.IdUser == userId);
+            if (idx >= 0) queuePosition = idx + 1;
+        }
+
+        SessionDTO session = new SessionDTO
+        {
+            SessionId = rawSession.IdSession,
+            Title = rawSession.Title,
+            StartTime = rawSession.StartTime,
+            EndTime = rawSession.EndTime,
+            Plenary = rawSession.Plenary,
+            PlacesLeft = rawSession.Room != null
+                ? rawSession.Room.Capacity - rawSession.RegisteredUsers.Count(u => !u.InWaitingList)
+                : 0,
+            IsEnrolled = userRegistration != null,
+            InQueue = inQueue,
+            QueuePosition = queuePosition,
+            Room = rawSession.Room != null
+                ? new RoomResponseDTO
+                {
+                    IdRoom = rawSession.Room.IdRoom,
+                    RoomLabel = rawSession.Room.RoomLabel,
+                    Capacity = rawSession.Room.Capacity
+                }
+                : new RoomResponseDTO { RoomLabel = "No room" },
+            Tags = rawSession.Tags.Select(t => new TagResponseDTO
+            {
+                IdTag = t.IdTag,
+                IdEvent = t.IdEvent,
+                Title = t.Title,
+                ColorHex = t.ColorHex,
+            }).ToList(),
+            SpeakerId = rawSession.Speakers.Select(s => s.IdSpeaker).FirstOrDefault(),
+            SpeakerName = rawSession.Speakers
+                .Select(s => $"{s.FirstName} {s.MiddleName} {s.LastName}".Replace("  ", " ").Trim())
+                .FirstOrDefault() ?? "No speaker"
+        };
 
         return Ok(ApiResponse<SessionDTO>.Ok(session));
     }

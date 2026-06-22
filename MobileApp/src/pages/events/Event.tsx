@@ -1,10 +1,14 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, type NavigationProp, type ParamListBase, type RouteProp } from '@react-navigation/native';
+import { useEffect } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import config from '../../config';
+import { useEventContext } from '../../context/EventContext';
 import { Event } from '../../services/EventService';
 import eventStyles from '../../styles/eventStyles';
 
-function Header({ navigation }: { navigation: any }) {
+type EventPageParams = { event: Event };
+
+function Header({ navigation }: { navigation: NavigationProp<ParamListBase> }) {
   return (
     <View style={eventStyles.eventPageHeader}>
       <Pressable
@@ -18,10 +22,15 @@ function Header({ navigation }: { navigation: any }) {
 }
 
 export default function EventPage() {
-  const route = useRoute<any>();
-  const { event } = route.params as { event: Event };
+  const route = useRoute<RouteProp<{ EventPage: EventPageParams }, 'EventPage'>>();
+  const { event } = route.params;
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
+  const { setCurrentEventName } = useEventContext();
 
-  const navigation = useNavigation<any>();
+  useEffect(() => {
+    setCurrentEventName(event.title);
+    return () => setCurrentEventName(null);
+  }, [event.title]);
 
   const imgSrc = event.logoPath
     ? `${config.apiBaseUrl}/event${event.logoPath}`

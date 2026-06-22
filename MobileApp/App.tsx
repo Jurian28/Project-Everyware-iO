@@ -21,10 +21,12 @@ import {
 } from 'react-native';
 import EventsStack from './src/navigation/EventsStack';
 import HomePage from './src/pages/Home';
+import AcceptInvitePage from './src/pages/invites/AcceptInvite';
 import SessionAttendance from './src/pages/attendance/Session';
 import LoginPage from './src/pages/auth/Login';
 import RegisterPage from './src/pages/auth/Register';
 import AuthService from './src/services/AuthService';
+import { EventProvider, useEventContext } from './src/context/EventContext';
 import { Image } from 'react-native';
 
 function LogoutPage() {
@@ -52,8 +54,15 @@ function LogoutPage() {
 function AuthenticatedDrawerContent(
   props: Readonly<DrawerContentComponentProps>,
 ) {
+  const { currentEventName } = useEventContext();
   return (
     <DrawerContentScrollView {...props}>
+      {currentEventName && (
+        <View style={styles.currentEventBanner}>
+          <Text style={styles.currentEventLabel}>Current event</Text>
+          <Text style={styles.currentEventName} numberOfLines={2}>{currentEventName}</Text>
+        </View>
+      )}
       <DrawerItemList {...props} />
       <View style={styles.drawerSeparator} />
       <DrawerItem
@@ -151,6 +160,13 @@ const authenticatedDrawerNavigation = createDrawerNavigator({
       },
     },
 
+    AcceptInvite: {
+      screen: AcceptInvitePage,
+      options: {
+        title: 'Accept Invite',
+      },
+    },
+
     AttendanceSession: {
       screen: SessionAttendance,
       options: {
@@ -236,11 +252,13 @@ export default function App() {
   }
 
   return (
-    <NavigationComponent
-      key={isAuthenticated ? 'auth' : 'unauth'}
-      onReady={handleNavigationStateChange}
-      onStateChange={handleNavigationStateChange}
-    />
+    <EventProvider>
+      <NavigationComponent
+        key={isAuthenticated ? 'auth' : 'unauth'}
+        onReady={handleNavigationStateChange}
+        onStateChange={handleNavigationStateChange}
+      />
+    </EventProvider>
   );
 }
 
@@ -272,5 +290,29 @@ const styles = StyleSheet.create({
     color: '#111827',
     fontSize: 20,
     lineHeight: 20,
+  },
+  currentEventBanner: {
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#3B82F6',
+  },
+  currentEventLabel: {
+    fontSize: 10,
+    color: '#64748B',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  currentEventName: {
+    fontSize: 13,
+    color: '#1E293B',
+    fontWeight: '600',
   },
 });

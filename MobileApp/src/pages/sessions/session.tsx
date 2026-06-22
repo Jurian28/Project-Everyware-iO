@@ -1,4 +1,4 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, type NavigationProp, type ParamListBase, type RouteProp } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -74,6 +74,7 @@ function PlacesLeft({
   placesLeft,
   isEnrolled,
   inQueue,
+  queuePosition,
   onEnroll,
   onWithdraw,
   loading,
@@ -81,15 +82,28 @@ function PlacesLeft({
   placesLeft: number;
   isEnrolled: boolean;
   inQueue: boolean;
+  queuePosition?: number;
   onEnroll?: () => void;
   onWithdraw?: () => void;
   loading?: boolean;
 }) {
+  const isFull = placesLeft <= 0;
+
+  let spotsText: string;
+  if (inQueue) {
+    spotsText = queuePosition != null
+      ? `Waiting list — position ${queuePosition}`
+      : 'You are on the waiting list';
+  } else if (isFull) {
+    spotsText = 'Session Full';
+  } else {
+    spotsText = `${placesLeft} ${placesLeft === 1 ? 'spot' : 'spots'} left`;
+  }
+
   return (
     <View style={sessionStyles.enrollRow}>
-      <Text style={sessionStyles.spotsInlineText}>
-        {placesLeft} spaces left
-        {inQueue && ' - You are in the waiting list'}
+      <Text style={[sessionStyles.spotsInlineText, isFull && !isEnrolled && { color: '#EF4444' }]}>
+        {spotsText}
       </Text>
 
       <TouchableOpacity
@@ -108,6 +122,8 @@ function PlacesLeft({
             ? 'Loading...'
             : isEnrolled
             ? 'Withdraw from session'
+            : isFull
+            ? 'Join waiting list'
             : 'Enroll for session'}
         </Text>
       </TouchableOpacity>
@@ -116,8 +132,8 @@ function PlacesLeft({
 }
 
 export default function SessionViewPage() {
-  const route = useRoute<any>();
-  const navigation = useNavigation<any>();
+  const route = useRoute<RouteProp<{ Session: { sessionId: number; eventMainColorHex?: string } }, 'Session'>>();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
 
   const { sessionId, eventMainColorHex } = route.params;
 
@@ -144,7 +160,7 @@ export default function SessionViewPage() {
       const data = await SessionService.getSession(sessionId);
 
       setSession(data);
-    } catch (e: any) {
+    } catch (e) {
       setError(e?.message ?? 'Something went wrong');
     } finally {
       setLoading(false);
@@ -174,8 +190,8 @@ export default function SessionViewPage() {
       }
 
       await loadSession();
-    } catch (e: any) {
-      alert(e.message ?? 'Enroll failed');
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Enroll failed');
     } finally {
       setActionLoading(false);
     }
@@ -190,8 +206,8 @@ export default function SessionViewPage() {
       await SessionService.withdraw(session.sessionId);
 
       await loadSession();
-    } catch (e: any) {
-      alert(e.message ?? 'Withdraw failed');
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Withdraw failed');
     } finally {
       setActionLoading(false);
     }
@@ -206,8 +222,8 @@ export default function SessionViewPage() {
       await SessionService.enroll(session.sessionId, true);
 
       await loadSession();
-    } catch (e: any) {
-      alert(e.message ?? 'Failed to switch sessions');
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Failed to switch sessions');
     } finally {
       setActionLoading(false);
       setConflictVisible(false);
@@ -247,7 +263,7 @@ export default function SessionViewPage() {
             </Text>
           </TouchableOpacity>
 
-          {session.isEnrolled && (
+          {!session.plenary && session.isEnrolled && (
             <TouchableOpacity
               style={sessionStyles.qrCodeButton}
               onPress={() =>
@@ -283,22 +299,18 @@ export default function SessionViewPage() {
         </View>
       )}
 
-      <PlacesLeft
-        placesLeft={session.placesLeft}
-        isEnrolled={session.isEnrolled ?? false}
-        inQueue={session.inQueue ?? false}
-        onEnroll={handleEnroll}
-        onWithdraw={handleWithdraw}
-        loading={actionLoading}
-      />
+      {!session.plenary && (
+        <PlacesLeft
+          placesLeft={session.placesLeft}
+          isEnrolled={session.isEnrolled ?? false}
+          inQueue={session.inQueue ?? false}
+          queuePosition={session.queuePosition}
+          onEnroll={handleEnroll}
+          onWithdraw={handleWithdraw}
+          loading={actionLoading}
+        />
+      )}
 
-            <EnrollConflictModal
-                visible={conflictVisible}
-                conflictSession={conflictSession}
-                onCancel={() => setConflictVisible(false)}
-                onConfirm={confirmOverride}
-            />
-    
       <Section title="Speakers">
         <Text style={sessionStyles.speakerName}>
           {session.speakerName ?? 'TBA'}

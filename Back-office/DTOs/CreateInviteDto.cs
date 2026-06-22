@@ -2,7 +2,7 @@
 
 public class InviteData
 {
-    public required int Invite { get; set; }
+    public required string Token { get; set; }
 }
 
 public class CreateInviteDto

@@ -67,9 +67,17 @@ async function deleteRoom() {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
     });
-    if (response.ok)
-    clearRoomForm();
-    loadRooms();
+    if (response.ok) {
+        clearRoomForm();
+        loadRooms();
+    } else {
+        try {
+            const errorResponse = await response.json();
+            document.getElementById("errorMessageBox").innerText = errorResponse?.error ?? "Failed to delete room.";
+        } catch {
+            document.getElementById("errorMessageBox").innerText = "Failed to delete room.";
+        }
+    }
 }
 
 function clearRoomForm() {

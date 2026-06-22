@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DatabaseApi.Controllers;
 
+/// <summary>
+/// Controller for managing sessions within an event, including retrieval, creation, updating, and deletion.
+/// </summary>
 [ApiController]
 [Route("{eventId}/sessions")]
 public class SessionController : ControllerBase
@@ -31,6 +34,11 @@ public class SessionController : ControllerBase
         _sessionService = sessionService;
     }
 
+    /// <summary>
+    /// Retrieves all sessions for the specified event without user-specific enrollment data.
+    /// </summary>
+    /// <param name="eventId">The identifier of the event.</param>
+    /// <returns>A list of sessions for the event.</returns>
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IEnumerable<SessionDTO>>>> GetAllSessions(int eventId)
     {
@@ -45,6 +53,11 @@ public class SessionController : ControllerBase
         return Ok(ApiResponse<IEnumerable<SessionDTO>>.Ok(sessions));
     }
 
+    /// <summary>
+    /// Retrieves all sessions for the specified event including enrollment and queue status for the authenticated user.
+    /// </summary>
+    /// <param name="eventId">The identifier of the event.</param>
+    /// <returns>A list of sessions enriched with per-user enrollment data.</returns>
     [HttpGet("withUserData")]
     [Authorize]
     public async Task<ActionResult<ApiResponse<IEnumerable<SessionDTO>>>> GetAllSessionsWithUserData(int eventId)
@@ -56,18 +69,64 @@ public class SessionController : ControllerBase
             return Unauthorized();
         }
 
-        List<SessionDTO> sessions = await _context.Sessions
+        List<Session> rawSessions = await _context.Sessions
             .Include(s => s.Room)
             .Include(s => s.Speakers)
             .Include(s => s.Tags)
             .Include(s => s.RegisteredUsers)
             .Where(s => s.IdEvent == eventId)
-            .Select(s => MapSessionToDto(s))
             .ToListAsync();
+
+        TimeZoneInfo amsterdamZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
+
+        List<SessionDTO> sessions = rawSessions.Select(s =>
+        {
+            User_has_Session? userReg = s.RegisteredUsers.FirstOrDefault(u => u.IdUser == userId);
+            return new SessionDTO
+            {
+                SessionId = s.IdSession,
+                Title = s.Title,
+                StartTime = s.StartTime,
+                EndTime = s.EndTime,
+                Plenary = s.Plenary,
+                StartNotificationSendTime = s.StartNotificationSendTime == null
+                    ? null
+                    : TimeZoneInfo.ConvertTimeFromUtc((DateTime)s.StartNotificationSendTime, amsterdamZone),
+                PlacesLeft = s.Room != null
+                    ? s.Room.Capacity - s.RegisteredUsers.Count(u => !u.InWaitingList)
+                    : 0,
+                IsEnrolled = userReg != null,
+                InQueue = userReg?.InWaitingList ?? false,
+                Room = s.Room != null
+                    ? new RoomResponseDTO
+                    {
+                        IdRoom = s.Room.IdRoom,
+                        RoomLabel = s.Room.RoomLabel,
+                        Capacity = s.Room.Capacity
+                    }
+                    : new RoomResponseDTO { RoomLabel = noRoomErrorMessage },
+                Tags = s.Tags.Select(t => new TagResponseDTO
+                {
+                    IdTag = t.IdTag,
+                    IdEvent = t.IdEvent,
+                    Title = t.Title,
+                    ColorHex = t.ColorHex,
+                }).ToList(),
+                SpeakerId = s.Speakers.Select(sp => sp.IdSpeaker).FirstOrDefault(),
+                SpeakerName = s.Speakers
+                    .Select(sp => $"{sp.FirstName} {sp.MiddleName} {sp.LastName}".Replace("  ", " ").Trim())
+                    .FirstOrDefault() ?? noSpeakerErrorMessage
+            };
+        }).ToList();
 
         return Ok(ApiResponse<IEnumerable<SessionDTO>>.Ok(sessions));
     }
 
+    /// <summary>
+    /// Retrieves the data needed to populate the add-session form for the specified event.
+    /// </summary>
+    /// <param name="eventId">The identifier of the event.</param>
+    /// <returns>Available rooms, tags, and speakers for the event.</returns>
     [HttpGet("getAdd")]
     public async Task<ActionResult<ApiResponse<CUSessionDTO>>> GetAddSessionData(int eventId)
     {
@@ -76,6 +135,12 @@ public class SessionController : ControllerBase
         return Ok(ApiResponse<CUSessionDTO>.Ok(availableSessionData));
     }
 
+    /// <summary>
+    /// Retrieves the data needed to populate the edit-session form, including the current session values.
+    /// </summary>
+    /// <param name="eventId">The identifier of the event.</param>
+    /// <param name="sessionId">The identifier of the session to edit.</param>
+    /// <returns>Available rooms, tags, and speakers, plus the current session data.</returns>
     [HttpGet("{sessionId}/edit")]
     public async Task<ActionResult<ApiResponse<CUSessionDTO>>> GetEditSessionData(int eventId, int sessionId)
     {
@@ -143,6 +208,12 @@ public class SessionController : ControllerBase
         return sessionDTO;
     }
 
+    /// <summary>
+    /// Creates or updates a session. If the DTO contains a positive <c>SessionId</c> the existing session is updated; otherwise a new session is created.
+    /// </summary>
+    /// <param name="eventId">The identifier of the event the session belongs to.</param>
+    /// <param name="dto">The session data to save.</param>
+    /// <returns>201 on success, 404 if the session to update was not found.</returns>
     [HttpPost("save")]
     public async Task<IActionResult> SaveSession(int eventId, [FromBody] SessionDTO dto)
     {
@@ -174,7 +245,7 @@ public class SessionController : ControllerBase
             session.StartNotificationSendTime = utcTime;
         }
 
-        var incomingTagIds = dto.Tags?.Select(t => t.IdTag).ToList() ?? new List<int>();
+        List<int> incomingTagIds = dto.Tags?.Select(t => t.IdTag).ToList() ?? new List<int>();
 
         session.Tags = await _context.Tags
             .Where(t => t.IdEvent == eventId && incomingTagIds.Contains(t.IdTag))
@@ -184,7 +255,7 @@ public class SessionController : ControllerBase
         session.Speakers.Clear();
         if (dto.SpeakerId.HasValue)
         {
-            var speaker = await _context.Speakers.FindAsync(dto.SpeakerId.Value);
+            Speaker? speaker = await _context.Speakers.FindAsync(dto.SpeakerId.Value);
             if (speaker != null) session.Speakers.Add(speaker);
         }
 
@@ -192,6 +263,12 @@ public class SessionController : ControllerBase
         return StatusCode(201);
     }
 
+    /// <summary>
+    /// Deletes the specified session from the event.
+    /// </summary>
+    /// <param name="eventId">The identifier of the event.</param>
+    /// <param name="sessionId">The identifier of the session to delete.</param>
+    /// <returns>204 on success, 404 if not found, 500 on error.</returns>
     [HttpDelete("{sessionId}/delete")]
     public async Task<IActionResult> DeleteSession(int eventId, int sessionId)
     {

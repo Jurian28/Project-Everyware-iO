@@ -17,6 +17,15 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
 {
     private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
 
+    private static string GenerateToken()
+    {
+        const string chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+        Random rng = new Random();
+        string part1 = new string(Enumerable.Range(0, 4).Select(_ => chars[rng.Next(chars.Length)]).ToArray());
+        string part2 = new string(Enumerable.Range(0, 4).Select(_ => chars[rng.Next(chars.Length)]).ToArray());
+        return $"{part1}-{part2}";
+    }
+
     /// <summary>
     /// Creates a new invitation for a specific event.
     /// </summary>
@@ -37,7 +46,7 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
             });
         }
 
-        if (eventInviteCreateDto.Expires < DateTime.UtcNow)
+        if (eventInviteCreateDto.Expires.Date < DateTime.UtcNow.Date)
         {
             return BadRequest(new
             {
@@ -47,8 +56,16 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
             });
         }
 
+        string token;
+        do
+        {
+            token = GenerateToken();
+        }
+        while (await _applicationDbContext.EventInvites.AnyAsync(i => i.Token == token));
+
         EventInvite invite = new()
         {
+            Token = token,
             Event = @event,
             Expires = eventInviteCreateDto.Expires.ToUniversalTime()
         };
@@ -59,7 +76,7 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
         {
             Success = true,
             Data = new {
-                Invite = invite.Id
+                Token = invite.Token
             },
             Error = (string?)null
         });
@@ -68,14 +85,14 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
     /// <summary>
     /// Accepts a pending event invitation.
     /// </summary>
-    /// <param name="inviteId">The unique identifier of the invitation to accept.</param>
+    /// <param name="token">The short invite token (format XXXX-XXXX) identifying the invitation.</param>
     /// <returns>An action result indicating whether the invitation was successfully accepted.</returns>
-    [HttpPost("accept/{inviteId}")]
-    public async Task<IActionResult> AcceptInvite(int inviteId)
+    [HttpPost("accept/{token}")]
+    public async Task<IActionResult> AcceptInvite(string token)
     {
         EventInvite? invite = await _applicationDbContext.EventInvites
             .Include(invite => invite.Event)
-            .FirstOrDefaultAsync(invite => invite.Id == inviteId);
+            .FirstOrDefaultAsync(invite => invite.Token == token.ToUpper());
 
         if (invite == null)
         {
@@ -87,7 +104,7 @@ public class EventInviteController(ApplicationDbContext applicationDbContext) : 
             });
         }
 
-        if (invite.Expires < DateTime.UtcNow)
+        if (invite.Expires.Date < DateTime.UtcNow.Date)
         {
             _applicationDbContext.EventInvites.Remove(invite);
             await _applicationDbContext.SaveChangesAsync();

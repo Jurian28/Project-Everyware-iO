@@ -28,7 +28,9 @@
 
                     <div class="mb-3">
                         <label for="expirationDate" class="form-label">Expiration Date</label>
-                        <input type="date" class="form-control" id="expirationDate" asp-for="Expires" required min="@DateTime.UtcNow.Date.AddDays(1).ToString("yyyy-MM-dd")" />
+                        <input type="date" class="form-control" id="expirationDate" asp-for="Expires" required
+                                   min="@DateTime.UtcNow.Date.ToString("yyyy-MM-dd")"
+                                   value="@DateTime.UtcNow.Date.ToString("yyyy-MM-dd")" />
                     </div>
                 </form>
             </div>

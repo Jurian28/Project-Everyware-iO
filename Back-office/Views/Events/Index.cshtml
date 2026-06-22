@@ -1,4 +1,5 @@
 ﻿@using SharedClassLibrary.DTOs.Events
+@using Back_office.Models.ViewModels
 @model List<EventDTO>
 
 <script src="~/js/events.js" defer></script>
@@ -19,7 +20,10 @@
                 </div>
                 <a class="btn btn-secondary" asp-controller="Events" asp-action="Index">Empty Search</a>
             </div>
-            <a class="btn btn-primary" asp-controller="Events" asp-action="Create">Add Event</a>
+            <div class="d-flex gap-2">
+                <partial name="_CreateInvitePartial" model="@(new CreateInviteViewModel())" />
+                <a class="btn btn-primary" asp-controller="Events" asp-action="Create">Add Event</a>
+            </div>
         </div>
 
         @* List of Events *@
