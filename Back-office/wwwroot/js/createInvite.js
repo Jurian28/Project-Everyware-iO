@@ -35,19 +35,19 @@ function showErrorMessage(message) {
 function showInviteToken(token) {
     const form = document.getElementById('createInviteForm');
     const footer = document.querySelector('#createInviteModal .modal-footer');
+    const template = document.getElementById('inviteTokenTemplate');
 
     if (form) form.classList.add('d-none');
 
-    if (successMessageBox) {
-        successMessageBox.innerHTML = `
-            <div class="text-center">
-                <p class="mb-1 fw-semibold">Share this code with the invitee:</p>
-                <div class="d-flex align-items-center justify-content-center gap-2 my-2">
-                    <span id="inviteTokenDisplay" style="font-size:1.6rem;letter-spacing:.15em;font-weight:700;font-family:monospace">${token}</span>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="copyInviteToken('${token}')">Copy</button>
-                </div>
-                <small class="text-muted">They enter this code in the mobile app under "Accept Invite".</small>
-            </div>`;
+    if (successMessageBox && template) {
+        const content = template.content.cloneNode(true);
+        content.querySelector('.js-inviteTokenDisplay').innerText = token;
+
+        const copyButton = content.querySelector('.js-copyInviteToken');
+        copyButton.addEventListener('click', () => copyInviteToken(token, copyButton));
+
+        successMessageBox.innerHTML = '';
+        successMessageBox.append(content);
         successMessageBox.classList.remove('d-none');
     }
 
@@ -56,9 +56,8 @@ function showInviteToken(token) {
     }
 }
 
-function copyInviteToken(token) {
+function copyInviteToken(token, btn) {
     navigator.clipboard.writeText(token).catch(() => {});
-    const btn = document.querySelector('#createInviteModal .btn-outline-secondary');
     if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000); }
 }
 
