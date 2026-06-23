@@ -153,6 +153,8 @@ public class SessionEnrollmentController : ControllerBase
         Session? session = await _sessionRegistrationService.GetSession(sessionId);
         if (session == null) return NotFound(ApiResponse<object>.Fail("The session you tried to register for does not exist."));
 
+        if (session.EndTime <= DateTime.UtcNow) return BadRequest(ApiResponse<object>.Fail("You can no longer register for this session because it has already ended."));
+
         User_has_Session? existingRegistration = await _sessionRegistrationService.GetExistingRegistration(user, session);
         if (existingRegistration != null) return BadRequest(ApiResponse<object>.Fail("You have already registered for this session."));
 

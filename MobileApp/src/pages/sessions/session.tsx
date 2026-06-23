@@ -75,6 +75,7 @@ function PlacesLeft({
   isEnrolled,
   inQueue,
   queuePosition,
+  hasEnded,
   onEnroll,
   onWithdraw,
   loading,
@@ -83,14 +84,18 @@ function PlacesLeft({
   isEnrolled: boolean;
   inQueue: boolean;
   queuePosition?: number;
+  hasEnded: boolean;
   onEnroll?: () => void;
   onWithdraw?: () => void;
   loading?: boolean;
 }) {
   const isFull = placesLeft <= 0;
+  const registrationClosed = hasEnded && !isEnrolled;
 
   let spotsText: string;
-  if (inQueue) {
+  if (registrationClosed) {
+    spotsText = 'Registration closed';
+  } else if (inQueue) {
     spotsText = queuePosition != null
       ? `Waiting list — position ${queuePosition}`
       : 'You are on the waiting list';
@@ -107,14 +112,14 @@ function PlacesLeft({
       </Text>
 
       <TouchableOpacity
-        disabled={loading}
+        disabled={loading || registrationClosed}
         onPress={isEnrolled ? onWithdraw : onEnroll}
         style={[
           sessionStyles.actionButton,
           isEnrolled
             ? sessionStyles.withdrawButton
             : sessionStyles.enrollButton,
-          loading && sessionStyles.disabledButton,
+          (loading || registrationClosed) && sessionStyles.disabledButton,
         ]}
       >
         <Text style={sessionStyles.actionText}>
@@ -122,6 +127,8 @@ function PlacesLeft({
             ? 'Loading...'
             : isEnrolled
             ? 'Withdraw from session'
+            : registrationClosed
+            ? 'Registration closed'
             : isFull
             ? 'Join waiting list'
             : 'Enroll for session'}
@@ -305,6 +312,7 @@ export default function SessionViewPage() {
           isEnrolled={session.isEnrolled ?? false}
           inQueue={session.inQueue ?? false}
           queuePosition={session.queuePosition}
+          hasEnded={new Date(session.endTime).getTime() <= Date.now()}
           onEnroll={handleEnroll}
           onWithdraw={handleWithdraw}
           loading={actionLoading}
