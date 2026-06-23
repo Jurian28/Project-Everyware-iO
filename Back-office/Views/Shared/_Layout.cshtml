@@ -25,11 +25,13 @@
                             <ul class="navbar-nav flex-grow-1 gap-4">
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" href="javascript:history.back()" title="Go back">
-                                        <i class="bi bi-arrow-left"></i> 
+                                        <i class="bi bi-arrow-left"></i>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Events" asp-route-eventId="@ViewData["EventId"]" asp-action="Edit">Event</a>
+                                    <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="Events" asp-route-eventId="@ViewData["EventId"]" asp-action="Edit">
+                                        @(ViewData["EventTitle"] ?? "Event")
+                                    </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Session" asp-action="Index" asp-route-eventId="@ViewData["EventId"]">Sessions</a>

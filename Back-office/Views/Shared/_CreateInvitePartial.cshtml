@@ -28,7 +28,9 @@
 
                     <div class="mb-3">
                         <label for="expirationDate" class="form-label">Expiration Date</label>
-                        <input type="date" class="form-control" id="expirationDate" asp-for="Expires" required min="@DateTime.UtcNow.Date.AddDays(1).ToString("yyyy-MM-dd")" />
+                        <input type="date" class="form-control" id="expirationDate" asp-for="Expires" required
+                                   min="@DateTime.UtcNow.Date.ToString("yyyy-MM-dd")"
+                                   value="@DateTime.UtcNow.Date.ToString("yyyy-MM-dd")" />
                     </div>
                 </form>
             </div>
@@ -40,5 +42,16 @@
         </div>
     </div>
 </div>
+
+<template id="inviteTokenTemplate">
+    <div class="text-center">
+        <p class="mb-1 fw-semibold">Share this code with the invitee:</p>
+        <div class="d-flex align-items-center justify-content-center gap-2 my-2">
+            <span class="js-inviteTokenDisplay" style="font-size:1.6rem;letter-spacing:.15em;font-weight:700;font-family:monospace"></span>
+            <button type="button" class="btn btn-outline-secondary btn-sm js-copyInviteToken">Copy</button>
+        </div>
+        <small class="text-muted">They enter this code in the mobile app under "Accept Invite".</small>
+    </div>
+</template>
 
 <script defer src="~/js/createInvite.js" asp-append-version="true"></script>

@@ -32,6 +32,40 @@ function showErrorMessage(message) {
     errorMessageBox.classList.remove('d-none');
 }
 
+function showInviteToken(token) {
+    const form = document.getElementById('createInviteForm');
+    const footer = document.querySelector('#createInviteModal .modal-footer');
+    const template = document.getElementById('inviteTokenTemplate');
+
+    if (form) form.classList.add('d-none');
+
+    if (successMessageBox && template) {
+        const content = template.content.cloneNode(true);
+        content.querySelector('.js-inviteTokenDisplay').innerText = token;
+
+        const copyButton = content.querySelector('.js-copyInviteToken');
+        copyButton.addEventListener('click', () => copyInviteToken(token, copyButton));
+
+        successMessageBox.innerHTML = '';
+        successMessageBox.append(content);
+        successMessageBox.classList.remove('d-none');
+    }
+
+    if (footer) {
+        footer.innerHTML = '<button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="resetInviteForm()">Close</button>';
+    }
+}
+
+function copyInviteToken(token, btn) {
+    navigator.clipboard.writeText(token).catch(() => {});
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000); }
+}
+
+function resetInviteForm() {
+    const form = document.getElementById('createInviteForm');
+    if (form) { form.classList.remove('d-none'); form.reset(); }
+}
+
 async function getInviteErrorMessage(response) {
     const errorMessage = 'Unable to create invite.';
 
@@ -72,22 +106,11 @@ createInviteForm.addEventListener('submit', async event => {
         });
 
         if (response.ok) {
-            const modalElement = document.getElementById('createInviteModal');
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            
-            modal?.hide();
-
             const result = await response.json();
-            const inviteLink = result.data?.inviteLink;
+            const token = result.data?.token;
 
-            if (inviteLink) {
-                try {
-                    await navigator.clipboard.writeText(inviteLink);
-                    showSuccessMessage('Invite link copied to clipboard!');
-                } catch (err) {
-                    console.error('Failed to copy link: ', err);
-                    showErrorMessage(`Failed to copy link. The link is: ${inviteLink}`);
-                }
+            if (token) {
+                showInviteToken(token);
             } else {
                 showSuccessMessage('Invite created successfully.');
             }

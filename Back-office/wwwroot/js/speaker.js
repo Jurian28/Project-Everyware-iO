@@ -54,12 +54,11 @@ async function submitSpeaker(event) {
             const middleName = document.getElementById("middleName").value;
             const lastName = document.getElementById("lastName").value;
             const fullName = [firstName, middleName, lastName].filter(Boolean).join(" ");
-            
-            setTimeout(() => {
-                document.getElementById("successMessageBox").innerText = "";
-            }, 5000);
+            const box = document.getElementById("successMessageBox");
+            box.innerText = `Successfully ${isEditing ? 'updated' : 'created'} speaker: ${fullName}`;
+            setTimeout(() => { box.innerText = ""; }, 5000);
         } catch (e) {
-            console.error(e)
+            console.error(e);
         }
         clearSpeakerForm();
         loadSpeakers();
@@ -82,9 +81,17 @@ async function deleteSpeaker() {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
     });
-    if (response.ok)
+    if (response.ok) {
         clearSpeakerForm();
-    loadSpeakers();
+        loadSpeakers();
+    } else {
+        try {
+            const errorResponse = await response.json();
+            document.getElementById("errorMessageBox").innerText = errorResponse?.error ?? "Failed to delete speaker.";
+        } catch {
+            document.getElementById("errorMessageBox").innerText = "Failed to delete speaker.";
+        }
+    }
 }
 
 function clearSpeakerForm() {

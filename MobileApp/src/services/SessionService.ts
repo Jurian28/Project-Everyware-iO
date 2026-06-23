@@ -45,6 +45,7 @@ export type Session = {
   title: string;
   startTime: string;
   endTime: string;
+  plenary: boolean;
   room?: Room;
   tags?: Tag[];
   speakerName?: string;
@@ -52,6 +53,7 @@ export type Session = {
   placesLeft: number;
   isEnrolled?: boolean;
   inQueue?: boolean;
+  queuePosition?: number;
 };
 
 type SessionsResult = {

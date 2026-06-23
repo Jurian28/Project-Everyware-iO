@@ -1,28 +1,38 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, Text, ActivityIndicator, Alert, Pressable } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { View, Text, ActivityIndicator, Alert, Pressable, StyleSheet } from 'react-native';
+import { useRoute, useNavigation, type RouteProp, type NavigationProp, type ParamListBase } from '@react-navigation/native';
 import AppLayout from '../../layouts/AppLayout';
 import scheduleStyles from '../../styles/scheduleStyles';
 import ScheduleTimeline from '../../components/event/ScheduleTimeline';
 import TagFilterDropdown from '../../components/event/TagFilterDropdown';
 import { SessionService, SessionDTO } from '../../services/SessionService';
 import Colors from '../../enums/colors';
+import { useEventContext } from '../../context/EventContext';
+
+type EventScheduleParams = {
+  eventId: number | string;
+  eventTitle?: string;
+  eventColor?: string;
+  eventAccentColor?: string;
+};
 
 export default function EventSchedule() {
-  const route = useRoute<any>();
-  const navigation = useNavigation<any>();
-  const { eventId, eventTitle, eventColor, eventAccentColor } = route.params as {
-    eventId: number | string;
-    eventTitle?: string;
-    eventColor?: string;
-    eventAccentColor?: string;
-  };
+  const route = useRoute<RouteProp<{ EventSchedule: EventScheduleParams }, 'EventSchedule'>>();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
+  const { eventId, eventTitle, eventColor, eventAccentColor } = route.params;
+
+  const { setCurrentEventName } = useEventContext();
 
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<SessionDTO[]>([]);
   const [currentDateIndex, setCurrentDateIndex] = useState(0);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [personal, setPersonal] = useState(false);
+
+  useEffect(() => {
+    if (eventTitle) setCurrentEventName(eventTitle);
+    return () => setCurrentEventName(null);
+  }, [eventTitle]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -66,11 +76,11 @@ export default function EventSchedule() {
     });
 
     if (personal) {
-      filtered = filtered.filter(s => s.isEnrolled);
+      filtered = filtered.filter(s => s.plenary || s.isEnrolled);
     }
 
     return filtered;
-  }, [sessions, activeDateString, personal]);
+  }, [sessions, activeDateString, selectedTag, personal]);
 
   const handlePrevDay = () => {
     if (currentDateIndex > 0) setCurrentDateIndex(currentDateIndex - 1);
@@ -80,7 +90,7 @@ export default function EventSchedule() {
   };
 
   const { startHour, endHour } = useMemo(() => {
-    if (activeDateSessions.length === 0) return { startHour: 8, endHour: 21 };
+    if (activeDateSessions.length === 0) return { startHour: 8, endHour: 18 };
     let minT = 24, maxT = 0;
     activeDateSessions.forEach(s => {
       const hStart = new Date(s.startTime).getHours();
@@ -89,25 +99,28 @@ export default function EventSchedule() {
       if (hEnd > maxT) maxT = hEnd;
     });
     return {
-      startHour: Math.max(0, Math.min(8, minT)),
-      endHour: Math.min(23, Math.max(21, maxT))
+      startHour: Math.max(0, minT - 1),
+      endHour: Math.min(23, maxT + 1),
     };
   }, [activeDateSessions]);
+
+  const prevArrowColor = currentDateIndex === 0 ? '#CBD5E1' : Colors.DEFAULT_BUTTON_COLOR;
+  const nextArrowColor = currentDateIndex === uniqueDays.length - 1 ? '#CBD5E1' : Colors.DEFAULT_BUTTON_COLOR;
 
   return (
     <AppLayout>
       <View style={scheduleStyles.container}>
         <View style={scheduleStyles.header}>
           <Pressable onPress={() => navigation.goBack()} style={scheduleStyles.navButton}>
-            <Text style={{ fontSize: 24, color: '#1E293B' }}>&larr;</Text>
+            <Text style={styles.backArrow}>&larr;</Text>
           </Pressable>
-          <View style={{ alignItems: 'center' }}>
+          <View style={styles.headerCenter}>
             <Text style={scheduleStyles.headerTitle}>{eventTitle || 'Event Schedule'}</Text>
             {uniqueDays.length > 0 && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+              <View style={styles.dayNavRow}>
                 {uniqueDays.length > 1 && (
-                  <Pressable onPress={handlePrevDay} disabled={currentDateIndex === 0} style={{ paddingHorizontal: 10 }}>
-                    <Text style={{ color: currentDateIndex === 0 ? '#CBD5E1' : Colors.DEFAULT_BUTTON_COLOR, fontSize: 16 }}>&larr;</Text>
+                  <Pressable onPress={handlePrevDay} disabled={currentDateIndex === 0} style={styles.dayNavButton}>
+                    <Text style={[styles.dayNavArrow, { color: prevArrowColor }]}>&larr;</Text>
                   </Pressable>
                 )}
                 <Text style={scheduleStyles.monthTitle}>
@@ -116,8 +129,8 @@ export default function EventSchedule() {
                   })}
                 </Text>
                 {uniqueDays.length > 1 && (
-                  <Pressable onPress={handleNextDay} disabled={currentDateIndex === uniqueDays.length - 1} style={{ paddingHorizontal: 10 }}>
-                    <Text style={{ color: currentDateIndex === uniqueDays.length - 1 ? '#CBD5E1' : Colors.DEFAULT_BUTTON_COLOR, fontSize: 16 }}>&rarr;</Text>
+                  <Pressable onPress={handleNextDay} disabled={currentDateIndex === uniqueDays.length - 1} style={styles.dayNavButton}>
+                    <Text style={[styles.dayNavArrow, { color: nextArrowColor }]}>&rarr;</Text>
                   </Pressable>
                 )}
               </View>
@@ -127,7 +140,7 @@ export default function EventSchedule() {
             onPress={() => setPersonal(prev => !prev)}
             style={scheduleStyles.navButton}
           >
-            <Text style={{ fontSize: 16, color: '#1E293B' }}>
+            <Text style={styles.personalToggle}>
               {personal ? 'All' : 'Personal'}
             </Text>
           </Pressable>
@@ -143,16 +156,16 @@ export default function EventSchedule() {
         )}
 
         {loading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={styles.centered}>
             <ActivityIndicator size="large" color={Colors.DEFAULT_BUTTON_COLOR} />
           </View>
         ) : sessions.length === 0 ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ color: '#64748B' }}>No sessions available</Text>
+          <View style={styles.centered}>
+            <Text style={styles.emptyText}>No sessions available</Text>
           </View>
         ) : activeDateSessions.length === 0 ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ color: '#64748B' }}>No sessions match the selected tag</Text>
+          <View style={styles.centered}>
+            <Text style={styles.emptyText}>No sessions match the selected tag</Text>
           </View>
         ) : (
           <ScheduleTimeline
@@ -168,3 +181,36 @@ export default function EventSchedule() {
     </AppLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  backArrow: {
+    fontSize: 24,
+    color: '#1E293B',
+  },
+  headerCenter: {
+    alignItems: 'center',
+  },
+  dayNavRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  dayNavButton: {
+    paddingHorizontal: 10,
+  },
+  dayNavArrow: {
+    fontSize: 16,
+  },
+  personalToggle: {
+    fontSize: 16,
+    color: '#1E293B',
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: '#64748B',
+  },
+});

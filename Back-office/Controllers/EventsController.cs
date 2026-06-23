@@ -1,8 +1,9 @@
-﻿using Back_office.DTOs;
+using Back_office.DTOs;
 using Back_office.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SharedClassLibrary.DTOs.Events;
 using System.Diagnostics;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -15,7 +16,7 @@ public class EventsController : Controller
 {
     private readonly HttpClient _httpClient;
 
-    private readonly int _PageSize = 10;
+    private readonly int _pageSize = 10;
 
     /// <summary>
     /// Controller for handling events
@@ -33,7 +34,7 @@ public class EventsController : Controller
     {
         try
         {
-            string url = $"/event/my-events?page={page}&pageSize={_PageSize}";
+            string url = $"/event/my-events?page={page}&pageSize={_pageSize}";
             if (!string.IsNullOrEmpty(search))
                 url += $"&title={search}";
             HttpResponseMessage response = await _httpClient.GetAsync(url);
@@ -64,6 +65,7 @@ public class EventsController : Controller
             ViewData["CurrentSearch"] = search;
             ViewData["CurrentPage"] = page;
             ViewData["TotalPages"] = pages;
+            ViewBag.Events = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(events, "IdEvent", "Title");
             return View(events);
         }
         catch (Exception ex)
@@ -116,7 +118,7 @@ public class EventsController : Controller
     [HttpGet("images/{fileName}")]
     public async Task<IActionResult> GetImage(string fileName)
     {
-        var response = await _httpClient.GetAsync($"/event/images/{fileName}");
+        HttpResponseMessage response = await _httpClient.GetAsync($"/event/images/{fileName}");
 
         if (!response.IsSuccessStatusCode)
             return NotFound();
@@ -126,6 +128,11 @@ public class EventsController : Controller
         return File(imageBytes, mimeType);
     }
 
+    /// <summary>
+    /// Publishes the specified event, making it visible to attendees.
+    /// </summary>
+    /// <param name="eventId">The identifier of the event to publish.</param>
+    /// <returns>The HTTP status code returned by the API.</returns>
     [HttpPost]
     [Route("{eventId}/publish")]
     public async Task<IActionResult> Publish(int eventId)
@@ -133,7 +140,7 @@ public class EventsController : Controller
         try
         {
             string url = $"/event/{eventId}/publish";
-             
+
             HttpResponseMessage response = await _httpClient.PostAsync(url, null);
 
             return StatusCode((int)response.StatusCode);
@@ -144,6 +151,11 @@ public class EventsController : Controller
         }
     }
 
+    /// <summary>
+    /// Unpublishes the specified event, hiding it from attendees.
+    /// </summary>
+    /// <param name="eventId">The identifier of the event to unpublish.</param>
+    /// <returns>The HTTP status code returned by the API.</returns>
     [HttpPost]
     [Route("{eventId}/unpublish")]
     public async Task<IActionResult> Unpublish(int eventId)
@@ -165,11 +177,11 @@ public class EventsController : Controller
     /// Store method for creating a new event, with form data validation
     /// </summary>
     [HttpPost("store")]
-    public async Task<IActionResult> Store(EventCreateDto eventDTO) 
+    public async Task<IActionResult> Store(EventCreateDto eventDTO)
     {
         if (!ModelState.IsValid)
         {
-            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            foreach (ModelError error in ModelState.Values.SelectMany(v => v.Errors))
             {
                 Console.WriteLine($"Validation error: {error.ErrorMessage}");
             }
@@ -179,7 +191,7 @@ public class EventsController : Controller
         try
         {
             string url = $"/event";
-            using var content = new MultipartFormDataContent();
+            using MultipartFormDataContent content = new MultipartFormDataContent();
 
             content.Add(new StringContent(eventDTO.Title ?? ""), "Title");
             content.Add(new StringContent(eventDTO.Location ?? ""), "Location");
@@ -193,8 +205,8 @@ public class EventsController : Controller
             IFormFile? logoFile = eventDTO.LogoFile;
             if (logoFile != null)
             {
-                var fileStream = logoFile.OpenReadStream();
-                var fileContent = new StreamContent(fileStream);
+                Stream fileStream = logoFile.OpenReadStream();
+                StreamContent fileContent = new StreamContent(fileStream);
                 content.Add(fileContent, "LogoFile", logoFile.FileName);
             }
 
@@ -214,7 +226,7 @@ public class EventsController : Controller
             TempData["ToastType"] = "success";
 
             return RedirectToAction("Index");
-            
+
         }
         catch (Exception ex)
         {
@@ -231,7 +243,7 @@ public class EventsController : Controller
         if (!ModelState.IsValid)
         {
             Console.WriteLine($"Validation error: {ModelState.Values}");
-            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            foreach (ModelError error in ModelState.Values.SelectMany(v => v.Errors))
             {
                 Console.WriteLine($"Validation error: {error.ErrorMessage}");
             }
@@ -242,7 +254,7 @@ public class EventsController : Controller
         try
         {
             string url = $"/event/{eventDTO.IdEvent}";
-            using var content = new MultipartFormDataContent();
+            using MultipartFormDataContent content = new MultipartFormDataContent();
 
             content.Add(new StringContent(eventDTO.Title ?? ""), "Title");
             content.Add(new StringContent(eventDTO.RemoveLogo.ToString() ?? "false"), "RemoveLogo");
@@ -256,8 +268,8 @@ public class EventsController : Controller
             IFormFile? logoFile = eventDTO.LogoFile;
             if (logoFile != null)
             {
-                var fileStream = logoFile.OpenReadStream();
-                var fileContent = new StreamContent(fileStream);
+                Stream fileStream = logoFile.OpenReadStream();
+                StreamContent fileContent = new StreamContent(fileStream);
                 content.Add(fileContent, "LogoFile", logoFile.FileName);
             }
 

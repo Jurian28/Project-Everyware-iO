@@ -1,3 +1,4 @@
+using Back_office.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using SharedClassLibrary.Jwt;
@@ -7,7 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<EventContextFilter>();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<EventContextFilter>();
+});
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<JwtHandler>();
