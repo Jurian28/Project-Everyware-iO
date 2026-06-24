@@ -14,12 +14,12 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Login_ValidCredentials_ReturnsTokens()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthLogin");
-        var user = TestHelpers.CreateTestUser("user1", "test@test.com", "test@test.com");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthLogin");
+        User user = TestHelpers.CreateTestUser("user1", "test@test.com", "test@test.com");
         ctx.Users.Add(user);
         ctx.SaveChanges();
 
-        var userManagerMock = TestHelpers.MockUserManager();
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByEmailAsync("test@test.com"))
             .ReturnsAsync(user);
         userManagerMock.Setup(um => um.CheckPasswordAsync(user, "password123"))
@@ -27,18 +27,18 @@ public class AuthControllerTests : ControllerTestBase {
         userManagerMock.Setup(um => um.GetRolesAsync(user))
             .ReturnsAsync(new List<string>());
 
-        var controller = new AuthController(userManagerMock.Object, ctx);
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
         // Need to set environment variable for JWT secret
         Environment.SetEnvironmentVariable("JWT_SECRET_KEY", "ThisIsASecretKeyForTestingPurposesOnly1234567890!");
 
-        var result = await controller.Login(new AuthInputDto { Email = "test@test.com", Password = "password123" });
+        IActionResult? result = await controller.Login(new AuthInputDto { Email = "test@test.com", Password = "password123" });
 
-        var okResult = result as OkObjectResult;
+        OkObjectResult? okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
-        var tokenResponse = okResult.Value;
+        object? tokenResponse = okResult.Value;
         Assert.IsNotNull(tokenResponse);
 
-        var dict = tokenResponse.GetType().GetProperties()
+        Dictionary<string, object?> dict = tokenResponse.GetType().GetProperties()
             .ToDictionary(p => p.Name, p => p.GetValue(tokenResponse));
         Assert.IsNotNull(dict["AccessToken"]);
         Assert.IsNotNull(dict["RefreshToken"]);
@@ -47,13 +47,13 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Login_MissingCredentials_ReturnsBadRequest()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthLoginNoCreds");
-        var userManagerMock = TestHelpers.MockUserManager();
-        var controller = new AuthController(userManagerMock.Object, ctx);
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthLoginNoCreds");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
 
-        var result = await controller.Login(new AuthInputDto { Email = "", Password = "" });
+        IActionResult? result = await controller.Login(new AuthInputDto { Email = "", Password = "" });
 
-        var badRequest = result as BadRequestObjectResult;
+        BadRequestObjectResult? badRequest = result as BadRequestObjectResult;
         Assert.IsNotNull(badRequest);
         Assert.AreEqual(400, badRequest.StatusCode);
     }
@@ -61,16 +61,16 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Login_InvalidEmail_ReturnsUnauthorized()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthLoginBadEmail");
-        var userManagerMock = TestHelpers.MockUserManager();
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthLoginBadEmail");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByEmailAsync("none@test.com"))
             .ReturnsAsync((User?)null);
 
-        var controller = new AuthController(userManagerMock.Object, ctx);
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
 
-        var result = await controller.Login(new AuthInputDto { Email = "none@test.com", Password = "pass" });
+        IActionResult? result = await controller.Login(new AuthInputDto { Email = "none@test.com", Password = "pass" });
 
-        var unauthorized = result as UnauthorizedObjectResult;
+        UnauthorizedObjectResult? unauthorized = result as UnauthorizedObjectResult;
         Assert.IsNotNull(unauthorized);
         Assert.AreEqual(401, unauthorized.StatusCode);
     }
@@ -78,19 +78,19 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Login_WrongPassword_ReturnsUnauthorized()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthLoginWrongPwd");
-        var user = TestHelpers.CreateTestUser("user1", "test@test.com", "test@test.com");
-        var userManagerMock = TestHelpers.MockUserManager();
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthLoginWrongPwd");
+        User user = TestHelpers.CreateTestUser("user1", "test@test.com", "test@test.com");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByEmailAsync("test@test.com"))
             .ReturnsAsync(user);
         userManagerMock.Setup(um => um.CheckPasswordAsync(user, "wrong"))
             .ReturnsAsync(false);
 
-        var controller = new AuthController(userManagerMock.Object, ctx);
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
 
-        var result = await controller.Login(new AuthInputDto { Email = "test@test.com", Password = "wrong" });
+        IActionResult? result = await controller.Login(new AuthInputDto { Email = "test@test.com", Password = "wrong" });
 
-        var unauthorized = result as UnauthorizedObjectResult;
+        UnauthorizedObjectResult? unauthorized = result as UnauthorizedObjectResult;
         Assert.IsNotNull(unauthorized);
         Assert.AreEqual(401, unauthorized.StatusCode);
     }
@@ -98,8 +98,8 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Register_ValidData_ReturnsCreated()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthRegister");
-        var userManagerMock = TestHelpers.MockUserManager();
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthRegister");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByEmailAsync("new@test.com"))
             .ReturnsAsync((User?)null);
         userManagerMock.Setup(um => um.CreateAsync(It.IsAny<User>(), "password123"))
@@ -109,11 +109,11 @@ public class AuthControllerTests : ControllerTestBase {
 
         Environment.SetEnvironmentVariable("JWT_SECRET_KEY", "ThisIsASecretKeyForTestingPurposesOnly1234567890!");
 
-        var controller = new AuthController(userManagerMock.Object, ctx);
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
 
-        var result = await controller.Register(new AuthInputDto { Email = "new@test.com", Password = "password123" });
+        IActionResult? result = await controller.Register(new AuthInputDto { Email = "new@test.com", Password = "password123" });
 
-        var statusResult = result as ObjectResult;
+        ObjectResult? statusResult = result as ObjectResult;
         Assert.IsNotNull(statusResult);
         Assert.AreEqual(201, statusResult.StatusCode);
     }
@@ -121,17 +121,17 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Register_ExistingEmail_ReturnsBadRequest()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthRegisterExisting");
-        var user = TestHelpers.CreateTestUser("user1", "existing@test.com", "existing@test.com");
-        var userManagerMock = TestHelpers.MockUserManager();
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthRegisterExisting");
+        User user = TestHelpers.CreateTestUser("user1", "existing@test.com", "existing@test.com");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByEmailAsync("existing@test.com"))
             .ReturnsAsync(user);
 
-        var controller = new AuthController(userManagerMock.Object, ctx);
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
 
-        var result = await controller.Register(new AuthInputDto { Email = "existing@test.com", Password = "pass" });
+        IActionResult? result = await controller.Register(new AuthInputDto { Email = "existing@test.com", Password = "pass" });
 
-        var badRequest = result as BadRequestObjectResult;
+        BadRequestObjectResult? badRequest = result as BadRequestObjectResult;
         Assert.IsNotNull(badRequest);
         Assert.AreEqual(400, badRequest.StatusCode);
     }
@@ -139,18 +139,18 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Register_FailedCreation_ReturnsBadRequest()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthRegisterFail");
-        var userManagerMock = TestHelpers.MockUserManager();
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthRegisterFail");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByEmailAsync("fail@test.com"))
             .ReturnsAsync((User?)null);
         userManagerMock.Setup(um => um.CreateAsync(It.IsAny<User>(), "pass"))
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Password too weak" }));
 
-        var controller = new AuthController(userManagerMock.Object, ctx);
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
 
-        var result = await controller.Register(new AuthInputDto { Email = "fail@test.com", Password = "pass" });
+        IActionResult? result = await controller.Register(new AuthInputDto { Email = "fail@test.com", Password = "pass" });
 
-        var badRequest = result as BadRequestObjectResult;
+        BadRequestObjectResult? badRequest = result as BadRequestObjectResult;
         Assert.IsNotNull(badRequest);
         Assert.AreEqual(400, badRequest.StatusCode);
     }
@@ -158,13 +158,13 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Register_MissingCredentials_ReturnsBadRequest()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthRegisterNoCreds");
-        var userManagerMock = TestHelpers.MockUserManager();
-        var controller = new AuthController(userManagerMock.Object, ctx);
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthRegisterNoCreds");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
 
-        var result = await controller.Register(new AuthInputDto { Email = "", Password = "" });
+        IActionResult? result = await controller.Register(new AuthInputDto { Email = "", Password = "" });
 
-        var badRequest = result as BadRequestObjectResult;
+        BadRequestObjectResult? badRequest = result as BadRequestObjectResult;
         Assert.IsNotNull(badRequest);
         Assert.AreEqual(400, badRequest.StatusCode);
     }
@@ -172,7 +172,7 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Logout_WithValidCookie_RemovesToken()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthLogout");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthLogout");
         ctx.RefreshTokens.Add(new RefreshToken
         {
             Token = "valid-token",
@@ -181,13 +181,13 @@ public class AuthControllerTests : ControllerTestBase {
         });
         ctx.SaveChanges();
 
-        var userManagerMock = TestHelpers.MockUserManager();
-        var controller = new AuthController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("user1", "testuser");
-        var cookies = new Dictionary<string, string?> { ["RefreshToken"] = "valid-token" };
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("user1", "testuser");
+        Dictionary<string, string?> cookies = new Dictionary<string, string?> { ["RefreshToken"] = "valid-token" };
         TestHelpers.SetControllerContext(controller, principal, cookies);
 
-        var result = await controller.Logout();
+        IActionResult? result = await controller.Logout();
 
         Assert.IsInstanceOfType(result, typeof(OkResult));
         Assert.AreEqual(0, await ctx.RefreshTokens.CountAsync());
@@ -196,13 +196,13 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Logout_WithoutCookie_ReturnsOk()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthLogoutNoCookie");
-        var userManagerMock = TestHelpers.MockUserManager();
-        var controller = new AuthController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("user1", "testuser");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthLogoutNoCookie");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("user1", "testuser");
         TestHelpers.SetControllerContext(controller, principal);
 
-        var result = await controller.Logout();
+        IActionResult? result = await controller.Logout();
 
         Assert.IsInstanceOfType(result, typeof(OkResult));
     }
@@ -210,8 +210,8 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Refresh_WithValidToken_ReturnsNewTokens()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthRefresh");
-        var user = TestHelpers.CreateTestUser("user1", "test@test.com", "test@test.com");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthRefresh");
+        User user = TestHelpers.CreateTestUser("user1", "test@test.com", "test@test.com");
         ctx.Users.Add(user);
         ctx.RefreshTokens.Add(new RefreshToken
         {
@@ -221,7 +221,7 @@ public class AuthControllerTests : ControllerTestBase {
         });
         ctx.SaveChanges();
 
-        var userManagerMock = TestHelpers.MockUserManager();
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByIdAsync("user1"))
             .ReturnsAsync(user);
         userManagerMock.Setup(um => um.GetRolesAsync(user))
@@ -229,14 +229,14 @@ public class AuthControllerTests : ControllerTestBase {
 
         Environment.SetEnvironmentVariable("JWT_SECRET_KEY", "ThisIsASecretKeyForTestingPurposesOnly1234567890!");
 
-        var controller = new AuthController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("user1", "testuser");
-        var cookies = new Dictionary<string, string?> { ["RefreshToken"] = "valid-refresh-token" };
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("user1", "testuser");
+        Dictionary<string, string?> cookies = new Dictionary<string, string?> { ["RefreshToken"] = "valid-refresh-token" };
         TestHelpers.SetControllerContext(controller, principal, cookies);
 
-        var result = await controller.Refresh();
+        IActionResult? result = await controller.Refresh();
 
-        var okResult = result as OkObjectResult;
+        OkObjectResult? okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
         Assert.IsTrue(ctx.RefreshTokens.Count() == 1); // old removed, new added
     }
@@ -244,21 +244,21 @@ public class AuthControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task Refresh_WithoutCookie_ReturnsUnauthorized()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthRefreshNoCookie");
-        var userManagerMock = TestHelpers.MockUserManager();
-        var controller = new AuthController(userManagerMock.Object, ctx);
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthRefreshNoCookie");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
         TestHelpers.SetControllerContext(controller, new ClaimsPrincipal(new ClaimsIdentity()), new Dictionary<string, string?>());
 
-        var result = await controller.Refresh();
+        IActionResult? result = await controller.Refresh();
 
-        var unauthorized = result as UnauthorizedResult;
+        UnauthorizedResult? unauthorized = result as UnauthorizedResult;
         Assert.IsNotNull(unauthorized);
     }
 
     [TestMethod]
     public async Task Refresh_ExpiredToken_ReturnsUnauthorized()
     {
-        using var ctx = TestHelpers.CreateDbContext("AuthRefreshExpired");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("AuthRefreshExpired");
         ctx.RefreshTokens.Add(new RefreshToken
         {
             Token = "expired-token",
@@ -267,15 +267,15 @@ public class AuthControllerTests : ControllerTestBase {
         });
         ctx.SaveChanges();
 
-        var userManagerMock = TestHelpers.MockUserManager();
-        var controller = new AuthController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("user1", "testuser");
-        var cookies = new Dictionary<string, string?> { ["RefreshToken"] = "expired-token" };
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        AuthController controller = new AuthController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("user1", "testuser");
+        Dictionary<string, string?> cookies = new Dictionary<string, string?> { ["RefreshToken"] = "expired-token" };
         TestHelpers.SetControllerContext(controller, principal, cookies);
 
-        var result = await controller.Refresh();
+        IActionResult? result = await controller.Refresh();
 
-        var unauthorized = result as UnauthorizedResult;
+        UnauthorizedResult? unauthorized = result as UnauthorizedResult;
         Assert.IsNotNull(unauthorized);
     }
 }

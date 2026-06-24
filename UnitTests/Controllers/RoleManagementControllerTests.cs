@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DatabaseApi.Controllers;
 using DatabaseApi.Models;
 using DatabaseApi.Models.Dtos;
@@ -13,9 +14,9 @@ public class RoleManagementControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task GetOrganisers_AdminUser_ReturnsOrganisers()
     {
-        using var ctx = TestHelpers.CreateDbContext("RoleGetOrgs");
-        var userManagerMock = TestHelpers.MockUserManager();
-        var organisers = new List<User>
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleGetOrgs");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        List<User> organisers = new List<User>
         {
             TestHelpers.CreateTestUser("org1", "org1@t.com", "org1@t.com"),
             TestHelpers.CreateTestUser("org2", "org2@t.com", "org2@t.com"),
@@ -23,11 +24,11 @@ public class RoleManagementControllerTests : ControllerTestBase {
         userManagerMock.Setup(um => um.GetUsersInRoleAsync("Organiser"))
             .ReturnsAsync(organisers);
 
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
         TestHelpers.SetControllerContext(controller, principal);
 
-        var result = await controller.GetOrganisers();
+        ApiResponse<object> result = await controller.GetOrganisers();
 
         Assert.IsTrue(result.Success);
         Assert.AreEqual(2, ((IEnumerable<dynamic>)result.Data!).Count());
@@ -36,20 +37,20 @@ public class RoleManagementControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task GetSpeakers_AdminUser_ReturnsSpeakers()
     {
-        using var ctx = TestHelpers.CreateDbContext("RoleGetSpeakers");
-        var userManagerMock = TestHelpers.MockUserManager();
-        var speakers = new List<User>
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleGetSpeakers");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        List<User> speakers = new List<User>
         {
             TestHelpers.CreateTestUser("sp1", "sp1@t.com", "sp1@t.com"),
         };
         userManagerMock.Setup(um => um.GetUsersInRoleAsync("Speaker"))
             .ReturnsAsync(speakers);
 
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
         TestHelpers.SetControllerContext(controller, principal);
 
-        var result = await controller.GetSpeakers();
+        ApiResponse<object> result = await controller.GetSpeakers();
 
         Assert.IsTrue(result.Success);
         Assert.AreEqual(1, ((IEnumerable<dynamic>)result.Data!).Count());
@@ -58,24 +59,24 @@ public class RoleManagementControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task GetOrganiserRequests_ReturnsUsersWithRequests()
     {
-        using var ctx = TestHelpers.CreateDbContext("RoleGetRequests");
-        var req1 = TestHelpers.CreateTestUser("req1", "req1@t.com", "req1@t.com");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleGetRequests");
+        User req1 = TestHelpers.CreateTestUser("req1", "req1@t.com", "req1@t.com");
         req1.HasRequestedAccess = true;
-        var req2 = TestHelpers.CreateTestUser("req2", "req2@t.com", "req2@t.com");
+        User req2 = TestHelpers.CreateTestUser("req2", "req2@t.com", "req2@t.com");
         req2.HasRequestedAccess = true;
-        var noreq = TestHelpers.CreateTestUser("noreq", "noreq@t.com", "noreq@t.com");
+        User noreq = TestHelpers.CreateTestUser("noreq", "noreq@t.com", "noreq@t.com");
         ctx.Users.AddRange(req1, req2, noreq);
         ctx.SaveChanges();
 
-        var userManagerMock = TestHelpers.MockUserManager();
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.IsInRoleAsync(It.IsAny<User>(), "Organiser"))
             .ReturnsAsync(false);
 
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
         TestHelpers.SetControllerContext(controller, principal);
 
-        var result = await controller.GetOrganiserRequests();
+        ApiResponse<object> result = await controller.GetOrganiserRequests();
 
         Assert.IsTrue(result.Success);
         Assert.AreEqual(2, ((IEnumerable<dynamic>)result.Data!).Count());
@@ -84,18 +85,18 @@ public class RoleManagementControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task RequestAccess_ValidUser_ReturnsOk()
     {
-        using var ctx = TestHelpers.CreateDbContext("RoleRequestAccess");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleRequestAccess");
         ctx.Users.Add(TestHelpers.CreateTestUser("user1", "user", "u@t.com"));
         ctx.SaveChanges();
 
-        var userManagerMock = TestHelpers.MockUserManager();
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("user1", "user");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("user1", "user");
         TestHelpers.SetControllerContext(controller, principal);
 
-        var result = await controller.RequestAccess();
+        IActionResult? result = await controller.RequestAccess();
 
-        var okResult = result as OkObjectResult;
+        OkObjectResult? okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
         Assert.IsTrue((await ctx.Users.FindAsync("user1"))!.HasRequestedAccess);
     }
@@ -103,35 +104,35 @@ public class RoleManagementControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task RequestAccess_AlreadyRequested_ReturnsBadRequest()
     {
-        using var ctx = TestHelpers.CreateDbContext("RoleAlreadyRequested");
-        var user = TestHelpers.CreateTestUser("user2", "user2", "u2@t.com");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleAlreadyRequested");
+        User user = TestHelpers.CreateTestUser("user2", "user2", "u2@t.com");
         user.HasRequestedAccess = true;
         ctx.Users.Add(user);
         ctx.SaveChanges();
 
-        var userManagerMock = TestHelpers.MockUserManager();
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("user2", "user2");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("user2", "user2");
         TestHelpers.SetControllerContext(controller, principal);
 
-        var result = await controller.RequestAccess();
+        IActionResult? result = await controller.RequestAccess();
 
-        var badRequest = result as BadRequestObjectResult;
+        BadRequestObjectResult? badRequest = result as BadRequestObjectResult;
         Assert.IsNotNull(badRequest);
     }
 
     [TestMethod]
     public async Task RequestAccess_UserNotFound_ReturnsNotFound()
     {
-        using var ctx = TestHelpers.CreateDbContext("RoleRequestNotFound");
-        var userManagerMock = TestHelpers.MockUserManager();
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("nobody", "nobody");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleRequestNotFound");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("nobody", "nobody");
         TestHelpers.SetControllerContext(controller, principal);
 
-        var result = await controller.RequestAccess();
+        IActionResult? result = await controller.RequestAccess();
 
-        var notFound = result as ObjectResult;
+        ObjectResult? notFound = result as ObjectResult;
         Assert.IsNotNull(notFound);
         Assert.AreEqual(404, notFound.StatusCode);
     }
@@ -139,22 +140,22 @@ public class RoleManagementControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task HasRequestedAccess_UserWithRequest_ReturnsTrue()
     {
-        using var ctx = TestHelpers.CreateDbContext("RoleHasRequested");
-        var user = TestHelpers.CreateTestUser("user3", "user3", "u3@t.com");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleHasRequested");
+        User user = TestHelpers.CreateTestUser("user3", "user3", "u3@t.com");
         user.HasRequestedAccess = true;
         ctx.Users.Add(user);
         ctx.SaveChanges();
 
-        var userManagerMock = TestHelpers.MockUserManager();
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("user3", "user3");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("user3", "user3");
         TestHelpers.SetControllerContext(controller, principal);
 
-        var result = await controller.HasRequestedAccess();
+        IActionResult? result = await controller.HasRequestedAccess();
 
-        var okResult = result as OkObjectResult;
+        OkObjectResult? okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
-        var response = okResult.Value as ApiResponse<bool>;
+        ApiResponse<bool>? response = okResult.Value as ApiResponse<bool>;
         Assert.IsNotNull(response);
         Assert.IsTrue(response.Data);
     }
@@ -162,23 +163,23 @@ public class RoleManagementControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task RemoveRequest_SpecificUser_RemovesRequest()
     {
-        using var ctx = TestHelpers.CreateDbContext("RoleRemoveReq");
-        var user = TestHelpers.CreateTestUser("user4", "user4", "u4@t.com");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleRemoveReq");
+        User user = TestHelpers.CreateTestUser("user4", "user4", "u4@t.com");
         user.HasRequestedAccess = true;
         ctx.Users.Add(user);
         ctx.SaveChanges();
 
-        var userManagerMock = TestHelpers.MockUserManager();
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByIdAsync("user4"))
             .ReturnsAsync(user);
 
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
         TestHelpers.SetControllerContext(controller, principal);
 
-        var result = await controller.RemoveRequest("user4");
+        IActionResult? result = await controller.RemoveRequest("user4");
 
-        var okResult = result as OkObjectResult;
+        OkObjectResult? okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
         Assert.IsFalse((await ctx.Users.FindAsync("user4"))!.HasRequestedAccess);
     }
@@ -186,8 +187,8 @@ public class RoleManagementControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task InstateRole_ValidUser_ReturnsOk()
     {
-        var user = TestHelpers.CreateTestUser("user5", "user5", "u5@t.com");
-        var userManagerMock = TestHelpers.MockUserManager();
+        User user = TestHelpers.CreateTestUser("user5", "user5", "u5@t.com");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByIdAsync("user5"))
             .ReturnsAsync(user);
         userManagerMock.Setup(um => um.IsInRoleAsync(user, "Organiser"))
@@ -195,40 +196,40 @@ public class RoleManagementControllerTests : ControllerTestBase {
         userManagerMock.Setup(um => um.AddToRoleAsync(user, "Organiser"))
             .ReturnsAsync(IdentityResult.Success);
 
-        using var ctx = TestHelpers.CreateDbContext("RoleInstate");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleInstate");
         ctx.Users.Add(user);
         ctx.SaveChanges();
 
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
         TestHelpers.SetControllerContext(controller, principal);
-        var dto = new RoleAssignmentDto { Role = "Organiser" };
+        RoleAssignmentDto dto = new RoleAssignmentDto { Role = "Organiser" };
 
-        var result = await controller.InstateRole("user5", dto);
+        IActionResult? result = await controller.InstateRole("user5", dto);
 
-        var okResult = result as OkObjectResult;
+        OkObjectResult? okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
     }
 
     [TestMethod]
     public async Task InstateRole_AlreadyHasRole_ReturnsBadRequest()
     {
-        var user = TestHelpers.CreateTestUser("user6", "user6", "u6@t.com");
-        var userManagerMock = TestHelpers.MockUserManager();
+        User user = TestHelpers.CreateTestUser("user6", "user6", "u6@t.com");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByIdAsync("user6"))
             .ReturnsAsync(user);
         userManagerMock.Setup(um => um.IsInRoleAsync(user, "Organiser"))
             .ReturnsAsync(true);
 
-        using var ctx = TestHelpers.CreateDbContext("RoleInstateExisting");
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleInstateExisting");
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
         TestHelpers.SetControllerContext(controller, principal);
-        var dto = new RoleAssignmentDto { Role = "Organiser" };
+        RoleAssignmentDto dto = new RoleAssignmentDto { Role = "Organiser" };
 
-        var result = await controller.InstateRole("user6", dto);
+        IActionResult? result = await controller.InstateRole("user6", dto);
 
-        var badRequest = result as ObjectResult;
+        ObjectResult? badRequest = result as ObjectResult;
         Assert.IsNotNull(badRequest);
         Assert.AreEqual(400, badRequest.StatusCode);
     }
@@ -236,8 +237,8 @@ public class RoleManagementControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task RevokeRole_ValidUser_ReturnsOk()
     {
-        var user = TestHelpers.CreateTestUser("user7", "user7", "u7@t.com");
-        var userManagerMock = TestHelpers.MockUserManager();
+        User user = TestHelpers.CreateTestUser("user7", "user7", "u7@t.com");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByIdAsync("user7"))
             .ReturnsAsync(user);
         userManagerMock.Setup(um => um.IsInRoleAsync(user, "Organiser"))
@@ -245,56 +246,56 @@ public class RoleManagementControllerTests : ControllerTestBase {
         userManagerMock.Setup(um => um.RemoveFromRoleAsync(user, "Organiser"))
             .ReturnsAsync(IdentityResult.Success);
 
-        using var ctx = TestHelpers.CreateDbContext("RoleRevoke");
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleRevoke");
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
         TestHelpers.SetControllerContext(controller, principal);
-        var dto = new RoleAssignmentDto { Role = "Organiser" };
+        RoleAssignmentDto dto = new RoleAssignmentDto { Role = "Organiser" };
 
-        var result = await controller.RevokeRole("user7", dto);
+        IActionResult? result = await controller.RevokeRole("user7", dto);
 
-        var okResult = result as OkObjectResult;
+        OkObjectResult? okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
     }
 
     [TestMethod]
     public async Task RevokeRole_UserNotInRole_ReturnsBadRequest()
     {
-        var user = TestHelpers.CreateTestUser("user8", "user8", "u8@t.com");
-        var userManagerMock = TestHelpers.MockUserManager();
+        User user = TestHelpers.CreateTestUser("user8", "user8", "u8@t.com");
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByIdAsync("user8"))
             .ReturnsAsync(user);
         userManagerMock.Setup(um => um.IsInRoleAsync(user, "Organiser"))
             .ReturnsAsync(false);
 
-        using var ctx = TestHelpers.CreateDbContext("RoleRevokeNotInRole");
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleRevokeNotInRole");
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
         TestHelpers.SetControllerContext(controller, principal);
-        var dto = new RoleAssignmentDto { Role = "Organiser" };
+        RoleAssignmentDto dto = new RoleAssignmentDto { Role = "Organiser" };
 
-        var result = await controller.RevokeRole("user8", dto);
+        IActionResult? result = await controller.RevokeRole("user8", dto);
 
-        var badRequest = result as BadRequestObjectResult;
+        BadRequestObjectResult? badRequest = result as BadRequestObjectResult;
         Assert.IsNotNull(badRequest);
     }
 
     [TestMethod]
     public async Task InstateRole_UserNotFound_ReturnsNotFound()
     {
-        var userManagerMock = TestHelpers.MockUserManager();
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByIdAsync("nobody"))
             .ReturnsAsync((User?)null);
 
-        using var ctx = TestHelpers.CreateDbContext("RoleInstateNF");
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleInstateNF");
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
         TestHelpers.SetControllerContext(controller, principal);
-        var dto = new RoleAssignmentDto { Role = "Organiser" };
+        RoleAssignmentDto dto = new RoleAssignmentDto { Role = "Organiser" };
 
-        var result = await controller.InstateRole("nobody", dto);
+        IActionResult? result = await controller.InstateRole("nobody", dto);
 
-        var notFound = result as ObjectResult;
+        ObjectResult? notFound = result as ObjectResult;
         Assert.IsNotNull(notFound);
         Assert.AreEqual(404, notFound.StatusCode);
     }
@@ -302,19 +303,19 @@ public class RoleManagementControllerTests : ControllerTestBase {
     [TestMethod]
     public async Task RevokeRole_UserNotFound_ReturnsNotFound()
     {
-        var userManagerMock = TestHelpers.MockUserManager();
+        Mock<UserManager<User>> userManagerMock = TestHelpers.MockUserManager();
         userManagerMock.Setup(um => um.FindByIdAsync("nobody"))
             .ReturnsAsync((User?)null);
 
-        using var ctx = TestHelpers.CreateDbContext("RoleRevokeNF");
-        var controller = new RoleManagementController(userManagerMock.Object, ctx);
-        var principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
+        using ApplicationDbContext ctx = TestHelpers.CreateDbContext("RoleRevokeNF");
+        RoleManagementController controller = new RoleManagementController(userManagerMock.Object, ctx);
+        ClaimsPrincipal principal = TestHelpers.CreateClaimsPrincipal("admin1", "admin", "Admin");
         TestHelpers.SetControllerContext(controller, principal);
-        var dto = new RoleAssignmentDto { Role = "Organiser" };
+        RoleAssignmentDto dto = new RoleAssignmentDto { Role = "Organiser" };
 
-        var result = await controller.RevokeRole("nobody", dto);
+        IActionResult? result = await controller.RevokeRole("nobody", dto);
 
-        var notFound = result as ObjectResult;
+        ObjectResult? notFound = result as ObjectResult;
         Assert.IsNotNull(notFound);
         Assert.AreEqual(404, notFound.StatusCode);
     }

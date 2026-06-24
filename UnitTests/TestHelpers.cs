@@ -14,7 +14,7 @@ public static class TestHelpers
 {
     public static ApplicationDbContext CreateDbContext(string? dbName = null)
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+        DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(databaseName: dbName ?? Guid.NewGuid().ToString())
             .Options;
         return new ApplicationDbContext(options);
@@ -32,21 +32,21 @@ public static class TestHelpers
 
     public static ClaimsPrincipal CreateClaimsPrincipal(string userId, string userName, params string[] roles)
     {
-        var claims = new List<Claim>
+        List<Claim> claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, userId),
             new(ClaimTypes.Name, userName),
         };
-        foreach (var role in roles)
+        foreach (string role in roles)
             claims.Add(new Claim(ClaimTypes.Role, role));
 
-        var identity = new ClaimsIdentity(claims, "TestAuth");
+        ClaimsIdentity identity = new ClaimsIdentity(claims, "TestAuth");
         return new ClaimsPrincipal(identity);
     }
 
     public static void SetControllerContext(Microsoft.AspNetCore.Mvc.Controller controller, ClaimsPrincipal user, Dictionary<string, string?>? cookies = null)
     {
-        var httpContext = new DefaultHttpContext { User = user };
+        DefaultHttpContext httpContext = new DefaultHttpContext { User = user };
         if (cookies != null)
             httpContext.Request.Cookies = new MockRequestCookieCollection(cookies);
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
@@ -54,7 +54,7 @@ public static class TestHelpers
 
     public static void SetControllerContext(ControllerBase controller, ClaimsPrincipal user)
     {
-        var httpContext = new DefaultHttpContext { User = user };
+        DefaultHttpContext httpContext = new DefaultHttpContext { User = user };
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
     }
 
@@ -86,7 +86,7 @@ public class MockRequestCookieCollection : IRequestCookieCollection
             .ToDictionary(kv => kv.Key, kv => kv.Value!);
     }
 
-    public string? this[string key] => _cookies.TryGetValue(key, out var val) ? val : null;
+    public string? this[string key] => _cookies.TryGetValue(key, out string? val) ? val : null;
 
     public int Count => _cookies.Count;
 
